@@ -6,24 +6,31 @@ Three sites in one repository: the group site and its subsidiaries.
 |---|---|---|
 | Viverst Global Limited | viverst.com | `apps/main` |
 | Viverst Agro | agro.viverst.com | `apps/agro` |
-| Viverst Studio | studio.viverst.com | not yet built |
+| Viverst Studio | studio.viverst.com | `apps/studio` |
+
+Each is a separate Vercel project pointing at its own folder in this repo.
 
 ## Run it
 
 ```bash
-npm install        # once, at the root — workspaces link everything
+npm install          # once, at the root — workspaces link everything
 
-npm run dev:main   # http://localhost:5173
-npm run dev:agro   # http://localhost:5174
+npm run dev:main     # http://localhost:5173
+npm run dev:agro     # http://localhost:5174
+npm run dev:studio   # http://localhost:5175
 ```
 
 ## Check it
 
+Run all four before pushing. `base.css` and `packages/ui` are shared, so a
+change meant for one site can reach the other two.
+
 ```bash
 npm run lint                      # oxlint across the workspace
-node verify.mjs                   # 29 regression checks
-npm run test -w @viverst/main     # routes, interactions, accessibility
-npm run test -w @viverst/agro
+node verify.mjs                   # 56 regression checks
+npm run test -w @viverst/main     # 13 routes, interactions, accessibility
+npm run test -w @viverst/agro     #  6 routes
+npm run test -w @viverst/studio   #  7 routes
 ```
 
 ## Build it
@@ -31,9 +38,10 @@ npm run test -w @viverst/agro
 ```bash
 npm run build -w @viverst/main
 npm run build -w @viverst/agro
+npm run build -w @viverst/studio
 
 # one self-contained file for review, no server needed
-npm run build:singlefile -w @viverst/agro
+npm run build:singlefile -w @viverst/studio
 ```
 
 ## Where things live
@@ -42,5 +50,15 @@ npm run build:singlefile -w @viverst/agro
 - `packages/ui` — shared components, no motion library
 - `apps/*/src/data` — all copy for that site, in one file
 
-**Read `HANDOVER.md` before changing anything.** It records the brand rules,
-the decisions already settled, and the bugs the audit exists to prevent.
+## Before changing anything
+
+**Read `HANDOVER.md`.** It records the brand rules, the decisions already
+settled, and the bug behind every check in `verify.mjs`.
+
+Two things that catch people out:
+
+- `verify.mjs` reports the number of checks, not a pass rate. If it says
+  fewer than 56 total, you are running an older copy.
+- Studio's Work and Careers pages carry sample records flagged `sample: true`
+  in `apps/studio/src/data/studio.js`, and show a notice on screen saying so.
+  Remove the flag as real work ships; the notice disappears by itself.
