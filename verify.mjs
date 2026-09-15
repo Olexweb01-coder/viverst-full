@@ -9,6 +9,11 @@ const walk = (dir, out = []) => {
     if (['node_modules', 'dist', 'test-dist', '.git'].includes(e.name)) continue
     const f = path.join(dir, e.name)
     if (e.isDirectory()) walk(f, out)
+    // Record with forward slashes whatever the platform. path.join yields
+    // backslashes on Windows, and every filter below matches on 'apps/x/src'.
+    // Unnormalised, the per-app checks find no files: two of them fail outright
+    // and the rest pass vacuously, because an empty list satisfies any "does
+    // not contain" test. The audit then reports green while testing nothing.
     else out.push(f.split(path.sep).join('/'))
   }
   return out
@@ -167,6 +172,14 @@ ok('studio does not reach into another app',
         .some(([, c]) => /apps\/(main|agro)/.test(c)))
 ok('all three apps are separate Vercel projects on one repo',
    APPS.every((a) => fs.existsSync(`apps/${a}/vercel.json`)))
+
+/* ── the page must stop at the footer. Browsers rubber-band past the end and
+      reveal the canvas; with no background on html, body's colour propagated
+      there and showed as a white band under the footer on iOS. ── */
+ok('the overscroll area matches the footer rather than showing white',
+   /html \{[^}]*background:\s*var\(--footer-bg\)/s.test(base))
+ok('scrolling behaviour itself is left alone, so pull-to-refresh still works',
+   !/overscroll-behavior/.test(base))
 
 /* ── report ── */
 const failed = checks.filter((c) => !c.pass)

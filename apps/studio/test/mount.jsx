@@ -22,9 +22,27 @@ window.addEventListener('error', (e) => problems.push(`window error: ${e.message
 window.addEventListener('unhandledrejection', (e) => problems.push(`rejection: ${e.reason}`))
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
-const navigate = (p) => {
+
+/* Navigate and then wait for the route to actually render, rather than giving
+   it a fixed number of milliseconds. A lazy chunk on a loaded machine can take
+   longer than any constant we pick, and a test that fails for being impatient
+   is worse than no test: it teaches you to ignore red. Polls up to 6s, then
+   gives the effects a moment to settle.
+
+   The condition has to be unique to the destination. A selector that also
+   exists on the page being left passes instantly and measures the old page. */
+const h1Has = (text) => () =>
+  (document.querySelector('h1')?.textContent ?? '').includes(text)
+
+const navigate = async (p, ready) => {
   window.history.pushState({}, '', p)
   window.dispatchEvent(new PopStateEvent('popstate'))
+  const done = ready ?? (() => document.querySelector('h1'))
+  for (let i = 0; i < 120; i++) {
+    await wait(50)
+    if (done()) break
+  }
+  await wait(180)
 }
 
 const run = async () => {
@@ -36,8 +54,7 @@ const run = async () => {
   const rows = []
 
   for (const path of ROUTES) {
-    navigate(path)
-    await wait(1100)
+    await navigate(path)
 
     const text = host.textContent || ''
     const h1s = [...host.querySelectorAll('h1')].map((h) => h.textContent.trim())
@@ -80,8 +97,7 @@ const run = async () => {
   }
 
   /* ---- the mark is the hero: real geometry, looping, eight strokes ---- */
-  navigate('/')
-  await wait(1100)
+  await navigate('/', h1Has('Seen, understood'))
   const rays = document.querySelectorAll('.mark-ray').length
   const blob = document.querySelector('.mark-blob')
   const star = document.querySelector('.mark-star')
@@ -182,15 +198,13 @@ const run = async () => {
   }
 
   /* ---- services: all eight areas, all six deliverables ---- */
-  navigate('/services')
-  await wait(1100)
+  await navigate('/services', h1Has('Eight areas'))
   const areas = document.querySelectorAll('.area').length
   if (areas !== FOCUS_AREAS.length) problems.push(`services page lists ${areas} areas, expected ${FOCUS_AREAS.length}`)
   rows.push({ path: '(services)', chars: areas, links: document.querySelectorAll('.gets .get').length, h1: 'areas / deliverables' })
 
   /* ---- work: every project rendered, and samples labelled on screen ---- */
-  navigate('/work')
-  await wait(1100)
+  await navigate('/work', h1Has('The work'))
   const workCards = document.querySelectorAll('.gets .get').length
   const emptyWork = document.querySelector('.empty-state')
   const sampleCount = PROJECTS.filter((p) => p.sample).length
@@ -205,8 +219,7 @@ const run = async () => {
   rows.push({ path: '(work)', chars: workCards, links: covers, h1: `samples=${sampleCount} labelled=${!!workNotice}` })
 
   /* ---- careers: empty state + form that starts disabled ---- */
-  navigate('/careers')
-  await wait(1100)
+  await navigate('/careers', h1Has('Build the studio'))
   const emptyRoles = document.querySelector('.empty-roles')
   const roleCards = document.querySelectorAll('.role').length
   const roleNotice = document.querySelector('.sample-note')
@@ -222,8 +235,7 @@ const run = async () => {
   rows.push({ path: '(careers)', chars: careerFields, links: 0, h1: `emptyState=${!!emptyRoles} disabled=${!!careerSubmit?.disabled}` })
 
   /* ---- contact: topics select, submit starts disabled ---- */
-  navigate('/contact')
-  await wait(1100)
+  await navigate('/contact', h1Has('Tell us what'))
   const topics = document.querySelectorAll('.topic').length
   const contactSubmit = document.querySelector('.apply-submit')
   if (topics !== CONTACT_TOPICS.length) problems.push(`contact has ${topics} topics, data has ${CONTACT_TOPICS.length}`)
@@ -236,8 +248,7 @@ const run = async () => {
   rows.push({ path: '(contact)', chars: topics, links: 0, h1: 'topic selection works' })
 
   /* ---- the statement is one sentence, word-split for the fill ---- */
-  navigate('/')
-  await wait(1100)
+  await navigate('/', h1Has('Seen, understood'))
   const stmt = document.querySelector('.statement')
   if (stmt && stmt.textContent.replace(/\s+/g, ' ').trim() !== STATEMENT) {
     problems.push('the statement no longer reads as its own sentence after the word split')

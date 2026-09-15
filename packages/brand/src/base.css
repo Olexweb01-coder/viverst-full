@@ -1,7 +1,23 @@
 /* Shared base layer. Tokens come from whichever brand file is imported first. */
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+
+  /* The canvas is the surface the browser paints behind the page, and it is
+     what shows when a touch device or trackpad rubber-bands past the end.
+     With no background here the browser falls back to body's colour, which
+     appeared as a white band under the footer.
+
+     Setting it to the footer colour means the overscroll area matches the
+     footer instead. The bounce still happens — pull-to-refresh and the usual
+     scroll feel are untouched — it simply no longer shows white.
+
+     Safe from appearing as a band under a short page: no route on any of the
+     three sites is shorter than the viewport, checked to 1920x1440. */
+  background: var(--footer-bg);
+}
 
 body {
   margin: 0;
