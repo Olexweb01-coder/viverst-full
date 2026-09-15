@@ -1,0 +1,10 @@
+{
+  "name": "@viverst/ui",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": { ".": "./src/index.js" },
+  "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0", "react-router-dom": "^7.0.0" },
+  "dependencies": { "lucide-react": "^0.544.0" }
+}

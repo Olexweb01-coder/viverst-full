@@ -1,0 +1,194 @@
+/* ============================================================
+   AMBIENT MOTION
+   Nothing on this site sits still. Every loop below uses a
+   different duration so elements never fall into sync and start
+   pulsing as a block.
+   ============================================================ */
+
+@keyframes amb-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, var(--float-y, -9px), 0); }
+}
+.float {
+  animation: amb-float var(--float-dur, 7s) ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+  will-change: transform;
+}
+
+@keyframes amb-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(var(--breathe, 1.05)); }
+}
+.breathe {
+  animation: amb-breathe var(--breathe-dur, 6s) ease-in-out infinite;
+  animation-delay: var(--breathe-delay, 0s);
+}
+
+@keyframes amb-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(var(--drift-x, 6%), var(--drift-y, -8%), 0) scale(1.12); }
+}
+.drift {
+  animation: amb-drift var(--drift-dur, 19s) ease-in-out infinite alternate;
+  animation-delay: var(--drift-delay, 0s);
+}
+
+@keyframes amb-spin { to { transform: rotate(360deg); } }
+.spin-slow { animation: amb-spin var(--spin-dur, 46s) linear infinite; }
+
+@keyframes amb-pulse-ring {
+  0%        { transform: scale(0.62); opacity: 0.75; }
+  70%, 100% { transform: scale(1.9); opacity: 0; }
+}
+
+@keyframes amb-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes amb-sheen {
+  0%        { transform: translateX(-130%) skewX(-18deg); }
+  55%, 100% { transform: translateX(230%) skewX(-18deg); }
+}
+
+/* A light sweep that crosses a card every few seconds. */
+.sheen-host { position: relative; overflow: hidden; }
+.sheen-host::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 42%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.62), transparent);
+  animation: amb-sheen var(--sheen-dur, 9s) ease-in-out infinite;
+  animation-delay: var(--sheen-delay, 0s);
+}
+
+/* Small live dot used to mark anything that is currently operating. */
+.livedot { position: relative; width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+.livedot::after {
+  content: "";
+  position: absolute; inset: -5px;
+  border-radius: 50%;
+  border: 1px solid var(--red);
+  animation: amb-pulse-ring 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Icon plate that lifts and tips when its card is hovered. */
+.icon-plate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  flex-shrink: 0;
+  color: var(--ink-headline);
+  background: rgba(4, 100, 222, 0.1);
+  transition: transform var(--dur) var(--ease), background var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+.icon-plate svg { transition: transform var(--dur) var(--ease); }
+.card:hover .icon-plate,
+.tiltable:hover .icon-plate { transform: translateY(-3px) rotate(-7deg); background: rgba(4, 100, 222, 0.18); }
+.card:hover .icon-plate svg { transform: scale(1.1); }
+
+/* 3D hover tilt, driven from JS via custom properties. */
+.tiltable {
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateZ(0);
+  transition: transform 0.35s var(--ease), box-shadow var(--dur) var(--ease);
+  transform-style: preserve-3d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float, .breathe, .drift, .spin-slow,
+  .sheen-host::after, .livedot::after { animation: none !important; }
+  .tiltable { transform: none !important; }
+}
+
+/* ============================================================
+   SCROLL-IN
+   The class is toggled by IntersectionObserver; the browser
+   animates it on the compositor.
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translate3d(var(--rv-x, 0), var(--rv-y, 20px), 0);
+  transition: opacity .7s var(--ease) var(--rv-delay, 0s),
+              transform .7s var(--ease) var(--rv-delay, 0s);
+  will-change: opacity, transform;
+}
+.reveal.is-in { opacity: 1; transform: translate3d(0, 0, 0); will-change: auto; }
+
+.parallax { transform: translate3d(0, var(--px-y, 0), 0); will-change: transform; }
+
+.scroll-progress {
+  position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 200;
+  transform: scaleX(0); transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--brand), var(--glow));
+}
+
+.magnetic { display: inline-flex; transition: transform .5s var(--ease); }
+
+/* ── marquee ── */
+.marquee {
+  position: relative; overflow: hidden; padding-block: 6px;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track { display: flex; width: max-content; animation: marquee-scroll var(--marquee-dur, 42s) linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-row { display: flex; align-items: center; flex-shrink: 0; }
+.marquee-item {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 10px 19px; margin-inline: 6px;
+  border-radius: 100px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink);
+  font-family: var(--font-display); font-size: 14.5px; font-weight: 600;
+  white-space: nowrap; box-shadow: var(--shadow-sm);
+  animation: marquee-bob 5.4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.42s);
+  transition: border-color .25s ease, box-shadow .4s var(--ease);
+}
+.marquee-item:hover { border-color: var(--brand); box-shadow: var(--shadow-md); }
+.marquee-icon { color: var(--brand); flex-shrink: 0; }
+.marquee-bullet {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--brand), var(--glow));
+}
+@keyframes marquee-scroll { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+@keyframes marquee-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.marquee--static { mask-image: none; -webkit-mask-image: none; overflow: visible; }
+.marquee--static .marquee-row { flex-wrap: wrap; gap: 8px; }
+.marquee--static .marquee-item { margin: 0; animation: none; }
+
+/* ── long-form content ── */
+.prose p { font-size: 17px; line-height: 1.78; color: var(--ink-2); margin-bottom: 20px; }
+.prose h2 { font-size: clamp(20px, 2.2vw, 26px); margin: 32px 0 14px; }
+.prose ul { list-style: none; margin: 0 0 22px; padding: 0; }
+.prose li {
+  position: relative; padding: 12px 16px 12px 40px; margin-bottom: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface); border: 1px solid var(--line);
+  font-size: 15.5px; line-height: 1.6; color: var(--ink-2);
+  animation: amb-float 6.4s ease-in-out infinite;
+  animation-delay: calc(var(--j) * -0.7s);
+  --float-y: -4px;
+}
+.prose li::before {
+  content: ""; position: absolute; left: 17px; top: 21px;
+  width: 8px; height: 8px; border-radius: 3px;
+  background: linear-gradient(135deg, var(--brand), var(--glow));
+}
+.prose blockquote {
+  margin: 26px 0; padding: 22px 26px;
+  border-left: 3px solid var(--brand);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: color-mix(in srgb, var(--brand) 7%, var(--surface));
+}
+.prose blockquote p { margin: 0; font-size: 18px; font-weight: 500; line-height: 1.6; color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .parallax { transform: none; }
+  .marquee-item, .prose li { animation: none; }
+}

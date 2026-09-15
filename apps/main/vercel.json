@@ -1,0 +1,30 @@
+{
+  "redirects": [
+    {
+      "source": "/agro",
+      "destination": "https://agro.viverst.com",
+      "permanent": true
+    },
+    {
+      "source": "/agro/:path*",
+      "destination": "https://agro.viverst.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/studio",
+      "destination": "https://studio.viverst.com",
+      "permanent": true
+    },
+    {
+      "source": "/studio/:path*",
+      "destination": "https://studio.viverst.com/:path*",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

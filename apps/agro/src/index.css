@@ -1,0 +1,121 @@
+/* Viverst Agro — app styles. Tokens, base layer and motion come from
+   @viverst/brand. Only what is specific to this site lives here. */
+
+/* Roboto Flex is one variable file doing two jobs: wide and heavy for display,
+   normal width at a reading weight for body. */
+h1, h2, h3, h4 { font-variation-settings: "opsz" 60, "SOFT" 42, "WONK" 1; }
+body { font-variation-settings: "wdth" 100, "opsz" 14; }
+
+.page-hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: calc(var(--nav-h) + 58px) 40px;
+}
+.page-hero-inner { position: relative; z-index: 2; }
+.page-hero h1 { max-width: 17ch; }
+
+.page-title { max-width: 22ch; margin-bottom: 28px; }
+.page-title--center { max-width: 24ch; margin-inline: auto; text-align: center; }
+
+/* A field of drifting light, kept well under the type. */
+.field-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(70px);
+}
+.field-glow--a {
+  width: 44%; aspect-ratio: 1; right: -8%; top: -30%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(var(--agro-rgb), 0.42), transparent 70%);
+  --drift-x: -6%; --drift-y: 10%; --drift-dur: 23s;
+}
+.field-glow--b {
+  width: 34%; aspect-ratio: 1; left: -10%; bottom: -34%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 201, 38, 0.34), transparent 70%);
+  --drift-x: 8%; --drift-y: -9%; --drift-dur: 29s;
+}
+
+/* Rows of hexagons drifting slowly behind a section. */
+.hex-field {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5;
+  background-image: radial-gradient(color-mix(in srgb, var(--ink) 8%, transparent) 1.4px, transparent 1.4px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(70% 70% at 50% 40%, #000, transparent 78%);
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 40%, #000, transparent 78%);
+  animation: hex-drift 34s linear infinite;
+}
+@keyframes hex-drift { to { background-position: 34px 34px; } }
+
+.icon-plate { color: var(--ink); background: color-mix(in srgb, var(--brand-soft) 26%, transparent); }
+.card:hover .icon-plate,
+.tiltable:hover .icon-plate { background: color-mix(in srgb, var(--brand-soft) 44%, transparent); }
+
+.eyebrow { color: var(--ink); }
+.eyebrow::before { background: var(--brand-soft); opacity: 1; height: 2px; }
+
+/* buttons: yellow with deep-green labels — white on #ffc926 is 1.5:1 */
+.btn--primary { box-shadow: 0 10px 24px -10px rgba(255, 201, 38, 0.9); }
+.btn--ghost { background: transparent; }
+
+@media (max-width: 1000px) { .page-hero { padding-block: calc(var(--nav-h) + 34px) 30px; } }
+@media (prefers-reduced-motion: reduce) { .hex-field { animation: none; } }
+
+/* ── page heads ────────────────────────────────────────────
+   The headline runs the full measure rather than sitting in a narrow column
+   with dead space beside it. The supporting line sits beneath it, offset, so
+   the block reads across the page instead of down one edge. */
+.page-hero h1 {
+  max-width: 100%;
+  font-size: clamp(36px, 7vw, 92px);
+  line-height: 0.98;
+  letter-spacing: -0.038em;
+  font-variation-settings: "opsz" 120, "SOFT" 34, "WONK" 1;
+  text-wrap: balance;
+}
+.page-title { text-wrap: balance; }
+
+@media (min-width: 900px) {
+  .page-hero-inner { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; }
+  .page-hero-inner > .eyebrow { grid-column: 1 / -1; }
+  .page-hero-inner > h1 { grid-column: 1 / -1; }
+  .page-hero-inner > .lede {
+    grid-column: 7 / -1;
+    max-width: none;
+    margin-top: 26px;
+    padding-left: 22px;
+    border-left: 2px solid var(--brand-soft);
+    font-size: 17px;
+  }
+}
+
+/* ── figures band ──────────────────────────────────────── */
+.figures {
+  background: var(--ink);
+  color: #fefefe;
+  padding-block: clamp(26px, 4vw, 42px);
+}
+.figures-inner {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.figure {
+  display: flex; align-items: baseline; gap: 14px;
+  padding-left: 20px;
+  border-left: 2px solid color-mix(in srgb, var(--brand-soft) 70%, transparent);
+}
+.figure-n {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 5vw, 58px); font-weight: 800;
+  font-variation-settings: "opsz" 120, "SOFT" 20, "WONK" 0;
+  line-height: 1; letter-spacing: -0.035em;
+  color: var(--accent);
+}
+.figure-l {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(254, 254, 254, 0.82); line-height: 1.35;
+}
+@media (max-width: 700px) {
+  .figures-inner { grid-template-columns: 1fr; gap: 14px; }
+}

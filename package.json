@@ -1,0 +1,18 @@
+{
+  "name": "viverst",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev:main": "npm run dev -w @viverst/main",
+    "dev:agro": "npm run dev -w @viverst/agro",
+    "dev:studio": "npm run dev -w @viverst/studio",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "oxlint",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "oxlint": "^1.14.0"
+  }
+}

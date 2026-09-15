@@ -1,0 +1,41 @@
+/* Viverst Agro — guideline set 3 · Roboto Flex
+   One variable file covers display and body via its width and weight axes. */
+@import "@fontsource-variable/roboto-flex";
+/* Fraunces carries the headlines. Roboto Flex is a fine workhorse but it has
+   no voice at display size; Fraunces has optical-size and softness axes that
+   let it warm up as it grows. */
+@import "@fontsource-variable/fraunces";
+
+:root {
+  --bg:            #fefefe;   /* every page except the footer */
+  --bg-alt:        #f3e8cc;   /* cream — alternating sections */
+  --surface:       #fefefe;
+
+  --ink:           #18542a;   /* PRIMARY — headlines and body. 8.9:1 */
+  --ink-2:         #18542a;
+  --brand:         #18542a;
+  /* SUPPORTING — 2.18:1 on the background, so graphics only: underlines,
+     icon plates, gradients, large display numerals. Never small text. */
+  --brand-soft:    #9abc05;
+  --glow:          #9abc05;
+
+  --accent:        #ffc926;   /* SECONDARY — buttons */
+  --accent-deep:   #f96015;
+  /* white on #ffc926 is 1.54:1; deep green is 5.83:1 */
+  --on-accent:     #18542a;
+  --alert:         #d52518;   /* 5.07:1 as text, and takes white at 5.11:1 */
+
+  --footer-bg:     #18542a;
+  --footer-ink:    #f3e8cc;   /* 7.36:1 on the footer */
+  --deep:          #18542a;
+
+  --line:          rgba(24, 84, 42, 0.14);
+  --line-strong:   rgba(24, 84, 42, 0.26);
+
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-body:    "Roboto Flex Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:    "Roboto Flex Variable", ui-monospace, monospace;
+
+  --display-wght: 800;
+  --radius-lg: 22px; --radius-md: 14px; --radius-sm: 8px;
+}

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Primary SEO. Per-route titles are set inside each page via React 19's
+         native <title> hoisting — no helmet library needed. -->
+    <title>Viverst Global Limited | Diversified Corporate Group</title>
+    <meta
+      name="description"
+      content="Viverst Global Limited is the parent company behind Viverst Agro and Viverst Studio, providing the vision, governance and shared resources each one needs to lead its own market."
+    />
+    <meta name="keywords" content="Viverst, Viverst Global, Viverst Agro, Viverst Studio, diversified holding company, corporate group Nigeria, agricultural technology, creative design agency" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Viverst Global Limited" />
+    <link rel="canonical" href="https://www.viverst.com/" />
+
+    <!-- Open Graph. NOTE: og-image.png should be a purpose-made 1200x630 file.
+         Pointing this at a square favicon makes link previews render a tiny
+         cropped icon. See README. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Viverst Global Limited" />
+    <meta property="og:title" content="Viverst Global Limited | Diversified Corporate Group" />
+    <meta property="og:description" content="The parent company behind Viverst Agro and Viverst Studio." />
+    <meta property="og:image" content="https://www.viverst.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://www.viverst.com/" />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Viverst Global Limited | Diversified Corporate Group" />
+    <meta name="twitter:description" content="The parent company behind Viverst Agro and Viverst Studio." />
+    <meta name="twitter:image" content="https://www.viverst.com/og-image.png" />
+
+    <meta name="theme-color" content="#f5faff" />
+    <meta property="og:image:alt" content="Viverst Global Limited — we don't run a business, we build the companies that do." />
+    <meta name="format-detection" content="telephone=no" />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+  <!-- Structured data. Lives in the static HTML on purpose: this is a
+         client-rendered SPA, so this is the one machine-readable thing a
+         crawler sees without executing JavaScript. -->
+    <script type="application/ld+json">
+{
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.viverst.com/#organization",
+          "name": "Viverst Global Limited",
+          "alternateName": "Viverst",
+          "url": "https://www.viverst.com/",
+          "logo": "https://www.viverst.com/logo.png",
+          "image": "https://www.viverst.com/og-image.png",
+          "email": "hello@viverst.com",
+          "description": "Diversified holding company providing vision, governance and shared resources to businesses across strategic industries.",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Lagos",
+            "addressCountry": "NG"
+          },
+          "subOrganization": [
+            {
+              "@type": "Organization",
+              "name": "Viverst Agro",
+              "url": "https://www.viverst.com/agro",
+              "description": "Agricultural technology, agro processing, packaging and B2B agricultural services."
+            },
+            {
+              "@type": "Organization",
+              "name": "Viverst Studio",
+              "url": "https://www.viverst.com/studio",
+              "description": "Branding, graphic design, print design, 3D design and creative strategy."
+            }
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.viverst.com/#website",
+          "url": "https://www.viverst.com/",
+          "name": "Viverst Global Limited",
+          "publisher": {
+            "@id": "https://www.viverst.com/#organization"
+          }
+        }
+      ]
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

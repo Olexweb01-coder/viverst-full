@@ -1,0 +1,5 @@
+/agro          https://agro.viverst.com    301!
+/agro/*        https://agro.viverst.com/:splat  301!
+/studio        https://studio.viverst.com  301!
+/studio/*      https://studio.viverst.com/:splat  301!
+/*             /index.html                 200

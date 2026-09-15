@@ -1,0 +1,117 @@
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: calc(var(--nav-h) + 34px) clamp(18px, 5vw, 64px) 84px;
+  isolation: isolate;
+}
+
+/* ── the photograph ── */
+.hero-bg { position: absolute; inset: 0; z-index: 0; }
+.hero-layer { position: absolute; inset: 0; will-change: transform, opacity; }
+.hero-layer img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Load-bearing. Nothing sits behind the type, so this is what keeps it
+   readable: 0.84 puts white at 5.8:1 over the palest frame in the set and
+   better over every other one. */
+.hero-scrim {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to bottom,
+      rgba(14, 52, 27, 0.86) 0%,
+      rgba(16, 58, 30, 0.84) 42%,
+      rgba(12, 46, 24, 0.90) 100%);
+}
+
+.hero-inner {
+  position: relative; z-index: 2;
+  width: min(100%, 1080px);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-bottom: clamp(18px, 2.6vw, 30px);
+  font-family: var(--font-mono);
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--brand-soft);
+}
+.hero-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+  animation: amb-breathe 2.6s ease-in-out infinite; --breathe: 1.5;
+}
+
+/* ── the headline ──────────────────────────────────
+   Fraunces at a large optical size, softened. Lines are stepped across the
+   centre so the block reads as a composition, not a stack. */
+.hero-title {
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(2px, 0.3vw, 6px);
+  margin-bottom: clamp(22px, 2.8vw, 32px);
+  font-family: var(--font-display);
+}
+.hero-line {
+  display: block;
+  transform: translateX(var(--shift, 0));
+  font-size: clamp(32px, 5.1vw, 68px);
+  line-height: 1.06;
+  letter-spacing: -0.022em;
+  font-weight: 600;
+  font-variation-settings: "opsz" 110, "SOFT" 46, "WONK" 1;
+  color: #fefefe;
+  white-space: nowrap;
+  /* a soft shadow, not a box — buys another point of separation on the
+     brightest frames without putting anything visible behind the words */
+  text-shadow: 0 2px 26px rgba(8, 32, 16, 0.55);
+}
+.hero-word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: 0.12em; }
+.hero-word > span { display: inline-block; }
+
+.hero-lede {
+  max-width: 58ch;
+  margin: 0 auto clamp(26px, 3.2vw, 36px);
+  font-size: clamp(16px, 1.65vw, 21px);
+  line-height: 1.58;
+  color: rgba(254, 254, 254, 0.92);
+  text-shadow: 0 1px 16px rgba(8, 32, 16, 0.5);
+}
+
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.btn--onGlass {
+  background: rgba(254, 254, 254, 0.14);
+  border-color: rgba(254, 254, 254, 0.55);
+  color: #fefefe;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.btn--onGlass:hover { background: rgba(254, 254, 254, 0.26); border-color: #fefefe; }
+
+.hero-now {
+  position: absolute; z-index: 2;
+  left: 50%; bottom: clamp(20px, 3.2vw, 32px); transform: translateX(-50%);
+  display: inline-flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  justify-content: center; max-width: min(92vw, 720px); text-align: center;
+}
+.hero-now-label {
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand-soft);
+}
+.hero-now-text { font-size: 13.5px; color: rgba(254, 254, 254, 0.86); }
+
+@media (max-width: 860px) {
+  .hero { min-height: 92svh; padding-bottom: 72px; }
+  .hero-line {
+    font-size: clamp(28px, 7.6vw, 44px);
+    white-space: normal;
+    transform: none;
+  }
+  .hero-now-text { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-dot { animation: none; }
+  .hero-layer { transform: none !important; }
+}

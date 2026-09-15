@@ -1,0 +1,325 @@
+/* ============================================================
+   VIVERST GLOBAL LIMITED — design tokens
+   Palette and typography per the developer guideline.
+   ============================================================ */
+
+:root {
+  /* Parent — guideline set 1 */
+  --bg-1: #f5faff;
+  --bg-2: #8cff89;
+  --ink-headline: #0464de;
+  --ink-strong: #06065d;
+  --ink-soft: #a2dae0;
+  --red: #ed0101;
+  --red-deep: #a70107;
+
+  /* Derived: the actual body-copy colour. Not in the guideline swatches,
+     but --ink-soft is 1.5:1 on white and cannot be used for text. */
+  --ink-muted: #5b6b86;
+
+  /* Viverst Agro — guideline set 3 */
+  --agro-deep: #18542a;
+  --agro-bright: #9abc05;
+  --agro-accent: #ffc926;
+  --agro-warm: #f96015;
+  --agro-paper: #f3e8cc;
+  --agro-rgb: 154, 188, 5;
+
+  /* Viverst Studio — guideline set 2 */
+  --studio-deep: #411d77;
+  --studio-bright: #8338ec;
+  --studio-accent: #fb5607;
+  --studio-paper: #e9ecef;
+  --studio-rgb: 131, 56, 236;
+
+  /* Surfaces */
+  --surface: #ffffff;
+  --line: rgba(6, 6, 93, 0.1);
+  --line-strong: rgba(6, 6, 93, 0.18);
+  --shadow-sm: 0 2px 14px rgba(6, 6, 93, 0.05);
+  --shadow-md: 0 6px 24px rgba(6, 6, 93, 0.08);
+  --shadow-lg: 0 18px 44px rgba(6, 6, 93, 0.14);
+
+  /* Type */
+  --font: "Bricolage Grotesque", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-agro: "Roboto Flex", var(--font);
+  --font-studio: "Poppins", var(--font);
+
+  /* Rhythm */
+  --nav-h: 78px;
+  --container: 1200px;
+  --gutter: 28px;
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 10px;
+  --section-y: 72px;
+
+  /* Motion — one easing curve for the whole site */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 0.25s;
+  --dur: 0.4s;
+  --dur-slow: 0.7s;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-1);
+  color: var(--ink-strong);
+  font-family: var(--font);
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 18;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+img {
+  max-width: 100%;
+  display: block;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink-headline);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Skip link — keyboard users shouldn't have to tab the whole nav */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 999;
+  padding: 12px 20px;
+  background: var(--ink-strong);
+  color: #fff;
+  border-radius: 0 0 var(--radius-sm) 0;
+  font-weight: 600;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* ============================================================
+   Layout primitives
+   ============================================================ */
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  /* logical property on purpose: `padding: 0 x` would reset the vertical
+     padding of any component that also uses .container */
+  padding-inline: var(--gutter);
+}
+
+.section {
+  position: relative;
+  padding: var(--section-y) 0;
+}
+.section--tight {
+  padding: calc(var(--section-y) * 0.55) 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-headline);
+  margin: 0 0 14px;
+}
+.eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-weight: 700;
+}
+h1 {
+  font-size: clamp(36px, 4.7vw, 62px);
+}
+h2 {
+  font-size: clamp(29px, 3.5vw, 46px);
+}
+h3 {
+  font-size: clamp(19px, 1.7vw, 23px);
+  line-height: 1.25;
+}
+
+.lede {
+  font-size: clamp(15.5px, 1.4vw, 18px);
+  line-height: 1.66;
+  color: var(--ink-muted);
+  margin: 16px 0 0;
+  max-width: 48ch;
+}
+
+/* ============================================================
+   Buttons — lift and shadow on hover, never a colour-only change
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 28px;
+  border-radius: 100px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-strong);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--dur) var(--ease), border-color var(--dur-fast) ease,
+    box-shadow var(--dur) var(--ease), background var(--dur-fast) ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--ink-headline);
+  box-shadow: var(--shadow-md);
+}
+.btn:active {
+  transform: translateY(0);
+}
+.btn svg {
+  transition: transform var(--dur) var(--ease);
+}
+.btn:hover svg {
+  transform: translateX(3px);
+}
+
+.btn--primary {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff8f8;
+  box-shadow: 0 10px 26px rgba(237, 1, 1, 0.22);
+}
+.btn--primary:hover {
+  background: var(--red-deep);
+  border-color: var(--red-deep);
+  box-shadow: 0 16px 34px rgba(167, 1, 7, 0.3);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--line-strong);
+}
+
+/* ============================================================
+   Cards
+   ============================================================ */
+
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+    border-color var(--dur-fast) ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--line-strong);
+}
+.card h3 {
+  margin: 0 0 10px;
+}
+.card p {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 15.5px;
+  line-height: 1.68;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+.grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.grid--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .grid--3,
+  .grid--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  .grid--2,
+  .grid--3,
+  .grid--4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1000px) {
+  :root {
+    --nav-h: 66px;
+    --section-y: 52px;
+    --gutter: 22px;
+  }
+}
+
+/* ============================================================
+   Reduced motion — every animated surface stands down
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ambient motion utilities live in @viverst/brand/motion.css */

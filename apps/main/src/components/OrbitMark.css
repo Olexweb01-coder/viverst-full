@@ -1,0 +1,168 @@
+.orbit {
+  position: relative;
+  width: min(100%, clamp(340px, 42vw, 540px));
+  aspect-ratio: 1 / 0.86;
+  perspective: 1400px;
+  /* lifted a touch above dead centre so it reads level with a tall headline */
+  margin-top: -22px;
+}
+
+.orbit-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.orbit-wires--back { z-index: 1; }
+.orbit-wires--front { z-index: 4; }
+
+.orbit-path {
+  fill: none;
+  stroke: rgba(6, 6, 93, 0.14);
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+  stroke-linecap: round;
+}
+
+.orbit-halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 78%;
+  aspect-ratio: 1;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(4, 100, 222, 0.13), transparent 70%);
+  filter: blur(20px);
+}
+
+/* ---- the mark ---- */
+.orbit-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 54%;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.orbit-mark.is-dragging { cursor: grabbing; }
+.orbit-mark:focus-visible { outline: 2px solid var(--ink-headline); outline-offset: 14px; border-radius: 12px; }
+
+.orbit-spin {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx)) rotateY(var(--ry)) scale(var(--sc));
+}
+
+/* Two faces: a real reverse side, so a full drag-spin shows the back of the
+   object correctly mirrored instead of collapsing to nothing at 90 degrees. */
+.orbit-face {
+  display: block;
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  filter: drop-shadow(0 30px 44px rgba(6, 6, 93, 0.2)) drop-shadow(0 0 60px rgba(4, 100, 222, 0.15));
+}
+.orbit-face--back { position: absolute; inset: 0; transform: rotateY(180deg); }
+
+/* specular band, clipped to the mark's own silhouette */
+.orbit-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg, transparent 36%, rgba(255, 255, 255, 0.9) 47%,
+    rgba(255, 255, 255, 0.2) 53%, transparent 62%
+  );
+  background-size: 280% 100%;
+  -webkit-mask: var(--vmask) center / contain no-repeat;
+  mask: var(--vmask) center / contain no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+  animation: orbit-sweep 6.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+@keyframes orbit-sweep {
+  0% { background-position: 175% 0; }
+  58%, 100% { background-position: -75% 0; }
+}
+
+/* ---- the orbiting subsidiaries ---- */
+.orbit-sat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px 8px 10px;
+  border-radius: 100px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 3px 14px rgba(6, 6, 93, 0.09);
+  white-space: nowrap;
+  will-change: transform;
+  transition: box-shadow var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+.orbit-sat:hover,
+.orbit-sat:focus-visible {
+  box-shadow: 0 10px 26px rgba(6, 6, 93, 0.16);
+  border-color: var(--sat-ink);
+}
+.orbit-sat:focus-visible { outline: 2px solid var(--ink-headline); outline-offset: 4px; }
+
+.orbit-sat-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; background: var(--sat-swatch); }
+.orbit-sat-name { font-size: 13.5px; font-weight: 600; color: var(--sat-ink); font-family: var(--sat-font); }
+.orbit-sat-arrow { color: var(--sat-ink); opacity: 0.5; flex-shrink: 0; transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease; }
+.orbit-sat:hover .orbit-sat-arrow,
+.orbit-sat:focus-visible .orbit-sat-arrow { opacity: 1; transform: translate(1px, -1px); }
+
+/* the descriptor is a desktop-hover detail — forcing it open on mobile is what
+   pushes the chip past the edge of the screen */
+.orbit-sat-sub {
+  max-width: 0;
+  overflow: hidden;
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-family: var(--mono);
+  transition: max-width 0.45s var(--ease), margin 0.45s var(--ease);
+}
+.orbit-sat:hover .orbit-sat-sub,
+.orbit-sat:focus-visible .orbit-sat-sub { max-width: 210px; margin-right: 2px; }
+
+.orbit-sat--agro {
+  --sat-ink: var(--agro-deep);
+  --sat-swatch: linear-gradient(135deg, var(--agro-deep), var(--agro-bright));
+  --sat-font: var(--font-agro);
+}
+.orbit-sat--studio {
+  --sat-ink: var(--studio-deep);
+  --sat-swatch: linear-gradient(135deg, var(--studio-deep), var(--studio-bright));
+  --sat-font: var(--font-studio);
+}
+
+@media (max-width: 1000px) {
+  .orbit { width: 100%; max-width: none; aspect-ratio: 1 / 0.62; margin-top: 0; }
+  .orbit-mark { width: 42%; }
+  .orbit-halo { width: 64%; }
+  .orbit-sat { padding: 7px 11px 7px 9px; gap: 6px; }
+  .orbit-sat-name { font-size: 12.5px; }
+  .orbit-sat-sub { display: none; }
+}
+@media (max-width: 400px) {
+  .orbit { aspect-ratio: 1 / 0.6; }
+  .orbit-mark { width: 40%; }
+  .orbit-sat-name { font-size: 11.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-sheen { animation: none; opacity: 0.3; background-position: 42% 0; }
+}

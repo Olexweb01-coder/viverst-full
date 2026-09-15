@@ -1,0 +1,8 @@
+{
+  "ignorePatterns": ["**/node_modules/**", "**/dist/**", "**/test-dist/**"],
+  "plugins": ["react", "oxc"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}

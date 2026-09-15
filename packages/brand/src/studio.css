@@ -1,0 +1,37 @@
+/* Viverst Studio — guideline set 2 · Poppins
+   Weights are loaded individually so nothing unused ships. */
+@import "@fontsource/poppins/latin-400.css";
+@import "@fontsource/poppins/latin-500.css";
+@import "@fontsource/poppins/latin-600.css";
+@import "@fontsource/poppins/latin-700.css";
+
+:root {
+  --bg:            #e9ecef;   /* every page except the footer */
+  --bg-alt:        #ffffff;   /* raised surfaces only */
+  --surface:       #ffffff;
+
+  --ink:           #8338ec;   /* PRIMARY — headlines, links, emphasis. 4.73:1 */
+  --ink-2:         #411d77;   /* SUPPORTING — body copy, deep panels. 10.62:1 */
+  --brand:         #8338ec;
+  --brand-soft:    #411d77;
+  --glow:          #8338ec;
+
+  --accent:        #fb5607;   /* SECONDARY — buttons, icons */
+  --accent-deep:   #d44705;
+  /* white on #fb5607 is 3.26:1 and fails; near-black is 4.73:1 and passes */
+  --on-accent:     #212529;
+
+  --footer-bg:     #212529;   /* DISTANT */
+  --footer-ink:    rgba(233, 236, 239, 0.76);
+  --deep:          #212529;
+
+  --line:          rgba(65, 29, 119, 0.14);
+  --line-strong:   rgba(65, 29, 119, 0.26);
+
+  --font-display: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --font-body:    "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:    "Poppins", "Helvetica Neue", Arial, sans-serif;
+
+  --display-wght: 700;
+  --radius-lg: 26px; --radius-md: 16px; --radius-sm: 9px;
+}
