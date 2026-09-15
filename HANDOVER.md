@@ -14,7 +14,7 @@ Lagos, Nigeria, built as one repository that deploys as three independent sites.
 |---|---|---|
 | Viverst Global Limited | `viverst.com` | **Built** |
 | Viverst Agro | `agro.viverst.com` | **Built** |
-| Viverst Studio | `studio.viverst.com` | **Not started** — next task |
+| Viverst Studio | `studio.viverst.com` | **Built** |
 | Admin backend | — | Later, after Studio |
 
 ---
