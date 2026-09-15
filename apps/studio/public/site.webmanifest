@@ -1,0 +1,12 @@
+{
+  "name": "Viverst Studio",
+  "short_name": "Viverst Studio",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#e9ecef",
+  "theme_color": "#8338ec",
+  "icons": [
+    { "src": "/favicon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
