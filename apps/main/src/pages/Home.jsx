@@ -3,7 +3,7 @@ import { Float, Icon, Magnetic, Tilt } from '@viverst/ui'
 import { Link } from 'react-router-dom'
 import BrandLink from '../components/BrandLink.jsx'
 import { motion } from 'framer-motion'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 import Seo from '../components/Seo.jsx'
 import Reveal from '../components/Reveal.jsx'
@@ -125,15 +125,15 @@ export default function Home() {
       <section className="section section--tight">
         <div className="container">
           <Reveal>
-            <p className="eyebrow">The portfolio</p>
-            <h2 className="section-title">Two companies. Nine units. One name.</h2>
+            <p className="eyebrow">Our businesses</p>
+            <h2 className="section-title">One name. Separate markets.</h2>
           </Reveal>
 
           <div className="grid grid--2">
             {SUBSIDIARIES.map((s, i) => (
               <Reveal key={s.key} delay={i * 0.1}>
                 <Float delay={i * 1.6} duration={9 + i} distance={-7}>
-                  <BrandLink to={s.path} external={s.external} className={`company-card company-card--${s.key}`}
+                  <BrandLink to="/businesses" external={false} className={`company-card company-card--${s.key}`}
                     style={{
                       '--c-deep': s.theme.deep, '--c-bright': s.theme.bright,
                       '--c-accent': s.theme.accent, '--c-paper': s.theme.paper,
@@ -148,7 +148,7 @@ export default function Home() {
                       <span className="company-swatch breathe" aria-hidden="true"
                             style={{ '--breathe-dur': `${5.5 + i}s`, '--breathe': 1.09 }} />
                       <h3>{s.name}</h3>
-                      <ArrowUpRight className="company-arrow" size={20} aria-hidden="true" />
+                      <ArrowRight className="company-arrow" size={20} aria-hidden="true" />
                     </div>
 
                     <p className="company-tagline">{s.tagline}</p>

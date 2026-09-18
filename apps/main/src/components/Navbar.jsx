@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import BrandLink from './BrandLink.jsx'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import { NAV_LINKS, SUBSIDIARIES } from '../data/site.js'
+import { NAV_LINKS } from '../data/site.js'
 import logo from '@brand-assets/main/logo.webp'
 import logoLight from '@brand-assets/main/logo-light.webp'
 import './Navbar.css'
@@ -95,15 +94,6 @@ export default function Navbar() {
                   </NavLink>
                 </motion.div>
               ))}
-              <div className="nav-drawer-brands">
-                {SUBSIDIARIES.map((s) => (
-                  <BrandLink key={s.key} to={s.path} external={s.external} onClick={close}
-                        className={`nav-brand-pill nav-brand-pill--${s.key}`}>
-                    <span className="nav-brand-dot" aria-hidden="true" />
-                    <span>{s.name}</span>
-                  </BrandLink>
-                ))}
-              </div>
             </div>
           </motion.div>
         )}

@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Float, Tilt } from '@viverst/ui'
+import { Link } from 'react-router-dom'
+import { Tilt } from '@viverst/ui'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mail, MapPin, Send, Check } from 'lucide-react'
+import { Mail, MapPin, Send, Check, Building2 } from 'lucide-react'
 
 import Seo from '../components/Seo.jsx'
 import Reveal from '../components/Reveal.jsx'
 import WaveField from '../components/WaveField.jsx'
-import { COMPANY, SUBSIDIARIES } from '../data/site.js'
+import { COMPANY } from '../data/site.js'
 import './Pages.css'
 
 const TOPICS = ['Partnership', 'Investment', 'Viverst Agro', 'Viverst Studio', 'Something else']
@@ -68,20 +69,13 @@ export default function Contact() {
               <span className="contact-value">{COMPANY.city}, {COMPANY.country}</span>
             </div>
 
-            <div className="contact-brands">
-              {SUBSIDIARIES.map((s) => (
-                <Float key={s.key} delay={0.6} duration={7.5} distance={-6}>
-                <div className="contact-brand"
-                     style={{ '--c-deep': s.theme.deep, '--c-bright': s.theme.bright, '--c-font': s.theme.font }}>
-                  <span className="contact-brand-dot breathe" aria-hidden="true" />
-                  <div>
-                    <strong>{s.name}</strong>
-                    <span>{s.blurb}</span>
-                  </div>
-                </div>
-                </Float>
-              ))}
-            </div>
+            <Tilt as="div" className="contact-card contact-card--link" max={5}>
+            <Link className="contact-card-a" to="/businesses">
+              <span className="contact-icon"><Building2 size={18} aria-hidden="true" /></span>
+              <span className="contact-label">Our businesses</span>
+              <span className="contact-value">Explore what each company does</span>
+            </Link>
+            </Tilt>
           </Reveal>
 
           <Reveal delay={0.1} className="contact-formwrap">

@@ -14,7 +14,7 @@ import Home from './pages/Home.jsx'
 // ships the smallest possible bundle.
 const About     = lazy(() => import('./pages/About.jsx'))
 const Contact   = lazy(() => import('./pages/Contact.jsx'))
-const Subsidiary= lazy(() => import('./pages/Subsidiary.jsx'))
+const Businesses= lazy(() => import('./pages/Businesses.jsx'))
 const Blog      = lazy(() => import('./pages/Blog.jsx'))
 const BlogPost  = lazy(() => import('./pages/BlogPost.jsx'))
 const Events    = lazy(() => import('./pages/Events.jsx'))
@@ -35,13 +35,12 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/"          element={<PageShell><Home /></PageShell>} />
         <Route path="/about"     element={<PageShell><About /></PageShell>} />
+        <Route path="/businesses" element={<PageShell><Businesses /></PageShell>} />
         <Route path="/contact"   element={<PageShell><Contact /></PageShell>} />
         <Route path="/blog"          element={<PageShell><Blog /></PageShell>} />
         <Route path="/blog/:slug"    element={<PageShell><BlogPost /></PageShell>} />
         <Route path="/events"        element={<PageShell><Events /></PageShell>} />
         <Route path="/events/:slug"  element={<PageShell><EventDetail /></PageShell>} />
-        <Route path="/agro"      element={<PageShell><Subsidiary brandKey="agro" /></PageShell>} />
-        <Route path="/studio"    element={<PageShell><Subsidiary brandKey="studio" /></PageShell>} />
         {/* Catch-all: without this, a typo'd URL renders a blank page. */}
         <Route path="*"          element={<PageShell><NotFound /></PageShell>} />
       </Routes>
@@ -56,7 +55,7 @@ export default function App() {
     const warm = () => {
       import('./pages/About.jsx')
       import('./pages/Contact.jsx')
-      import('./pages/Subsidiary.jsx')
+      import('./pages/Businesses.jsx')
       import('./pages/Blog.jsx')
       import('./pages/Events.jsx')
       import('./pages/NotFound.jsx')

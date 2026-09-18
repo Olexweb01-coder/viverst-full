@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 
 import Seo from '../components/Seo.jsx'
 import WaveField from '../components/WaveField.jsx'
-import { NAV_LINKS, SUBSIDIARIES } from '../data/site.js'
+import { NAV_LINKS } from '../data/site.js'
 import './Pages.css'
 
 export default function NotFound() {
@@ -37,7 +37,7 @@ export default function NotFound() {
         <motion.div className="notfound-links"
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}>
-          {[...NAV_LINKS, ...SUBSIDIARIES.map((s) => ({ to: s.path, label: s.name }))].map((l) => (
+          {NAV_LINKS.map((l) => (
             <Link key={l.to} className="notfound-chip" to={l.to}>{l.label}</Link>
           ))}
         </motion.div>

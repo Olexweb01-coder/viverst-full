@@ -159,5 +159,6 @@ export const NAV_LINKS = [
   { to: "/about", label: "About" },
   { to: "/blog", label: "Journal" },
   { to: "/events", label: "Events" },
+  { to: "/businesses", label: "Our Businesses" },
   { to: "/contact", label: "Contact" },
 ];

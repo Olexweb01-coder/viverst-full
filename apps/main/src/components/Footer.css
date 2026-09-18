@@ -60,17 +60,3 @@ a.footer-contact:hover { color: #fff; transform: translateX(3px); }
 @media (max-width: 460px) { .footer-cols { grid-template-columns: 1fr; } }
 
 /* subsidiary shortcuts, each in its own colour */
-.footer-brands { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 18px; }
-.footer-brand {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 9px 15px; border-radius: 100px;
-  background: rgba(245, 250, 255, 0.07);
-  border: 1px solid rgba(245, 250, 255, 0.14);
-  font-family: var(--fb-font); font-size: 13px; font-weight: 600; color: #fff;
-  transition: transform var(--dur) var(--ease), background var(--dur-fast) ease;
-}
-.footer-brand:hover { transform: translateY(-2px); background: rgba(245, 250, 255, 0.14); }
-.footer-brand-dot {
-  width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; background: var(--fb-dot);
-  animation: amb-breathe 5s ease-in-out infinite;
-}

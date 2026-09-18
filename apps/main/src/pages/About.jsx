@@ -95,7 +95,7 @@ export default function About() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.15 + i * 0.12, ease: [0.16, 1, 0.3, 1] }}>
                     <Float delay={i * 1.4} duration={9 + i} distance={-6}>
-                      <BrandLink to={s.path} external={s.external} className="tree-node">
+                      <BrandLink to="/businesses" external={false} className="tree-node">
                         <span className="tree-tag">Subsidiary</span>
                         <strong>{s.name}</strong>
                         <ul>

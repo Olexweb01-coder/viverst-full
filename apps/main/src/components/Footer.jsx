@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Float } from '@viverst/ui'
-import BrandLink from './BrandLink.jsx'
 import { motion } from 'framer-motion'
-import { Mail, MapPin, ArrowUpRight } from 'lucide-react'
-import { COMPANY, NAV_LINKS, SUBSIDIARIES } from '../data/site.js'
+import { Mail, MapPin } from 'lucide-react'
+import { COMPANY, NAV_LINKS } from '../data/site.js'
 import logoLight from '@brand-assets/main/logo-light.webp'
 import './Footer.css'
 
@@ -34,22 +33,6 @@ export default function Footer() {
               {NAV_LINKS.map((l) => (
                 <Link key={l.to} to={l.to} className="footer-link">{l.label}</Link>
               ))}
-            </div>
-            <div className="footer-col">
-              <h4>Our companies</h4>
-              <div className="footer-brands">
-                {SUBSIDIARIES.map((s) => (
-                  <BrandLink key={s.key} to={s.path} external={s.external} className="footer-brand"
-                    style={{
-                      '--fb-font': s.theme.font,
-                      '--fb-dot': `linear-gradient(135deg, ${s.theme.deep}, ${s.theme.bright})`,
-                    }}>
-                    <span className="footer-brand-dot" aria-hidden="true" />
-                    {s.name}
-                    <ArrowUpRight size={13} aria-hidden="true" />
-                  </BrandLink>
-                ))}
-              </div>
             </div>
           </div>
         </div>

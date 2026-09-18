@@ -46,37 +46,6 @@
 }
 
 .nav-right { display: flex; align-items: center; gap: 14px; margin-left: auto; }
-.nav-divider { width: 1px; height: 26px; background: var(--line-strong); }
-
-.nav-brands {
-  display: flex; gap: 8px; padding: 5px;
-  border-radius: 100px;
-  background: rgba(6, 6, 93, 0.04);
-  border: 1px solid var(--line);
-}
-.nav-brand-pill {
-  display: flex; align-items: center; gap: 7px;
-  padding: 8px 14px; border-radius: 100px;
-  font-size: 13.5px; font-weight: 600;
-  color: var(--pill-ink); background: var(--pill-bg);
-  font-family: var(--pill-font);
-  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-}
-.nav-brand-pill:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(6, 6, 93, 0.12); }
-.nav-brand-dot { width: 8px; height: 8px; border-radius: 3px; background: var(--pill-dot); flex-shrink: 0; }
-
-.nav-brand-pill--agro {
-  --pill-ink: var(--agro-deep);
-  --pill-bg: rgba(154, 188, 5, 0.24);
-  --pill-dot: linear-gradient(135deg, var(--agro-deep), var(--agro-bright));
-  --pill-font: var(--font-agro);
-}
-.nav-brand-pill--studio {
-  --pill-ink: var(--studio-deep);
-  --pill-bg: rgba(131, 56, 236, 0.13);
-  --pill-dot: linear-gradient(135deg, var(--studio-deep), var(--studio-bright));
-  --pill-font: var(--font-studio);
-}
 
 .nav-toggle {
   display: none;
@@ -106,14 +75,11 @@
   transition: color var(--dur-fast) ease, padding-left var(--dur) var(--ease);
 }
 .nav-drawer-link:hover, .nav-drawer-link.is-active { color: var(--ink-headline); padding-left: 10px; }
-.nav-drawer-brands { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 
 @media (max-width: 1080px) {
   .nav-links { display: none; }
   .nav-toggle { display: flex; }
-  .nav-divider { display: none; }
   .nav-logo-img { height: 26px; }
-  .nav-brands { display: none; }
 }
 
 /* ── over the dark hero ──────────────────────────────
@@ -124,5 +90,4 @@
 .nav--onDark .nav-link:hover { color: #f5faff; }
 .nav--onDark .nav-link.is-active { color: #f5faff; }
 .nav--onDark .nav-pill { background: rgba(245, 250, 255, 0.16); }
-.nav--onDark .nav-divider { background: rgba(245, 250, 255, 0.28); }
 .nav--onDark .nav-toggle { color: #f5faff; border-color: rgba(245, 250, 255, 0.34); }

@@ -50,8 +50,17 @@ ok('ScrollToTop jumps instantly rather than smooth-scrolling',
 const siteData = read('apps/main/src/data/site.js')
 ok('main points at agro.viverst.com', siteData.includes('https://agro.viverst.com'))
 ok('main points at studio.viverst.com', siteData.includes('https://studio.viverst.com'))
-ok('main 301s /agro and /studio', read('apps/main/vercel.json').includes('agro.viverst.com')
+/* With the internal subsidiary pages gone, these redirects are the only thing
+   serving viverst.com/agro and viverst.com/studio. Remove them and those URLs
+   404 for anyone typing them by hand or following an old link. */
+const mainVercel = read('apps/main/vercel.json')
+ok('main 301s /agro and /studio', mainVercel.includes('agro.viverst.com')
    && read('apps/main/public/_redirects').includes('301'))
+ok('main 301s the paths beneath them too',
+   mainVercel.includes('/agro/:path*') && mainVercel.includes('/studio/:path*'))
+ok('the businesses page links straight out, not back through viverst.com',
+   read('apps/main/src/pages/Businesses.jsx').includes('s.path')
+   && !read('apps/main/src/pages/Businesses.jsx').includes('to="/agro"'))
 ok('external brand links render as anchors, not router links',
    read('apps/main/src/components/BrandLink.jsx').includes('<a href={to}'))
 

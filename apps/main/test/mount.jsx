@@ -3,7 +3,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
-import { HERO_FRAMES, HERO_LINES } from '../src/data/site.js'
+import { HERO_FRAMES, HERO_LINES, SUBSIDIARIES } from '../src/data/site.js'
 
 /* Each route states the heading it expects. A flat wait proves nothing: if the
    page has not swapped yet the walk measures the one it just left, and the
@@ -16,8 +16,7 @@ const ROUTES = [
   ['/events', 'Come and see the work'],
   ['/events/agro-field-day-2026', 'Field Day'],
   ['/contact', 'gap'],
-  ['/agro', 'Viverst Agro'],
-  ['/studio', 'Viverst Studio'],
+  ['/businesses', 'Each company runs its own market'],
   ['/definitely-not-a-page', 'part of the group'],
   ['/blog/no-such-post', 'part of the group'],
   ['/events/no-such-event', 'part of the group'],
@@ -144,6 +143,29 @@ const run = async () => {
   for (let i = 0; i < 10; i++) pointer('pointermove', window, 200 + i * 40, 260 + i * 12)
   window.dispatchEvent(new window.Event('resize'))
   await wait(160)
+
+  /* ---- the businesses page is the one stop out to each company ---- */
+  navigate('/businesses')
+  for (let i = 0; i < 120; i++) {
+    await wait(50)
+    if (document.querySelector('.biz-card')) break
+  }
+  await wait(220)
+  const bizCards = document.querySelectorAll('.biz-card').length
+  if (bizCards !== SUBSIDIARIES.length) {
+    problems.push(`businesses page shows ${bizCards} companies, data has ${SUBSIDIARIES.length}`)
+  }
+  // each company must link straight to its own site, not back through viverst.com
+  for (const s of SUBSIDIARIES) {
+    if (!host.querySelector(`a[href="${s.path}"]`)) {
+      problems.push(`businesses page has no link to ${s.path}`)
+    }
+  }
+  const unitCount = document.querySelectorAll('.biz-units li').length
+  const expectedUnits = SUBSIDIARIES.reduce((n, s) => n + s.units.length, 0)
+  if (unitCount !== expectedUnits) problems.push(`${unitCount} units listed, data has ${expectedUnits}`)
+  results.push({ path: '(businesses)', chars: bizCards, links: unitCount,
+                 h1: 'companies / units, each linking out', canvases: 0 })
 
   /* ---- blog category filter ---- */
   navigate('/blog')
