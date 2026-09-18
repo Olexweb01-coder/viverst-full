@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { NAV_LINKS, SUBSIDIARIES } from '../data/site.js'
 import logo from '@brand-assets/main/logo.webp'
+import logoLight from '@brand-assets/main/logo-light.webp'
 import './Navbar.css'
 
 export default function Navbar() {
@@ -14,6 +15,7 @@ export default function Navbar() {
   // The drawer is derived from the route it was opened on, so any navigation —
   // including browser back/forward — closes it without an effect.
   const [openPath, setOpenPath] = useState(null)
+  const onDarkHero = pathname === '/' && !scrolled
   const open = openPath === pathname
   const reduce = useReducedMotion()
 
@@ -35,11 +37,14 @@ export default function Navbar() {
     return () => window.removeEventListener('keydown', onEsc)
   }, [])
 
+  // The homepage hero is a dark photograph. Until the bar picks up its own
+  // background on scroll, the logo and links have to read light against it,
+  // or they vanish into the picture.
   return (
-    <header className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
+    <header className={`nav ${scrolled ? 'nav--scrolled' : ''}${onDarkHero ? ' nav--onDark' : ''}`}>
       <div className="nav-inner container">
         <Link to="/" className="nav-logo" aria-label="Viverst Global Limited — home">
-          <img src={logo} alt="Viverst" className="nav-logo-img" />
+          <img src={onDarkHero ? logoLight : logo} alt="Viverst" className="nav-logo-img" />
         </Link>
 
         <nav className="nav-links" aria-label="Main">
@@ -60,19 +65,6 @@ export default function Navbar() {
         </nav>
 
         <div className="nav-right">
-          <span className="nav-divider" aria-hidden="true" />
-          <nav className="nav-brands" aria-label="Our companies">
-            {SUBSIDIARIES.map((s) => (
-              // aria-label carries the full name: the visible text is hidden on
-              // small screens, and display:none removes it from the a11y tree.
-              <BrandLink key={s.key} to={s.path} external={s.external} aria-label={s.name}
-                    className={`nav-brand-pill nav-brand-pill--${s.key}`}>
-                <span className="nav-brand-dot" aria-hidden="true" />
-                <span className="nav-brand-text">{s.short}</span>
-              </BrandLink>
-            ))}
-          </nav>
-
           <button type="button" className="nav-toggle" onClick={() => setOpenPath(open ? null : pathname)}
                   aria-expanded={open} aria-controls="nav-drawer"
                   aria-label={open ? 'Close menu' : 'Open menu'}>

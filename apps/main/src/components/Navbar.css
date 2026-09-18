@@ -115,3 +115,14 @@
   .nav-logo-img { height: 26px; }
   .nav-brands { display: none; }
 }
+
+/* ── over the dark hero ──────────────────────────────
+   The homepage hero is a photograph. Until the bar takes its own background on
+   scroll, everything in it has to read light or it disappears into the picture.
+   Reverts the moment .nav--scrolled applies. */
+.nav--onDark .nav-link { color: rgba(245, 250, 255, 0.78); }
+.nav--onDark .nav-link:hover { color: #f5faff; }
+.nav--onDark .nav-link.is-active { color: #f5faff; }
+.nav--onDark .nav-pill { background: rgba(245, 250, 255, 0.16); }
+.nav--onDark .nav-divider { background: rgba(245, 250, 255, 0.28); }
+.nav--onDark .nav-toggle { color: #f5faff; border-color: rgba(245, 250, 255, 0.34); }

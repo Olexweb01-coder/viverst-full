@@ -4,6 +4,12 @@
  * Source: VIVERST GLOBAL LIMITED — CORPORATE BRAND STRATEGY
  */
 
+import industry from '@brand-assets/main/img/industry.webp'
+import production from '@brand-assets/main/img/production.webp'
+import logistics from '@brand-assets/main/img/logistics.webp'
+import city from '@brand-assets/main/img/city.webp'
+import growth from '@brand-assets/main/img/growth.webp'
+
 export const COMPANY = {
   legalName: "Viverst Global Limited",
   shortName: "Viverst",
@@ -141,6 +147,30 @@ export const STORY = {
 };
 
 /* ── Navigation ─────────────────────────────────────────────── */
+
+/* Hero imagery. Five slots, rotated in order. These are placeholder graphics,
+   not photographs — drop a real photo in with the same filename and every place
+   it appears updates. The admin backend edits this list rather than the page. */
+export const IMG = { industry, production, logistics, city, growth }
+
+export const HERO_FRAMES = [
+  { key: 'industry', img: industry, alt: '' },
+  { key: 'production', img: production, alt: '' },
+  { key: 'logistics', img: logistics, alt: '' },
+  { key: 'city', img: city, alt: '' },
+  { key: 'growth', img: growth, alt: '' },
+]
+
+/* Two lines, stepped, centred. Two is the maximum: a third turns the hero into
+   a paragraph. The test asserts it. */
+export const HERO_LINES = [
+  { text: 'We build businesses', shift: '-2%' },
+  { text: 'that shape industries.', shift: '3%' },
+]
+
+export const HERO_SUMMARY =
+  'Identifying opportunities, building businesses and developing solutions that '
+  + 'create lasting value.'
 
 export const NAV_LINKS = [
   { to: "/", label: "Home" },

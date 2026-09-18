@@ -3,6 +3,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
+import { HERO_FRAMES, HERO_LINES } from '../src/data/site.js'
 
 const ROUTES = [
   '/', '/about', '/our-story', '/blog', '/blog/why-we-put-our-name-on-every-company',
@@ -75,33 +76,49 @@ const run = async () => {
     }
   }
 
-  /* ---- exercise the hero's interactive surfaces ---- */
+  /* ---- the hero: five frames, two stepped lines, nothing behind the type ----
+     The orbiting mark that used to live here was removed when the hero became
+     photographic. Its drag and keyboard assertions went with it. */
   navigate('/')
   await wait(1800)
 
-  const mark = document.querySelector('.orbit-mark')
-  if (!mark) problems.push('orbit mark not found in DOM')
-  else {
-    pointer('pointerdown', mark, 400, 300)
-    for (let i = 0; i < 8; i++) pointer('pointermove', mark, 400 + i * 22, 300 + i * 4)
-    pointer('pointerup', mark, 560, 330)
-    mark.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
-    mark.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
+  const frames = document.querySelectorAll('.hero-frame').length
+  const scrim = document.querySelector('.hero-scrim')
+  const heroImgs = [...document.querySelectorAll('.hero-frame img')]
+  if (frames !== HERO_FRAMES.length) problems.push(`hero has ${frames} frames, data has ${HERO_FRAMES.length}`)
+  if (!scrim) problems.push('hero scrim missing — the type would sit on bare picture')
+  for (const img of heroImgs) {
+    const src = img.getAttribute('src')
+    if (!src || src === 'undefined') problems.push(`hero frame has a broken src (${src})`)
   }
+  // each frame is offset by its index, or they would all cross-fade together
+  const offsets = [...document.querySelectorAll('.hero-frame')].map((f) => f.style.getPropertyValue('--i'))
+  if (new Set(offsets).size !== HERO_FRAMES.length) problems.push(`hero frames share offsets (${offsets.join(' ')})`)
 
-  // window-level parallax + wave pointer tracking
+  const heroH1 = document.querySelector('.hero-title')
+  const heroLines = document.querySelectorAll('.hero-line')
+  if (heroLines.length !== 2) problems.push(`hero headline has ${heroLines.length} lines, expected 2`)
+  const wanted = HERO_LINES.map((l) => l.text).join(' ')
+  if ((heroH1?.textContent || '').replace(/\s+/g, ' ').trim() !== wanted) {
+    problems.push(`hero h1 reads "${heroH1?.textContent.trim().slice(0, 60)}", expected the headline`)
+  }
+  // a space held inside a clipped span renders joined, so it must be a real node
+  const heroSpaces = [...(heroH1?.childNodes || [])].filter((n) => n.nodeType === 3 && /\s/.test(n.textContent)).length
+  if (heroSpaces < 1) problems.push('hero headline lines run together — no space text node between them')
+  const heroShifts = [...heroLines].map((l) => l.style.getPropertyValue('--shift'))
+  if (new Set(heroShifts).size < 2) problems.push(`hero lines share offsets (${heroShifts.join(', ')}) — not stepped`)
+
+  // the company count was removed from the hero deliberately: it goes stale
+  const heroText = document.querySelector('.hero')?.textContent || ''
+  if (/two companies/i.test(heroText)) problems.push('the hero still counts the companies')
+
+  results.push({ path: '(hero)', chars: frames, links: heroLines.length,
+                 h1: `frames · lines, scrim=${!!scrim}`, canvases: 0 })
+
+  // window-level parallax still runs on the page
   for (let i = 0; i < 10; i++) pointer('pointermove', window, 200 + i * 40, 260 + i * 12)
   window.dispatchEvent(new window.Event('resize'))
   await wait(160)
-
-  // hovering a subsidiary chip stalls the orbit and tints the wave
-  const sat = document.querySelector('.orbit-sat')
-  if (!sat) problems.push('orbit satellite not found in DOM')
-  else {
-    sat.dispatchEvent(new window.Event('mouseenter', { bubbles: false }))
-    await wait(120)
-    sat.dispatchEvent(new window.Event('mouseleave', { bubbles: false }))
-  }
 
   /* ---- blog category filter ---- */
   navigate('/blog')

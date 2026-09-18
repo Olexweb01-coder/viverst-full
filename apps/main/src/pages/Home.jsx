@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { Fragment } from 'react'
 import { Float, Icon, Magnetic, Tilt } from '@viverst/ui'
 import { Link } from 'react-router-dom'
 import BrandLink from '../components/BrandLink.jsx'
@@ -7,25 +7,16 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react'
 
 import Seo from '../components/Seo.jsx'
 import Reveal from '../components/Reveal.jsx'
-import WaveField from '../components/WaveField.jsx'
-import OrbitMark from '../components/OrbitMark.jsx'
 import Marquee from '../components/Marquee.jsx'
 import AnimatedCounter from '../components/AnimatedCounter.jsx'
 import Parallax from '../components/Parallax.jsx'
-import { PROVIDES, REPUTATION, STATS, SUBSIDIARIES, VALUES } from '../data/site.js'
+import {
+  HERO_FRAMES, HERO_LINES, HERO_SUMMARY,
+  PROVIDES, REPUTATION, STATS, SUBSIDIARIES, VALUES,
+} from '../data/site.js'
 import './Home.css'
 
-const REST_ACCENT = [140, 255, 137]
-
 export default function Home() {
-  const [focus, setFocus] = useState(null)
-  const onFocusBrand = useCallback((key) => setFocus(key), [])
-
-  const accent = useMemo(() => {
-    const s = SUBSIDIARIES.find((x) => x.key === focus)
-    return s ? s.theme.rgb.split(',').map((n) => Number(n.trim())) : REST_ACCENT
-  }, [focus])
-
   return (
     <>
       <Seo
@@ -35,42 +26,67 @@ export default function Home() {
       />
 
       {/* ─────────────── HERO ─────────────── */}
-      <section className="hero">
-        <WaveField accent={accent} />
+      <section className="hero" aria-label="Viverst Global Limited">
+        {/* Five frames, each pushing in while it is on screen, the next fading
+            up underneath before the current has finished travelling. Pure CSS:
+            one keyframe set, each frame offset by its index. No library and no
+            timer to fall out of step. */}
+        <div className="hero-bg" aria-hidden="true">
+          {HERO_FRAMES.map((f, i) => (
+            <div className="hero-frame" key={f.key} style={{ '--i': i }}>
+              <img
+                src={f.img}
+                alt=""
+                width="1600"
+                height="1100"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                fetchPriority={i === 0 ? 'high' : 'low'}
+              />
+            </div>
+          ))}
+          {/* Load-bearing: the type sits directly on the picture with nothing
+              behind it. The scrim is what keeps it readable over the palest
+              frame, and contrast runs one way only. */}
+          <span className="hero-scrim" />
+        </div>
 
         <div className="container hero-inner">
-          <div className="hero-orbit"><OrbitMark onFocusBrand={onFocusBrand} /></div>
+          <motion.h1
+            className="hero-title"
+            initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* The space between the lines is a real text node. Held inside a
+                clipped span it renders joined. */}
+            {HERO_LINES.map((line, i) => (
+              <Fragment key={line.text}>
+                <span className="hero-line" style={{ '--shift': line.shift }}>{line.text}</span>
+                {i < HERO_LINES.length - 1 ? ' ' : ''}
+              </Fragment>
+            ))}
+          </motion.h1>
 
-          <div className="hero-copy">
-            <motion.span className="hero-live"
-              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
-              <span className="livedot" aria-hidden="true" /> Two companies operating
-            </motion.span>
+          <motion.p
+            className="hero-lede"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {HERO_SUMMARY}
+          </motion.p>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}>
-              We don&rsquo;t run a business. We build the companies that do.
-            </motion.h1>
-
-            <motion.p className="lede"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}>
-              One parent. One standard. Two companies already running.
-            </motion.p>
-
-            <motion.div className="hero-cta"
-              initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.26, ease: [0.16, 1, 0.3, 1] }}>
-              <Magnetic>
-                <Link className="btn btn--primary" to="/about">
-                  How we&rsquo;re structured <ArrowRight size={17} aria-hidden="true" />
-                </Link>
-              </Magnetic>
-              <Magnetic><Link className="btn" to="/our-story">Our story</Link></Magnetic>
-            </motion.div>
-          </div>
+          <motion.div
+            className="hero-cta"
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.26, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Magnetic>
+              <Link className="btn btn--primary" to="/about">
+                How we&rsquo;re structured <ArrowRight size={17} aria-hidden="true" />
+              </Link>
+            </Magnetic>
+            <Magnetic><Link className="btn btn--onGlass" to="/our-story">Our story</Link></Magnetic>
+          </motion.div>
         </div>
 
         <motion.div className="scroll-cue" aria-hidden="true"
