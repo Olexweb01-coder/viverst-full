@@ -130,7 +130,7 @@ export default function About() {
           <Reveal>
             <div className="next-band">
               <div>
-                <h2>Building something that needs a parent behind it?</h2>
+                <h2>Want to build with us?</h2>
                 <p>Long-term, governed, and built to last.</p>
               </div>
               <Magnetic>

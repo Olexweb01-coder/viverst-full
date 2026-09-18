@@ -231,7 +231,7 @@ export default function Home() {
                 <span className="cta-orb drift" aria-hidden="true" />
               </Parallax>
               <div className="cta-copy">
-                <h2>Building something that needs a parent behind it?</h2>
+                <h2>Want to build with us?</h2>
                 <p>Long-term, governed, and built to last.</p>
               </div>
               <Magnetic>

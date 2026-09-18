@@ -18,7 +18,7 @@ export default function Footer() {
             <Float className="footer-logo-wrap" distance={-6} duration={8}>
               <img src={logoLight} alt="Viverst" className="footer-logo" />
             </Float>
-            <p className="footer-line">Parent of Viverst Agro and Viverst Studio.</p>
+            
             <a className="footer-contact" href={`mailto:${COMPANY.email}`}>
               <Mail size={15} aria-hidden="true" /> {COMPANY.email}
             </a>
