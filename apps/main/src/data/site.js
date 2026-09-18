@@ -127,24 +127,6 @@ export const STATS = [
   { value: 1, suffix: "", label: "Name behind it all" },
 ];
 
-/* ── Our story ──────────────────────────────────────────────── */
-
-export const STORY = {
-  name: [
-    { part: "Vi", meaning: "an entity" },
-    { part: "Verst", meaning: "derived from versatile" },
-  ],
-  chapters: [
-    { k: "01", icon: "type",    title: "The name came first",
-      body: "VIVERST was built, not chosen. Vi for an entity, Verst from versatile." },
-    { k: "02", icon: "target",  title: "A belief about impact",
-      body: "Lasting impact comes from solving real problems across sectors, not one." },
-    { k: "03", icon: "network", title: "A parent, not an operator",
-      body: "A company strong enough to nurture independent brands beneath it." },
-    { k: "04", icon: "layers",  title: "An ecosystem, not a list",
-      body: "Every new venture makes the ones already here more resilient." },
-  ],
-};
 
 /* ── Navigation ─────────────────────────────────────────────── */
 
@@ -175,7 +157,6 @@ export const HERO_SUMMARY =
 export const NAV_LINKS = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
-  { to: "/our-story", label: "Our Story" },
   { to: "/blog", label: "Journal" },
   { to: "/events", label: "Events" },
   { to: "/contact", label: "Contact" },

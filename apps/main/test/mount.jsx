@@ -6,7 +6,7 @@ import App from '../src/App.jsx'
 import { HERO_FRAMES, HERO_LINES } from '../src/data/site.js'
 
 const ROUTES = [
-  '/', '/about', '/our-story', '/blog', '/blog/why-we-put-our-name-on-every-company',
+  '/', '/about', '/blog', '/blog/why-we-put-our-name-on-every-company',
   '/events', '/events/agro-field-day-2026', '/contact', '/agro', '/studio',
   '/definitely-not-a-page', '/blog/no-such-post', '/events/no-such-event',
 ]

@@ -130,12 +130,12 @@ export default function About() {
           <Reveal>
             <div className="next-band">
               <div>
-                <h2>How the name came about</h2>
-                <p>Viverst was constructed, not chosen.</p>
+                <h2>Building something that needs a parent behind it?</h2>
+                <p>Long-term, governed, and built to last.</p>
               </div>
               <Magnetic>
-                <Link className="btn" to="/our-story">
-                  Our story <ArrowRight size={17} aria-hidden="true" />
+                <Link className="btn" to="/contact">
+                  Start a conversation <ArrowRight size={17} aria-hidden="true" />
                 </Link>
               </Magnetic>
             </div>

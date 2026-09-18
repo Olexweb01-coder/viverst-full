@@ -13,7 +13,6 @@ import Home from './pages/Home.jsx'
 // Routes below the fold of the first paint are split out so the homepage
 // ships the smallest possible bundle.
 const About     = lazy(() => import('./pages/About.jsx'))
-const OurStory  = lazy(() => import('./pages/OurStory.jsx'))
 const Contact   = lazy(() => import('./pages/Contact.jsx'))
 const Subsidiary= lazy(() => import('./pages/Subsidiary.jsx'))
 const Blog      = lazy(() => import('./pages/Blog.jsx'))
@@ -36,7 +35,6 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/"          element={<PageShell><Home /></PageShell>} />
         <Route path="/about"     element={<PageShell><About /></PageShell>} />
-        <Route path="/our-story" element={<PageShell><OurStory /></PageShell>} />
         <Route path="/contact"   element={<PageShell><Contact /></PageShell>} />
         <Route path="/blog"          element={<PageShell><Blog /></PageShell>} />
         <Route path="/blog/:slug"    element={<PageShell><BlogPost /></PageShell>} />
@@ -57,7 +55,6 @@ export default function App() {
   useEffect(() => {
     const warm = () => {
       import('./pages/About.jsx')
-      import('./pages/OurStory.jsx')
       import('./pages/Contact.jsx')
       import('./pages/Subsidiary.jsx')
       import('./pages/Blog.jsx')

@@ -85,7 +85,7 @@ export default function Home() {
                 How we&rsquo;re structured <ArrowRight size={17} aria-hidden="true" />
               </Link>
             </Magnetic>
-            <Magnetic><Link className="btn btn--onGlass" to="/our-story">Our story</Link></Magnetic>
+            <Magnetic><Link className="btn btn--onGlass" to="/contact">Start a conversation</Link></Magnetic>
           </motion.div>
         </div>
 
