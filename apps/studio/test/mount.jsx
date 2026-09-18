@@ -8,7 +8,20 @@ import {
   COMMITMENTS, CONTACT_TOPICS, PROJECTS, ROLES, STATEMENT, PROMISE,
 } from '../src/data/studio.js'
 
-const ROUTES = ['/', '/about', '/services', '/work', '/careers', '/contact', '/not-a-real-page']
+/* Each route states the heading it expects. Waiting for "an h1 exists" is
+   useless: the previous page's h1 is still on screen, so the wait returns
+   instantly and the walk measures the page it just left. Every route lagged by
+   one before this, and the suite still reported green because it never checked
+   which page it had. */
+const ROUTES = [
+  ['/', 'Seen, understood'],
+  ['/about', 'Great businesses'],
+  ['/services', 'Eight areas'],
+  ['/work', 'The work'],
+  ['/careers', 'Build the studio'],
+  ['/contact', 'Tell us what'],
+  ['/not-a-real-page', 'That page is not here'],
+]
 
 const problems = []
 const a11y = []
@@ -27,10 +40,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms))
    it a fixed number of milliseconds. A lazy chunk on a loaded machine can take
    longer than any constant we pick, and a test that fails for being impatient
    is worse than no test: it teaches you to ignore red. Polls up to 6s, then
-   gives the effects a moment to settle.
-
-   The condition has to be unique to the destination. A selector that also
-   exists on the page being left passes instantly and measures the old page. */
+   gives the effects a moment to settle. */
 const h1Has = (text) => () =>
   (document.querySelector('h1')?.textContent ?? '').includes(text)
 
@@ -53,8 +63,20 @@ const run = async () => {
 
   const rows = []
 
-  for (const path of ROUTES) {
-    await navigate(path)
+  let lastExpected = null
+  for (const [path, expected] of ROUTES) {
+    const before = document.querySelector('h1')?.textContent ?? ''
+    // the heading must contain what this route promises, and unless the route
+    // before it shares that heading, it must also have changed
+    await navigate(path, () => {
+      const now = document.querySelector('h1')?.textContent ?? ''
+      return now.includes(expected) && (expected === lastExpected || now !== before)
+    })
+    const got = document.querySelector('h1')?.textContent ?? ''
+    if (!got.includes(expected)) {
+      problems.push(`${path} rendered "${got.trim().slice(0, 48)}", expected a heading containing "${expected}"`)
+    }
+    lastExpected = expected
 
     const text = host.textContent || ''
     const h1s = [...host.querySelectorAll('h1')].map((h) => h.textContent.trim())

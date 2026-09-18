@@ -5,10 +5,22 @@ import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
 import { HERO_FRAMES, HERO_LINES } from '../src/data/site.js'
 
+/* Each route states the heading it expects. A flat wait proves nothing: if the
+   page has not swapped yet the walk measures the one it just left, and the
+   suite still reports green because it never checks which page it got. */
 const ROUTES = [
-  '/', '/about', '/blog', '/blog/why-we-put-our-name-on-every-company',
-  '/events', '/events/agro-field-day-2026', '/contact', '/agro', '/studio',
-  '/definitely-not-a-page', '/blog/no-such-post', '/events/no-such-event',
+  ['/', 'We build businesses'],
+  ['/about', 'A parent built to hold'],
+  ['/blog', 'thinking about'],
+  ['/blog/why-we-put-our-name-on-every-company', 'Why we put our name'],
+  ['/events', 'Come and see the work'],
+  ['/events/agro-field-day-2026', 'Field Day'],
+  ['/contact', 'gap'],
+  ['/agro', 'Viverst Agro'],
+  ['/studio', 'Viverst Studio'],
+  ['/definitely-not-a-page', 'part of the group'],
+  ['/blog/no-such-post', 'part of the group'],
+  ['/events/no-such-event', 'part of the group'],
 ]
 
 const problems = []
@@ -45,9 +57,22 @@ const run = async () => {
 
   const results = []
 
-  for (const path of ROUTES) {
+  let lastExpected = null
+  for (const [path, expected] of ROUTES) {
+    const before = document.querySelector('h1')?.textContent ?? ''
     navigate(path)
-    await wait(1800)
+    // poll for the heading this route promises rather than trusting a constant
+    for (let i = 0; i < 120; i++) {
+      await wait(50)
+      const now = document.querySelector('h1')?.textContent ?? ''
+      if (now.includes(expected) && (expected === lastExpected || now !== before)) break
+    }
+    await wait(220)
+    const got = document.querySelector('h1')?.textContent ?? ''
+    if (!got.includes(expected)) {
+      problems.push(`${path} rendered "${got.trim().slice(0, 48)}", expected a heading containing "${expected}"`)
+    }
+    lastExpected = expected
 
     const text = host.textContent || ''
     const headings = [...host.querySelectorAll('h1')].map((h) => h.textContent.trim())

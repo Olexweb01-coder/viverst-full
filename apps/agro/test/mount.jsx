@@ -4,7 +4,17 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
 
-const ROUTES = ['/', '/about', '/solutions', '/careers', '/contact', '/not-a-real-page']
+/* Each route states the heading it expects. A flat wait proves nothing: if the
+   page has not swapped yet the walk measures the one it just left, and the
+   suite still reports green because it never checks which page it got. */
+const ROUTES = [
+  ['/', 'Grow more'],
+  ['/about', 'Farming is too important'],
+  ['/solutions', 'Seven areas'],
+  ['/careers', 'Work where it actually counts'],
+  ['/contact', 'where you are losing money'],
+  ['/not-a-real-page', 'Nothing growing here'],
+]
 
 const problems = []
 const a11y = []
@@ -31,9 +41,22 @@ const run = async () => {
 
   const rows = []
 
-  for (const path of ROUTES) {
+  let lastExpected = null
+  for (const [path, expected] of ROUTES) {
+    const before = document.querySelector('h1')?.textContent ?? ''
     navigate(path)
-    await wait(1100)
+    // poll for the heading this route promises rather than trusting a constant
+    for (let i = 0; i < 120; i++) {
+      await wait(50)
+      const now = document.querySelector('h1')?.textContent ?? ''
+      if (now.includes(expected) && (expected === lastExpected || now !== before)) break
+    }
+    await wait(220)
+    const got = document.querySelector('h1')?.textContent ?? ''
+    if (!got.includes(expected)) {
+      problems.push(`${path} rendered "${got.trim().slice(0, 48)}", expected a heading containing "${expected}"`)
+    }
+    lastExpected = expected
 
     const text = host.textContent || ''
     const h1s = [...host.querySelectorAll('h1')].map((h) => h.textContent.trim())
