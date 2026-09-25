@@ -112,12 +112,13 @@ export const REPUTATION = [
   { icon: "network",    title: "A parent",    body: "Subsidiaries that lead their own markets." },
 ];
 
-/* What the parent actually supplies to each company — the reason it exists */
-export const PROVIDES = [
-  { icon: "compass",  title: "Vision",     body: "One direction, measured across every company." },
-  { icon: "shield",   title: "Governance", body: "The oversight that carrying the name demands." },
-  { icon: "layers",   title: "Resources",  body: "Talent, systems and capital, shared." },
-  { icon: "network",  title: "Leadership", body: "Long-term calls made once, at group level." },
+/* The four things the group does with every business it holds. The homepage
+   introduces them one line each; the About page explains who we are. */
+export const WHAT_WE_DO = [
+  { icon: "building", title: "Build",  body: "New companies, started where we see a real gap." },
+  { icon: "compass",  title: "Manage", body: "Direction and oversight for every company in the group." },
+  { icon: "trending", title: "Invest", body: "Capital and backing for businesses with room to grow." },
+  { icon: "sprout",   title: "Grow",   body: "Taking each company further than it would get alone." },
 ];
 
 export const STATS = [

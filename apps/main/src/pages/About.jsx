@@ -31,8 +31,14 @@ export default function About() {
         <div className="container page-hero-inner">
           <Reveal>
             <p className="eyebrow">About the group</p>
-            <h1>A parent built to hold more than one industry.</h1>
-            <p className="lede">We don&rsquo;t operate a business. We stand behind the ones that do.</p>
+            <h1>Who we are</h1>
+            <p className="lede">
+              Viverst Global Limited is a diversified corporate group that builds, manages,
+              invests in and grows businesses across strategic industries. We are the parent
+              organisation behind a growing portfolio of specialised businesses &mdash; each
+              built with deep expertise, strategic direction and a shared commitment to
+              long-term value.
+            </p>
           </Reveal>
         </div>
       </header>

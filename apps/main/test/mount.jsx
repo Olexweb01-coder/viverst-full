@@ -10,7 +10,7 @@ import { HERO_FRAMES, HERO_LINES, SUBSIDIARIES } from '../src/data/site.js'
    suite still reports green because it never checks which page it got. */
 const ROUTES = [
   ['/', 'We build businesses'],
-  ['/about', 'A parent built to hold'],
+  ['/about', 'Who we are'],
   ['/blog', 'thinking about'],
   ['/blog/why-we-put-our-name-on-every-company', 'Why we put our name'],
   ['/events', 'Come and see the work'],

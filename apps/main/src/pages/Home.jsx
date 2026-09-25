@@ -12,7 +12,7 @@ import AnimatedCounter from '../components/AnimatedCounter.jsx'
 import Parallax from '../components/Parallax.jsx'
 import {
   HERO_FRAMES, HERO_LINES, HERO_SUMMARY,
-  PROVIDES, REPUTATION, STATS, SUBSIDIARIES, VALUES,
+  REPUTATION, STATS, SUBSIDIARIES, VALUES, WHAT_WE_DO,
 } from '../data/site.js'
 import './Home.css'
 
@@ -95,16 +95,16 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ─────────────── WHAT THE PARENT SUPPLIES ─────────────── */}
+      {/* ─────────────── WHAT WE DO ─────────────── */}
       <section className="section">
         <div className="container">
           <Reveal>
-            <p className="eyebrow">What a parent is for</p>
-            <h2 className="section-title">Four things every company gets from the one above it.</h2>
+            <p className="eyebrow">What we do</p>
+            <h2 className="section-title">Four things we do with every business in the group.</h2>
           </Reveal>
 
           <div className="grid grid--4">
-            {PROVIDES.map((p, i) => (
+            {WHAT_WE_DO.map((p, i) => (
               <Reveal key={p.title} delay={i * 0.07}>
                 <Float delay={i * 0.9} duration={7 + i * 0.7} distance={-8}>
                   <Tilt className="card provides-card sheen-host"
