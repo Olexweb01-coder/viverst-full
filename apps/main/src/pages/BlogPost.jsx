@@ -69,7 +69,7 @@ export default function BlogPost() {
           <div className="container article-head">
             <Reveal>
               <Link to="/blog" className="sub-back">
-                <ArrowLeft size={15} aria-hidden="true" /> Journal
+                <ArrowLeft size={15} aria-hidden="true" /> Blog
               </Link>
             </Reveal>
 
@@ -125,7 +125,7 @@ export default function BlogPost() {
           <div className="container">
             <Reveal>
               <p className="eyebrow">Keep reading</p>
-              <h2 className="page-title">More from the journal.</h2>
+              <h2 className="page-title">More from the blog.</h2>
             </Reveal>
             <div className="grid grid--3">
               {data.related.map((r, i) => (

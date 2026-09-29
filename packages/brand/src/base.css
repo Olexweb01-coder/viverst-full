@@ -22,6 +22,7 @@ html {
 body {
   margin: 0;
   background: var(--bg);
+    min-height: 100svh;
   color: var(--ink-2);
   font-family: var(--font-body);
   font-size: 16px;
@@ -123,7 +124,9 @@ p  { margin: 0; }
   padding: 12px 20px; background: var(--ink); color: var(--bg);
   font-weight: 600; border-radius: 0 0 var(--radius-sm) 0;
 }
-.skip-link:focus { left: 0; }
+/* Keyboard focus only. Plain :focus also fires when a browser restores focus
+   after a reload, which showed the link at the top-left of the page. */
+.skip-link:focus-visible { left: 0; }
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;

@@ -285,3 +285,26 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md)
   transition: box-shadow var(--dur) var(--ease), border-color var(--dur-fast) ease;
 }
 .contact-card-a:hover { box-shadow: var(--shadow-md); border-color: var(--ink-headline); }
+
+/* ── careers ────────────────────────────────────────── */
+.careers-grid { display: grid; grid-template-columns: 1fr minmax(0, 480px); gap: 26px; align-items: start; }
+.careers-intro { color: var(--ink-muted); line-height: 1.66; max-width: 48ch; margin-top: 12px; }
+.role-card {
+  padding: 24px 26px; border-radius: var(--radius-md);
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm);
+}
+.role-card h2 { font-size: 21px; margin-bottom: 4px; }
+.role-terms { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 10px; }
+.role-card p:last-child { color: var(--ink-muted); line-height: 1.62; }
+.roles { display: flex; flex-direction: column; gap: 12px; }
+.apply-title { font-size: clamp(19px, 2vw, 24px); margin: 0 0 20px; }
+.form-note svg { vertical-align: -2px; margin-right: 3px; }
+.careers-side { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
+.careers-side-title { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); }
+.field select {
+  width: 100%; padding: 14px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong); background: var(--bg-1);
+  font-family: var(--font); font-size: 15.5px; color: var(--ink-strong);
+}
+.field select:focus { outline: none; background: var(--surface); border-color: var(--ink-headline); box-shadow: 0 0 0 4px rgba(4, 100, 222, 0.12); }
+@media (max-width: 900px) { .careers-grid { grid-template-columns: 1fr; } }

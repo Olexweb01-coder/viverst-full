@@ -10,6 +10,7 @@ import harvest from '@brand-assets/agro/img/harvest.webp'
 import store from '@brand-assets/agro/img/store.webp'
 import silos from '@brand-assets/agro/img/silos.webp'
 import soil from '@brand-assets/agro/img/soil.webp'
+import processing from '@brand-assets/agro/img/processing.webp'
 
 export const IMG = { farmland, irrigation, orchard, harvest, store, silos, soil }
 
@@ -35,11 +36,18 @@ export const PROMISE = 'Grow more, waste less, earn better.'
  * `shift` is a percentage of the line's own width.
  */
 export const HEADLINE_LINES = [
-  { text: 'Grow more, waste less,', shift: -4 },
-  { text: 'earn better.', shift: 9 },
+  { text: 'Transforming agriculture', shift: 0 },
+  { text: 'through technology & processing.', shift: 0 },
 ]
+
+/** Under the headline on the homepage only. SUMMARY below says the same
+    thing in other words, for the About page and the search descriptions, so
+    one sentence is not repeated across the site. */
+export const HERO_SUMMARY =
+  'Viverst Agro is built to improve productivity, efficiency, quality and profitability across the agricultural value chain.'
+
 export const SUMMARY =
-  'From the farm to the buyer, we work with farmers and agribusinesses to find the steps that quietly cost money — and fix them.'
+  'We help farmers and agribusinesses raise output, cut waste and improve returns at every step from the farm to the buyer.'
 
 export const MISSION =
   'To provide farming solutions that are practical, dependable and built to last — so productivity and value improve at every step from the farm to the buyer.'
@@ -70,7 +78,7 @@ export const CHAIN = [
 
 /** The seven areas we work in. */
 export const FOCUS_AREAS = [
-  { icon: 'cpu', title: 'Farm technology', body: 'Tools that change the harvest, not just the paperwork.' },
+  { icon: 'cpu', title: 'Agricultural technology', body: 'Tools that change the harvest, not just the paperwork.' },
   { icon: 'sprout', title: 'Crop production', body: 'Seed, soil and method that lift yield and cut cost together.' },
   { icon: 'factory', title: 'Processing', body: 'Turning raw harvest into something worth more.' },
   { icon: 'link', title: 'Farm to buyer', body: 'Joining the steps where value usually disappears.' },
@@ -93,13 +101,15 @@ export const AUDIENCE = [
   'Agro-dealers', 'Distributors', 'Institutions', 'Investors',
 ]
 
-export const COMMITMENTS = [
-  { k: '01', title: 'Lead with better tools', body: 'Invest in technology that raises what a farm can produce.' },
-  { k: '02', title: 'Cover more of the chain', body: 'Move into the steps where we can genuinely add value.' },
-  { k: '03', title: 'Run a tight operation', body: 'Systems and standards that hold quality as we grow.' },
-  { k: '04', title: 'Build real partnerships', body: 'With farmers, suppliers, researchers and institutions.' },
-  { k: '05', title: 'Make a visible difference', body: 'Impact you can point at, not only describe.' },
-  { k: '06', title: 'Stay ready to grow', body: 'People and systems that survive a new market.' },
+/** The seven areas of work, as shown on the About page. */
+export const AREAS_OF_WORK = [
+  { k: '01', title: 'Agricultural Technology (AgTech)', body: 'Applying technology to improve how agricultural operations are managed, monitored, and scaled.' },
+  { k: '02', title: 'Agricultural Production', body: 'Supporting efficient, productive agricultural operations from the ground up.' },
+  { k: '03', title: 'Agro-processing', body: 'Converting raw agricultural produce into higher-value products.' },
+  { k: '04', title: 'Processing & Packaging', body: 'Delivering agricultural products safely, efficiently, and market-ready.' },
+  { k: '05', title: 'Agricultural Solutions & Services', body: 'Practical support for the day-to-day challenges agribusinesses face.' },
+  { k: '06', title: 'Food & Agricultural Value Chains', body: 'Strengthening every link, from farm to final product.' },
+  { k: '07', title: 'Innovation & Sustainable Agriculture', body: 'Building agricultural practices that are efficient today and sustainable over the long term.' },
 ]
 
 export const STATS = [
@@ -128,12 +138,65 @@ export const GALLERY = [
   { img: harvest,    label: 'Cleaned grain',   meta: 'Harvest' },
 ]
 
-export const ROLES = []
+/**
+ * Products. These are SAMPLE listings, not stock — every record carries
+ * `sample: true`, and the Products page shows a notice while any of them do.
+ * Delete the flag, or the record, as real products come on. The admin backend
+ * fills this same shape.
+ *
+ *   category  one of PRODUCT_CATEGORIES below
+ *   form      how it is supplied
+ *   minOrder  the smallest order taken
+ */
+export const PRODUCT_CATEGORIES = [
+  { key: 'grain',     label: 'Grains and legumes' },
+  { key: 'processed', label: 'Processed' },
+  { key: 'fresh',     label: 'Fresh produce' },
+  { key: 'inputs',    label: 'Farm inputs' },
+]
+
+export const PRODUCTS = [
+  { slug: 'yellow-maize', sample: true, category: 'grain', img: harvest,
+    name: 'Yellow maize',
+    form: 'Dried, cleaned and graded · 50 kg bags',
+    minOrder: '5 tonnes',
+    body: 'Moisture held at 13% or below, so it stores without spoiling and mills without clogging.' },
+  { slug: 'soybeans', sample: true, category: 'grain', img: farmland,
+    name: 'Soybeans',
+    form: 'Cleaned, sorted · 50 kg bags',
+    minOrder: '5 tonnes',
+    body: 'Graded for feed mills and oil pressers. Sample sent before any order is confirmed.' },
+  { slug: 'parboiled-rice', sample: true, category: 'processed', img: store,
+    name: 'Parboiled rice',
+    form: 'Destoned, polished · 25 kg and 50 kg bags',
+    minOrder: '2 tonnes',
+    body: 'Long grain, stone-free, packed on the line rather than repacked later. Own-label bags on request.' },
+  { slug: 'cassava-flour', sample: true, category: 'processed', img: silos,
+    name: 'Cassava flour',
+    form: 'Fine milled, low moisture · 25 kg bags',
+    minOrder: '2 tonnes',
+    body: 'Milled within two days of harvest to keep the colour white and the taste clean.' },
+  { slug: 'palm-oil', sample: true, category: 'processed', img: processing,
+    name: 'Red palm oil',
+    form: 'Filtered · 25 litre jerrycans',
+    minOrder: '500 litres',
+    body: 'Pressed and settled, with the water and sediment taken out before it is filled.' },
+  { slug: 'dried-pepper', sample: true, category: 'fresh', img: orchard,
+    name: 'Dried chilli pepper',
+    form: 'Sun-dried, stemmed · 20 kg sacks',
+    minOrder: '1 tonne',
+    body: 'Dried on raised racks rather than the ground, so the batch arrives without grit.' },
+  { slug: 'improved-seed', sample: true, category: 'inputs', img: soil,
+    name: 'Improved maize seed',
+    form: 'Certified, treated · 10 kg bags',
+    minOrder: '20 bags',
+    body: 'Varieties chosen for the rainfall and soil of the area, with the germination rate on the bag.' },
+]
 
 export const NAV_LINKS = [
   { to: '/', label: 'Home' },
   { to: '/about', label: 'About' },
   { to: '/solutions', label: 'What we do' },
-  { to: '/careers', label: 'Careers' },
+  { to: '/products', label: 'Products' },
   { to: '/contact', label: 'Contact' },
 ]

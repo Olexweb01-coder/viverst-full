@@ -57,6 +57,12 @@ a.footer-contact:hover { color: #fff; transform: translateX(3px); }
   .footer-top { grid-template-columns: 1fr; gap: 36px; }
   .footer-inner { padding-block: 56px 30px; }
 }
-@media (max-width: 460px) { .footer-cols { grid-template-columns: 1fr; } }
+/* On phones the single Company column flows into two, so the footer stays
+   short instead of listing seven links one under another. */
+@media (max-width: 820px) {
+  .footer-col { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
+  .footer-col h4 { grid-column: 1 / -1; }
+}
+@media (max-width: 460px) { .footer-link { font-size: 13.5px; } }
 
 /* subsidiary shortcuts, each in its own colour */

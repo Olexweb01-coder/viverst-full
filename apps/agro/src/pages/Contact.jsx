@@ -26,7 +26,7 @@ export default function Contact() {
     <>
       <Seo
         title="Contact | Viverst Agro"
-        description="Talk to Viverst Agro about buying or supplying, processing and packaging, farm technology or partnership. Lagos, Nigeria."
+        description="Talk to Viverst Agro about buying or supplying, processing and packaging, agricultural technology or partnership. Lagos, Nigeria."
         url={BUSINESS.site + '/contact'}
         siteName={BUSINESS.name}
         jsonLd={{

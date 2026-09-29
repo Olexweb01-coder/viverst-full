@@ -16,7 +16,8 @@ const ROUTES = [
   ['/events', 'Come and see the work'],
   ['/events/agro-field-day-2026', 'Field Day'],
   ['/contact', 'gap'],
-  ['/businesses', 'Each company runs its own market'],
+  ['/careers', 'Build your career'],
+  ['/businesses', 'Each company runs its own industry'],
   ['/definitely-not-a-page', 'part of the group'],
   ['/blog/no-such-post', 'part of the group'],
   ['/events/no-such-event', 'part of the group'],
@@ -100,7 +101,7 @@ const run = async () => {
     }
   }
 
-  /* ---- the hero: five frames, two stepped lines, nothing behind the type ----
+  /* ---- the hero: every frame, two stepped lines, nothing behind the type ----
      The orbiting mark that used to live here was removed when the hero became
      photographic. Its drag and keyboard assertions went with it. */
   navigate('/')

@@ -72,8 +72,10 @@ h1, h2, h3 { letter-spacing: -.032em; line-height: 1.02; }
 .nav.is-invert .nav-link span + span { color: #c9a7ff; }
 .nav.is-invert .nav-link.active::after { background: #c9a7ff; }
 
-.nav-cta { display: none; }
-@media (min-width: 1020px) { .nav-cta { display: inline-flex; margin-inline-start: 10px; } }
+/* Hidden until the desktop layout; the drawer carries the same link on
+   phones. Scoped under .nav so the generic .btn rule below cannot outrank it. */
+.nav .nav-cta { display: none; }
+@media (min-width: 1020px) { .nav .nav-cta { display: inline-flex; margin-inline-start: 10px; } }
 
 .nav-toggle {
   margin-inline-start: auto; display: inline-flex; flex-direction: column; justify-content: center;
@@ -143,7 +145,9 @@ h1, h2, h3 { letter-spacing: -.032em; line-height: 1.02; }
 .hero-grid { display: grid; gap: clamp(24px, 3.4vw, 44px); align-items: center; }
 @media (min-width: 920px) { .hero-grid { grid-template-columns: 1.22fr .78fr; } }
 
-.hero-title { margin: 0; color: var(--ink); font-size: clamp(1.813rem, 5.1vw, 4.125rem); font-weight: 700; }
+/* Sized so the longer first line holds on one line beside the mark from
+   tablet up; on phones it wraps naturally. */
+.hero-title { margin: 0; color: var(--ink); font-size: clamp(1.813rem, 3.9vw, 3.25rem); font-weight: 700; }
 .hero-line { display: block; overflow: hidden; }
 .hero-word {
   display: block; inline-size: fit-content; transform: translateX(var(--shift, 0));
@@ -489,12 +493,6 @@ h1, h2, h3 { letter-spacing: -.032em; line-height: 1.02; }
 @media (min-width: 900px) { .empty-state { grid-template-columns: 1.1fr .9fr; } }
 .empty-state h1, .empty-state h2 { margin: 0 0 16px; font-size: clamp(1.625rem, 3.4vw, 2.625rem); color: var(--ink-2); }
 .empty-state p { margin: 0 0 14px; font-size: 1rem; line-height: 1.64; color: var(--muted); font-weight: 400; max-inline-size: 52ch; }
-.empty-roles h2 { margin: 0 0 12px; font-size: clamp(1.375rem, 2.6vw, 1.875rem); color: var(--ink-2); }
-.empty-roles p { margin: 0; font-size: 1rem; line-height: 1.64; color: var(--muted); font-weight: 400; max-inline-size: 50ch; }
-.role { padding-block: 22px; border-block-end: 1px solid var(--line); }
-.role h2 { margin: 0 0 8px; font-size: 1.375rem; color: var(--ink-2); }
-.role p { margin: 0; color: var(--muted); font-weight: 400; }
-.role-terms { margin: 0 0 8px !important; font-size: .813rem; font-weight: 600 !important; color: var(--ink) !important; }
 
 /* ─────────────── forms ─────────────── */
 .apply-form { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: clamp(22px, 3vw, 34px); display: grid; gap: 14px; }
@@ -529,11 +527,18 @@ h1, h2, h3 { letter-spacing: -.032em; line-height: 1.02; }
   animation: mesh-a 24s ease-in-out infinite;
 }
 .foot-in { position: relative; padding-block: clamp(40px, 5vw, 62px) 24px; }
-.foot-top { display: grid; gap: 30px 34px; }
-@media (min-width: 560px) { .foot-top { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1000px) { .foot-top { grid-template-columns: 1.3fr 1fr 1.2fr 1fr; } }
+/* The link columns sit side by side at every width, so the footer never
+   turns into one long list on a phone. Below 1000px the brand block takes
+   its own row above them; below 560px the columns tighten. */
+.foot-top { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px 24px; }
+@media (min-width: 1000px) { .foot-top { grid-template-columns: 1.3fr 1fr 1.2fr 1fr; gap: 30px 34px; } }
 .foot-brand { grid-column: 1 / -1; }
 @media (min-width: 1000px) { .foot-brand { grid-column: auto; } }
+@media (max-width: 559px) {
+  .foot-top { gap: 26px 14px; }
+  .foot-col h2 { font-size: .688rem; }
+  .foot-link { font-size: .781rem; padding-block: 3px; }
+}
 .foot-lock { display: flex; align-items: center; gap: 11px; margin-block-end: 14px; text-decoration: none; }
 .foot-brand p { margin: 0 0 14px; font-size: .906rem; line-height: 1.58; color: var(--footer-ink); max-inline-size: 30ch; font-weight: 400; }
 .foot-contact { display: flex; align-items: center; gap: 9px; color: var(--bg); text-decoration: none; font-size: .875rem; margin-block-end: 7px; font-weight: 400; }

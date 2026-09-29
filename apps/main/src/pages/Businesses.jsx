@@ -6,7 +6,7 @@ import Seo from '../components/Seo.jsx'
 import Reveal from '../components/Reveal.jsx'
 import BrandLink from '../components/BrandLink.jsx'
 import WaveField from '../components/WaveField.jsx'
-import { SUBSIDIARIES, COMPANY } from '../data/site.js'
+import { SUBSIDIARIES } from '../data/site.js'
 import './Pages.css'
 
 /* The one stop between the group site and each company's own site. Every
@@ -27,7 +27,7 @@ export default function Businesses() {
         <div className="container page-hero-inner">
           <Reveal>
             <p className="eyebrow">Our businesses</p>
-            <h1>Each company runs its own market.</h1>
+            <h1>Each company runs its own industry.</h1>
             <p className="lede">
               Separate teams, separate customers, separate sites. One standard behind all of them.
             </p>
@@ -94,8 +94,8 @@ export default function Businesses() {
           <Reveal>
             <div className="next-band">
               <div>
-                <h2>More industries to come.</h2>
-                <p>{COMPANY.shortName} is built to hold more than the two already here.</p>
+                <h2>Built to span industries.</h2>
+                <p>We build businesses across diverse sectors, creating value through innovation, expertise and long-term thinking.</p>
               </div>
               <Magnetic>
                 <Link className="btn" to="/contact">

@@ -10,7 +10,7 @@ export default function Solutions() {
     <>
       <Seo
         title="Solutions | Viverst Agro"
-        description="Farm technology, crop production, processing, packaging, farm services and sustainable farming — the seven areas Viverst Agro works in."
+        description="Agricultural technology, crop production, processing, packaging, farm services and sustainable farming — the seven areas Viverst Agro works in."
         url={BUSINESS.site + '/solutions'}
         siteName={BUSINESS.name}
         jsonLd={{
@@ -30,9 +30,6 @@ export default function Solutions() {
         <div className="container page-hero-inner">
           <Reveal as="p" className="eyebrow">Solutions</Reveal>
           <Reveal as="h1" delay={0.05}>Seven areas. One journey.</Reveal>
-          <Reveal as="p" className="lede" delay={0.1}>
-            Each one exists because money disappears at a particular step.
-          </Reveal>
         </div>
       </header>
 

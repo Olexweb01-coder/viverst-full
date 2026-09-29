@@ -8,10 +8,10 @@ import App from '../src/App.jsx'
    page has not swapped yet the walk measures the one it just left, and the
    suite still reports green because it never checks which page it got. */
 const ROUTES = [
-  ['/', 'Grow more'],
-  ['/about', 'Farming is too important'],
+  ['/', 'Transforming agriculture'],
+  ['/about', 'Viverst Agro works across'],
   ['/solutions', 'Seven areas'],
-  ['/careers', 'Work where it actually counts'],
+  ['/products', 'What we grow'],
   ['/contact', 'where you are losing money'],
   ['/not-a-real-page', 'Nothing growing here'],
 ]
@@ -132,14 +132,14 @@ const run = async () => {
   // The headline is split for the stagger. Three things must survive that:
   const h1 = document.querySelector('h1')
   const h1Text = h1?.textContent || ''
-  if (h1Text.trim() !== 'Grow more, waste less, earn better.') {
+  if (h1Text.trim() !== 'Transforming agriculture through technology & processing.') {
     problems.push(`hero h1 text does not match the headline: "${h1Text.trim().slice(0, 60)}"`)
   }
   // a headline that needs more than two lines is too long, not too small
   const lineCount = document.querySelectorAll('.hero-line').length
   if (lineCount > 2) problems.push(`headline runs to ${lineCount} lines — it should fit in two`)
   // 1. the spaces must be real text nodes between the word spans, not a gap
-  //    property — the words live inside stepped lines now
+  //    property — the words live inside centred lines
   const lines = [...document.querySelectorAll('.hero-line')]
   if (lines.length !== 2) problems.push(`headline has ${lines.length} lines, expected 2`)
   let gaps = 0
@@ -147,9 +147,10 @@ const run = async () => {
     gaps += [...ln.childNodes].filter((n) => n.nodeType === 3 && /\s/.test(n.textContent)).length
   }
   if (gaps < 3) problems.push(`headline has ${gaps} space text nodes between words, expected at least 3`)
-  // each line must be stepped rather than all flush to one edge
-  const shifts = lines.map((l) => l.style.getPropertyValue('--shift'))
-  if (new Set(shifts).size < 2) problems.push(`headline lines share offsets (${shifts.join(', ')}) — not stepped`)
+  // the lines are centred: no line may carry a sideways offset, or it lands
+  // off-centre on some widths and past the edge on narrow ones
+  const shifts = lines.map((l) => parseFloat(l.style.getPropertyValue('--shift')) || 0)
+  if (shifts.some((v) => v !== 0)) problems.push(`headline lines carry offsets (${shifts.join(', ')}) — they must sit centred`)
   // 2. a space held inside an overflow:hidden span is clipped and renders joined
   for (const w of document.querySelectorAll('.hero-word')) {
     if (w.textContent !== w.textContent.trim()) {
@@ -187,7 +188,7 @@ const run = async () => {
   }
   const figures = document.querySelectorAll('.figures .figure').length
   if (figures !== 3) problems.push(`figures band has ${figures} entries, expected 3`)
-  rows.push({ path: '(hero backdrop)', chars: slides, links: words, h1: `${lines.length} stepped lines · ${gaps} spaces · scrim only` })
+  rows.push({ path: '(hero backdrop)', chars: slides, links: words, h1: `${lines.length} centred lines · ${gaps} spaces · scrim only` })
   rows.push({ path: '(figures band)', chars: figures, links: 0, h1: 'counts sit below the hero' })
 
   /* ---- gallery (now on the solutions page) ---- */
@@ -242,17 +243,6 @@ const run = async () => {
     }
     if (document.body.style.overflow === 'hidden') problems.push('body scroll not released')
   }
-
-  /* ---- careers: empty state + form ---- */
-  navigate('/careers')
-  await wait(1100)
-  const empty = document.querySelector('.empty-roles')
-  const careerFields = document.querySelectorAll('.apply-form input, .apply-form textarea, .apply-form select').length
-  const careerSubmit = document.querySelector('.apply-submit')
-  if (!empty) problems.push('careers page has no empty state for zero open roles')
-  if (careerFields < 4) problems.push(`careers form has ${careerFields} fields, expected 4`)
-  if (!careerSubmit?.disabled) problems.push('careers submit should start disabled')
-  rows.push({ path: '(careers)', chars: careerFields, links: 0, h1: `emptyState=${!!empty} disabled=${!!careerSubmit?.disabled}` })
 
   /* ---- contact form ---- */
   navigate('/contact')

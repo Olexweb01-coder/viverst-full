@@ -5,7 +5,7 @@ import Mark from '../components/Mark.jsx'
 import Artefact from '../components/Artefacts.jsx'
 import {
   BUSINESS, HEADLINE_LINES, LEDE, STATEMENT, STATEMENT_KEY, STATEMENT_CAPTION,
-  FOCUS_AREAS, DELIVERABLES, PAINS, PROCESS, REASONS, AUDIENCE, COMMITMENTS,
+  FOCUS_AREAS, DELIVERABLES, PAINS, PROCESS, REASONS, AUDIENCE,
   PROJECTS,
 } from '../data/studio.js'
 
@@ -254,33 +254,7 @@ export default function Home() {
             </div>
             <div className="btn-row">
               <Link className="btn btn-line btn-lg" to="/about"><span>About the studio</span></Link>
-              <Link className="btn btn-line btn-lg" to="/careers"><span>Join the studio</span></Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* new studio */}
-      <section className="band" data-rv>
-        <div className="shell">
-          <div className="newstudio">
-            <div>
-              <h2>A new studio, and open about it</h2>
-              <p>
-                Viverst Studio is early. There is no ten-year portfolio to hide behind, so the case
-                has to be made on the work itself and on how it is run. That suits us — it means
-                every project gets the attention a first project gets.
-              </p>
-              <div className="btn-row">
-                <Link className="btn btn-accent btn-lg" to="/contact"><span>Start a project</span></Link>
-                <Link className="btn btn-line btn-lg" to="/work"><span>See the work</span></Link>
-              </div>
-            </div>
-            <ul className="commitments">
-              {COMMITMENTS.map((c) => (
-                <li key={c}><Icon name="check" size={18} />{c}</li>
-              ))}
-            </ul>
           </div>
         </div>
       </section>

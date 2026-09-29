@@ -34,7 +34,7 @@ export default function Blog() {
   return (
     <>
       <Seo
-        title="Journal | Viverst Global Limited"
+        title="Blog | Viverst Global Limited"
         description="Writing from Viverst Global Limited on brand architecture, governance, agricultural technology and design."
         path="/blog"
       />
@@ -43,7 +43,7 @@ export default function Blog() {
         <WaveField opacity={0.7} />
         <div className="container page-hero-inner">
           <Reveal>
-            <p className="eyebrow">Journal</p>
+            <p className="eyebrow">Blog</p>
             <h1>What we&rsquo;re thinking about.</h1>
             <p className="lede">Notes from across the group. Short, and only when there&rsquo;s something to say.</p>
           </Reveal>

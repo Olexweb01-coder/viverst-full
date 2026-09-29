@@ -77,7 +77,7 @@ export default function Events() {
           <Reveal>
             <p className="eyebrow">Events</p>
             <h1>Come and see the work.</h1>
-            <p className="lede">Field days, workshops and briefings. In Lagos and online.</p>
+            <p className="lede">Webinars, workshops, briefings.</p>
           </Reveal>
         </div>
       </header>

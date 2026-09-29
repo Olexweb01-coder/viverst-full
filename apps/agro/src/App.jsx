@@ -8,7 +8,7 @@ import Home from './pages/Home.jsx'
 
 const About    = lazy(() => import('./pages/About.jsx'))
 const Solutions= lazy(() => import('./pages/Solutions.jsx'))
-const Careers  = lazy(() => import('./pages/Careers.jsx'))
+const Products = lazy(() => import('./pages/Products.jsx'))
 const Contact  = lazy(() => import('./pages/Contact.jsx'))
 const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 
@@ -24,7 +24,7 @@ export default function App() {
     const warm = () => {
       import('./pages/About.jsx')
       import('./pages/Solutions.jsx')
-      import('./pages/Careers.jsx')
+      import('./pages/Products.jsx')
       import('./pages/Contact.jsx')
     }
     const idle = window.requestIdleCallback
@@ -47,7 +47,7 @@ export default function App() {
             <Route path="/"          element={<Home />} />
             <Route path="/about"     element={<About />} />
             <Route path="/solutions" element={<Solutions />} />
-            <Route path="/careers"   element={<Careers />} />
+            <Route path="/products"  element={<Products />} />
             <Route path="/contact"   element={<Contact />} />
             <Route path="*"          element={<NotFound />} />
           </Routes>

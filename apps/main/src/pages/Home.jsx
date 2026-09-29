@@ -81,11 +81,11 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.26, ease: [0.16, 1, 0.3, 1] }}
           >
             <Magnetic>
-              <Link className="btn btn--primary" to="/about">
-                How we&rsquo;re structured <ArrowRight size={17} aria-hidden="true" />
+              <Link className="btn btn--primary" to="/businesses">
+                Our businesses <ArrowRight size={17} aria-hidden="true" />
               </Link>
             </Magnetic>
-            <Magnetic><Link className="btn btn--onGlass" to="/contact">Start a conversation</Link></Magnetic>
+            <Magnetic><Link className="btn btn--onGlass" to="/contact">Contact us</Link></Magnetic>
           </motion.div>
         </div>
 

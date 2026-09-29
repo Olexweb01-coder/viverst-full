@@ -45,6 +45,18 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Paints the viewport in the page colour until the app mounts. Without
+         this the empty page shows the html canvas colour for a moment. The
+         homepage hero is dark; every other route is light. `:empty` stops
+         matching the instant the app renders, so nothing needs cleaning up. -->
+    <style>
+      #root:empty { min-height: 100svh; background: #f5faff; }
+      html[data-route="home"] #root:empty { background: #14161a; }
+    </style>
+    <script>
+      if (location.pathname === '/') document.documentElement.dataset.route = 'home'
+    </script>
   <!-- Structured data. Lives in the static HTML on purpose: this is a
          client-rendered SPA, so this is the one machine-readable thing a
          crawler sees without executing JavaScript. -->

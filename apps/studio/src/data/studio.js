@@ -19,11 +19,11 @@ export const BUSINESS = {
   industry: 'Brand, design and visual communication',
 }
 
-/* From the brand story: "brands people can see, understand, and remember." */
-export const PROMISE = 'Seen, understood, remembered.'
+/* The homepage headline, as one sentence and as the two lines it is set in. */
+export const PROMISE = 'We design with strategy. Not just style.'
 export const HEADLINE_LINES = [
-  { text: 'Seen, understood,', shift: '-1.5%' },
-  { text: 'remembered.', shift: '6%', deep: true },
+  { text: 'We design with strategy.', shift: '0' },
+  { text: 'Not just style.', shift: '6%', deep: true },
 ]
 
 export const LEDE =
@@ -42,7 +42,6 @@ export const NAV_LINKS = [
   { to: '/about', label: 'About' },
   { to: '/services', label: 'What we do' },
   { to: '/work', label: 'Work' },
-  { to: '/careers', label: 'Careers' },
 ]
 
 /* Core Areas of Focus — eight, exactly as the document lists them. */
@@ -168,22 +167,6 @@ export const PROJECTS = [
     category: 'Guidelines',
     title: 'Aurora Health',
     summary: 'A brand book a clinical team could actually follow: spacing, sizes, do and do-not pages, and the files behind every rule.',
-  },
-]
-
-/* Sample roles, on the same terms. */
-export const ROLES = [
-  {
-    slug: 'brand-designer', sample: true,
-    title: 'Brand designer',
-    type: 'Full time', place: 'Lagos',
-    summary: 'Identity work end to end — the mark, the system and the book behind it. You will own projects rather than execute someone else\u2019s layouts.',
-  },
-  {
-    slug: 'three-d-designer', sample: true,
-    title: '3D and packaging designer',
-    type: 'Contract', place: 'Lagos or remote',
-    summary: 'Structure, label and visualisation for products that have not been manufactured yet. Comfort with print production is worth as much as the render.',
   },
 ]
 

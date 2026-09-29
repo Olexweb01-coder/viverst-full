@@ -139,14 +139,11 @@ ok('studio: reveals measure position instead of observing intersection',
 /* ── studio: sample content must never pass itself off as delivered work ── */
 const studioData = read('apps/studio/src/data/studio.js')
 const studioWork = read('apps/studio/src/pages/Work.jsx')
-const studioCareers = read('apps/studio/src/pages/Careers.jsx')
 const projectCount = (studioData.match(/slug: '[^']+', sample: true/g) ?? []).length
 ok('studio: every placeholder project is flagged as a sample',
    !/export const PROJECTS = \[\s*\{(?![\s\S]{0,120}sample: true)/.test(studioData))
 ok('studio: the work page labels samples on screen',
    projectCount === 0 || studioWork.includes('sample-note'))
-ok('studio: the careers page labels sample listings on screen',
-   studioCareers.includes('sample-note'))
 ok('studio: the work page still handles having nothing to show',
    studioWork.includes('empty-state') && studioWork.includes('PROJECTS.length === 0'))
 
@@ -189,6 +186,11 @@ ok('the overscroll area matches the footer rather than showing white',
    /html \{[^}]*background:\s*var\(--footer-bg\)/s.test(base))
 ok('scrolling behaviour itself is left alone, so pull-to-refresh still works',
    !/overscroll-behavior/.test(base))
+/* The body arrives empty, so without a height it paints nothing and the canvas
+   colour above fills the screen — a flash of the footer colour on every cold
+   load. Caught on a PageSpeed filmstrip, not by any test. */
+ok('the body covers the viewport, so the canvas never flashes before the app renders',
+   /body \{[^}]*min-height:\s*100svh/s.test(base))
 
 /* ── report ── */
 const failed = checks.filter((c) => !c.pass)

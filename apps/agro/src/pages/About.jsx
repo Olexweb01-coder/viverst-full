@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { Seo, Reveal, Float, Tilt, Magnetic, Icon } from '@viverst/ui'
-import { BUSINESS, MISSION, PROMISE, SUMMARY, COMMITMENTS, VALUE_PILLARS, IMG } from '../data/agro.js'
+import { BUSINESS, MISSION, PROMISE, SUMMARY, AREAS_OF_WORK, VALUE_PILLARS, IMG } from '../data/agro.js'
 import './Pages.css'
 
 export default function About() {
@@ -17,10 +17,12 @@ export default function About() {
       <header className="page-hero">
         <span className="field-glow field-glow--a drift" aria-hidden="true" />
         <div className="container page-hero-inner">
-          <Reveal as="p" className="eyebrow">About</Reveal>
-          <Reveal as="h1" delay={0.05}>Farming is too important to keep losing money in.</Reveal>
-          <Reveal as="p" className="lede" delay={0.1}>
-It is one of the biggest parts of the economy and one of the most wasteful. That gap is our business.
+          <Reveal as="p" className="eyebrow">About us</Reveal>
+          {/* One statement, and it is the page's heading. Sized as a statement
+              rather than a display headline: it is a full sentence. */}
+          <Reveal as="h1" className="page-statement" delay={0.05}>
+            Viverst Agro works across agricultural technology, production, processing, and value chain
+            development; turning real agricultural challenges into practical, scalable solutions.
           </Reveal>
         </div>
       </header>
@@ -63,11 +65,11 @@ It is one of the biggest parts of the economy and one of the most wasteful. That
         <span className="hex-field" aria-hidden="true" />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <Reveal>
-            <p className="eyebrow">What we hold ourselves to</p>
-            <h2 className="page-title">Six commitments.</h2>
+            <p className="eyebrow">What we do</p>
+            <h2 className="page-title">Seven areas of work, one value chain.</h2>
           </Reveal>
           <div className="grid grid--3">
-            {COMMITMENTS.map((c, i) => (
+            {AREAS_OF_WORK.map((c, i) => (
               <Reveal key={c.k} delay={(i % 3) * 0.07}>
                 <Float delay={i * 0.6} duration={7.2 + (i % 3) * 0.7} distance={-7}>
                   <div className="commit-card">
@@ -110,7 +112,7 @@ It is one of the biggest parts of the economy and one of the most wasteful. That
             <div className="parent-band">
               <div>
                 <p className="eyebrow">Part of a group</p>
-                <h2>We carry the same name as the group above us.</h2>
+                <h2>Backed by a group built to last.</h2>
                 <p className="parent-body">
                   Viverst Agro sits under {BUSINESS.parent}, alongside {BUSINESS.siblingName}.
                   Same oversight, same standards, different markets.

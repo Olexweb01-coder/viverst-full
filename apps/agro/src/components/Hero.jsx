@@ -21,7 +21,7 @@ const FADE = 1.6  // seconds the two overlap
  * colour can fix it, because contrast runs one way only and the picture keeps
  * changing underneath.
  */
-export default function Hero({ frames, lines, summary, place }) {
+export default function Hero({ frames, lines, summary }) {
   const root = useRef(null)
   const layers = useRef([])
   const [index, setIndex] = useState(0)
@@ -81,10 +81,6 @@ export default function Hero({ frames, lines, summary, place }) {
       </div>
 
       <div className="hero-inner">
-        <p className="hero-eyebrow" data-fade>
-          <span className="hero-dot" />Farming and agribusiness &middot; {place}
-        </p>
-
         {/* Words carry the rise; the spaces between them are real text nodes.
             Held inside the clipped span they would render joined together. */}
         <h1 className="hero-title">
@@ -111,7 +107,7 @@ export default function Hero({ frames, lines, summary, place }) {
               See what we do <ArrowRight size={17} aria-hidden="true" />
             </Link>
           </Magnetic>
-          <Magnetic><Link className="btn btn--onGlass" to="/contact">Talk to us</Link></Magnetic>
+          <Magnetic><Link className="btn btn--onGlass" to="/contact">Contact us</Link></Magnetic>
         </div>
       </div>
 

@@ -18,6 +18,7 @@ const Businesses= lazy(() => import('./pages/Businesses.jsx'))
 const Blog      = lazy(() => import('./pages/Blog.jsx'))
 const BlogPost  = lazy(() => import('./pages/BlogPost.jsx'))
 const Events    = lazy(() => import('./pages/Events.jsx'))
+const Careers   = lazy(() => import('./pages/Careers.jsx'))
 const EventDetail = lazy(() => import('./pages/EventDetail.jsx'))
 const NotFound  = lazy(() => import('./pages/NotFound.jsx'))
 
@@ -41,6 +42,7 @@ function AnimatedRoutes() {
         <Route path="/blog/:slug"    element={<PageShell><BlogPost /></PageShell>} />
         <Route path="/events"        element={<PageShell><Events /></PageShell>} />
         <Route path="/events/:slug"  element={<PageShell><EventDetail /></PageShell>} />
+        <Route path="/careers"       element={<PageShell><Careers /></PageShell>} />
         {/* Catch-all: without this, a typo'd URL renders a blank page. */}
         <Route path="*"          element={<PageShell><NotFound /></PageShell>} />
       </Routes>
@@ -58,6 +60,7 @@ export default function App() {
       import('./pages/Businesses.jsx')
       import('./pages/Blog.jsx')
       import('./pages/Events.jsx')
+      import('./pages/Careers.jsx')
       import('./pages/NotFound.jsx')
     }
     const idle = window.requestIdleCallback

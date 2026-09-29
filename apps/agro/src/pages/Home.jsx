@@ -4,7 +4,7 @@ import { Seo, Reveal, Float, Tilt, Magnetic, Counter, Icon } from '@viverst/ui'
 
 import ValueChain from '../components/ValueChain.jsx'
 import Hero from '../components/Hero.jsx'
-import { BUSINESS, SUMMARY, HEADLINE_LINES, FOCUS_AREAS, STATS, SHOWCASE, IMG } from '../data/agro.js'
+import { BUSINESS, SUMMARY, HERO_SUMMARY, HEADLINE_LINES, FOCUS_AREAS, STATS, SHOWCASE, IMG } from '../data/agro.js'
 import './Pages.css'
 
 /* The homepage introduces; the dedicated pages explain. Each door below is a
@@ -26,7 +26,7 @@ export default function Home() {
     <>
       <Seo
         title="Viverst Agro | Farming Solutions From Farm to Buyer in Nigeria"
-        description="Grow more, waste less, earn better. Viverst Agro works from the farm to the buyer — farm technology, crop production, processing, packaging and getting produce to market. Lagos, Nigeria."
+        description="Grow more, waste less, earn better. Viverst Agro works from the farm to the buyer — agricultural technology, crop production, processing, packaging and getting produce to market. Lagos, Nigeria."
         url={BUSINESS.site + '/'}
         siteName={BUSINESS.name}
         image={BUSINESS.site + '/og-image.png'}
@@ -45,7 +45,7 @@ export default function Home() {
         }}
       />
 
-      <Hero frames={SHOWCASE} lines={HEADLINE_LINES} summary={SUMMARY} place="Lagos, Nigeria" />
+      <Hero frames={SHOWCASE} lines={HEADLINE_LINES} summary={HERO_SUMMARY} />
 
       {/* The counts sit under the hero, not on top of the photograph. */}
       <section className="figures" aria-label="Viverst Agro at a glance">

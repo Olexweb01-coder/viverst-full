@@ -11,7 +11,6 @@ import Home from './pages/Home.jsx'
 const About    = lazy(() => import('./pages/About.jsx'))
 const Services = lazy(() => import('./pages/Services.jsx'))
 const Work     = lazy(() => import('./pages/Work.jsx'))
-const Careers  = lazy(() => import('./pages/Careers.jsx'))
 const Contact  = lazy(() => import('./pages/Contact.jsx'))
 const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 
@@ -28,7 +27,6 @@ export default function App() {
       import('./pages/About.jsx')
       import('./pages/Services.jsx')
       import('./pages/Work.jsx')
-      import('./pages/Careers.jsx')
       import('./pages/Contact.jsx')
     }
     const idle = window.requestIdleCallback
@@ -53,7 +51,6 @@ export default function App() {
             <Route path="/about"    element={<About />} />
             <Route path="/services" element={<Services />} />
             <Route path="/work"     element={<Work />} />
-            <Route path="/careers"  element={<Careers />} />
             <Route path="/contact"  element={<Contact />} />
             <Route path="*"         element={<NotFound />} />
           </Routes>

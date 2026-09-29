@@ -4,11 +4,10 @@
  * Source: VIVERST GLOBAL LIMITED — CORPORATE BRAND STRATEGY
  */
 
-import industry from '@brand-assets/main/img/industry.webp'
-import production from '@brand-assets/main/img/production.webp'
-import logistics from '@brand-assets/main/img/logistics.webp'
-import city from '@brand-assets/main/img/city.webp'
 import growth from '@brand-assets/main/img/growth.webp'
+import partnership from '@brand-assets/main/img/partnership.webp'
+import boardroom from '@brand-assets/main/img/boardroom.webp'
+import city from '@brand-assets/main/img/city.webp'
 
 export const COMPANY = {
   legalName: "Viverst Global Limited",
@@ -16,6 +15,7 @@ export const COMPANY = {
   city: "Lagos",
   country: "Nigeria",
   email: "info@viverst.com",
+  hrEmail: "hr@viverst.com",
   phone: "+234 000 000 0000",
   domain: "https://www.viverst.com",
 };
@@ -131,17 +131,16 @@ export const STATS = [
 
 /* ── Navigation ─────────────────────────────────────────────── */
 
-/* Hero imagery. Five slots, rotated in order. These are placeholder graphics,
-   not photographs — drop a real photo in with the same filename and every place
-   it appears updates. The admin backend edits this list rather than the page. */
-export const IMG = { industry, production, logistics, city, growth }
+/* Hero photography. Four slots, rotated in order. To swap one, drop a new
+   1600x1100 file in with the same filename. The rotation in Home.css is timed
+   for this count: 6 seconds each, so change both if the count changes. */
+export const IMG = { growth, partnership, boardroom, city }
 
 export const HERO_FRAMES = [
-  { key: 'industry', img: industry, alt: '' },
-  { key: 'production', img: production, alt: '' },
-  { key: 'logistics', img: logistics, alt: '' },
-  { key: 'city', img: city, alt: '' },
   { key: 'growth', img: growth, alt: '' },
+  { key: 'partnership', img: partnership, alt: '' },
+  { key: 'boardroom', img: boardroom, alt: '' },
+  { key: 'city', img: city, alt: '' },
 ]
 
 /* Two lines, stepped, centred. Two is the maximum: a third turns the hero into
@@ -158,8 +157,44 @@ export const HERO_SUMMARY =
 export const NAV_LINKS = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
-  { to: "/blog", label: "Journal" },
-  { to: "/events", label: "Events" },
   { to: "/businesses", label: "Our Businesses" },
+  { to: "/blog", label: "Blog" },
+  { to: "/events", label: "Events" },
+  { to: "/careers", label: "Careers" },
   { to: "/contact", label: "Contact" },
 ];
+
+/* ── Careers ────────────────────────────────────────────────── */
+
+/* Open roles across the whole group are listed here and nowhere else. Empty
+   means empty: the page shows an honest notice and the application form.
+   Each role: { slug, title, company, type, place, summary }. The admin
+   backend fills this same shape. */
+export const ROLES = []
+
+/* The application form. Every answer is written into the email that reaches
+   HR, so the options here are the ones HR wants to sort by. */
+export const CAREER_PLACES = [
+  "Anywhere in the group",
+  "Viverst Global Limited",
+  "Viverst Agro",
+  "Viverst Studio",
+]
+export const CAREER_AREAS = [
+  "Agriculture and agro-processing",
+  "Design and creative",
+  "Technology and engineering",
+  "Sales and business development",
+  "Finance, admin and operations",
+  "Other",
+]
+export const CAREER_EXPERIENCE = ["0–2 years", "3–5 years", "6–10 years", "More than 10 years"]
+export const CAREER_TYPES = ["Full time", "Part time", "Contract", "Internship"]
+export const CAREER_AVAILABILITY = ["Immediately", "Within a month", "In 1–3 months", "Later"]
+
+/* Why work here. Three short points; the page says the rest. */
+export const CAREER_REASONS = [
+  { icon: "trending", title: "Room to grow", body: "A group that is still expanding has more openings than one that is finished." },
+  { icon: "network",  title: "More than one industry", body: "Agriculture, design and whatever comes next. Skills can move between companies." },
+  { icon: "anchor",   title: "A long view", body: "Businesses built to last, which means careers built the same way." },
+]

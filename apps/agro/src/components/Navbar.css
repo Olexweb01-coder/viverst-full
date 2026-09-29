@@ -48,6 +48,17 @@
 }
 .nav-toggle:hover { transform: translateY(-1px); }
 
+/* ── over the homepage hero, before any scroll ──
+   The scrim underneath is dark green, so everything in the bar goes light.
+   The moment the bar gains its own background this class is dropped. */
+.nav--onDark .nav-logo-img--light { height: 24px; }
+.nav--onDark .nav-link { color: rgba(254, 254, 254, 0.78); }
+.nav--onDark .nav-link:hover { color: #fefefe; background: rgba(254, 254, 254, 0.1); }
+.nav--onDark .nav-link.is-active { color: #fefefe; background: rgba(254, 254, 254, 0.16); }
+.nav--onDark .nav-parent { color: #fefefe; border-color: rgba(254, 254, 254, 0.5); }
+.nav--onDark .nav-parent:hover { background: rgba(254, 254, 254, 0.14); border-color: #fefefe; }
+.nav--onDark .nav-toggle { color: #fefefe; background: rgba(254, 254, 254, 0.12); border-color: rgba(254, 254, 254, 0.5); }
+
 .nav-drawer {
   background: color-mix(in srgb, var(--bg) 97%, transparent);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);

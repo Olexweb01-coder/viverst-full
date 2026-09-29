@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Menu, X, ArrowUpRight } from 'lucide-react'
 import { NAV_LINKS, BUSINESS } from '../data/agro.js'
 import lockup from '@brand-assets/agro/lockup.webp'
+import wordmarkLight from '@brand-assets/agro/wordmark-light.webp'
 import './Navbar.css'
 
 export default function Navbar() {
@@ -15,6 +16,11 @@ export default function Navbar() {
   const [openPath, setOpenPath] = useState(null)
   const open = openPath === pathname
   const close = () => setOpenPath(null)
+  // The homepage hero is a dark photograph under a scrim. Until the bar picks
+  // up its own background on scroll, the logo and links read light against
+  // it, or they disappear into the picture. Open drawer is light-backed, so
+  // it counts as scrolled here.
+  const onDarkHero = pathname === '/' && !scrolled && !open
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -34,10 +40,12 @@ export default function Navbar() {
   }, [])
 
   return (
-    <header className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
+    <header className={`nav ${scrolled ? 'nav--scrolled' : ''}${onDarkHero ? ' nav--onDark' : ''}`}>
       <div className="nav-inner container">
         <Link to="/" className="nav-logo" aria-label={`${BUSINESS.name} — home`}>
-          <img src={lockup} alt={BUSINESS.name} className="nav-logo-img" width="304" height="48" />
+          {onDarkHero
+            ? <img src={wordmarkLight} alt={BUSINESS.name} className="nav-logo-img nav-logo-img--light" width="260" height="31" />
+            : <img src={lockup} alt={BUSINESS.name} className="nav-logo-img" width="304" height="48" />}
         </Link>
 
         <nav className="nav-links" aria-label="Main">

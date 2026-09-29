@@ -46,4 +46,10 @@ a.footer-contact:hover { color: #fefefe; transform: translateX(3px); }
   .footer-top { grid-template-columns: 1fr; gap: 34px; }
   .footer-inner { padding-block: 52px 28px; }
 }
-@media (max-width: 520px) { .footer-cols { grid-template-columns: 1fr 1fr; } }
+/* Columns stay side by side on phones so the footer does not become one long
+   list; the type tightens instead. */
+@media (max-width: 520px) {
+  .footer-cols { gap: 14px; }
+  .footer-col h2 { font-size: 10.5px; }
+  .footer-link { font-size: 13px; padding-block: 3px; }
+}

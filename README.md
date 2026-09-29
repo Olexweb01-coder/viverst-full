@@ -27,7 +27,7 @@ change meant for one site can reach the other two.
 
 ```bash
 npm run lint                      # oxlint across the workspace
-node verify.mjs                   # 56 regression checks
+node verify.mjs                   # 57 regression checks
 npm run test -w @viverst/main     # 13 routes, interactions, accessibility
 npm run test -w @viverst/agro     #  6 routes
 npm run test -w @viverst/studio   #  7 routes
@@ -58,7 +58,9 @@ settled, and the bug behind every check in `verify.mjs`.
 Two things that catch people out:
 
 - `verify.mjs` reports the number of checks, not a pass rate. If it says
-  fewer than 56 total, you are running an older copy.
-- Studio's Work and Careers pages carry sample records flagged `sample: true`
-  in `apps/studio/src/data/studio.js`, and show a notice on screen saying so.
-  Remove the flag as real work ships; the notice disappears by itself.
+  fewer than 57 total, you are running an older copy.
+- Studio's Work page and Agro's Products page carry sample records flagged
+  `sample: true` in their data files, and show a notice on screen saying so.
+  Remove the flag as real records ship; the notice disappears by itself.
+- Careers for the whole group live on viverst.com only (`/careers`). The
+  subsidiary sites 301 their old `/careers` URL there via `vercel.json`.

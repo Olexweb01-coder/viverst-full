@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
 import {
   FOCUS_AREAS, DELIVERABLES, PAINS, PROCESS, REASONS, AUDIENCE,
-  COMMITMENTS, CONTACT_TOPICS, PROJECTS, ROLES, STATEMENT, PROMISE,
+  COMMITMENTS, CONTACT_TOPICS, PROJECTS, STATEMENT, PROMISE,
 } from '../src/data/studio.js'
 
 /* Each route states the heading it expects. Waiting for "an h1 exists" is
@@ -14,11 +14,10 @@ import {
    one before this, and the suite still reported green because it never checked
    which page it had. */
 const ROUTES = [
-  ['/', 'Seen, understood'],
+  ['/', 'We design with strategy'],
   ['/about', 'Great businesses'],
   ['/services', 'Eight areas'],
   ['/work', 'The work'],
-  ['/careers', 'Build the studio'],
   ['/contact', 'Tell us what'],
   ['/not-a-real-page', 'That page is not here'],
 ]
@@ -111,7 +110,7 @@ const run = async () => {
       }
     }
     // every internal route must be one the router actually answers
-    const known = new Set(['/', '/about', '/services', '/work', '/careers', '/contact'])
+    const known = new Set(['/', '/about', '/services', '/work', '/contact'])
     for (const a of host.querySelectorAll('a[href^="/"]')) {
       const h = a.getAttribute('href').split('#')[0]
       if (!known.has(h)) problems.push(`${path}: link to "${h}" has no route`)
@@ -119,7 +118,7 @@ const run = async () => {
   }
 
   /* ---- the mark is the hero: real geometry, looping, eight strokes ---- */
-  await navigate('/', h1Has('Seen, understood'))
+  await navigate('/', h1Has('We design with strategy'))
   const rays = document.querySelectorAll('.mark-ray').length
   const blob = document.querySelector('.mark-blob')
   const star = document.querySelector('.mark-star')
@@ -165,7 +164,6 @@ const run = async () => {
   const steps = document.querySelectorAll('.step').length
   const tiles = document.querySelectorAll('.tile').length
   const chips = document.querySelectorAll('.chips span').length
-  const commits = document.querySelectorAll('.commitments li').length
   if (stackCards !== FOCUS_AREAS.length) problems.push(`stack shows ${stackCards} areas, data has ${FOCUS_AREAS.length}`)
   if (gets !== DELIVERABLES.length) problems.push(`${gets} deliverables rendered, data has ${DELIVERABLES.length}`)
   if (arts !== DELIVERABLES.length) problems.push(`${arts} artefact drawings for ${DELIVERABLES.length} deliverables`)
@@ -173,7 +171,6 @@ const run = async () => {
   if (steps !== PROCESS.length) problems.push(`${steps} process steps, data has ${PROCESS.length}`)
   if (tiles !== REASONS.length) problems.push(`${tiles} reasons, data has ${REASONS.length}`)
   if (chips !== AUDIENCE.length) problems.push(`${chips} audience chips, data has ${AUDIENCE.length}`)
-  if (commits !== COMMITMENTS.length) problems.push(`${commits} commitments, data has ${COMMITMENTS.length}`)
   rows.push({ path: '(home content)', chars: stackCards + gets + pains + steps + tiles, links: chips, h1: 'all counts match the data file' })
 
   /* ---- every artefact is drawn, not an empty frame ---- */
@@ -208,7 +205,7 @@ const run = async () => {
     await wait(500)
     const drawerLinks = document.querySelectorAll('.nav-drawer-link').length
     const locked = document.body.style.overflow === 'hidden'
-    if (drawerLinks !== 6) problems.push(`drawer rendered ${drawerLinks} links, expected 6`)
+    if (drawerLinks !== 5) problems.push(`drawer rendered ${drawerLinks} links, expected 5`)
     if (!locked) problems.push('drawer did not lock body scroll')
     rows.push({ path: '(drawer)', chars: drawerLinks, links: 0, h1: `bodyLocked=${locked}` })
     window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape' }))
@@ -240,22 +237,6 @@ const run = async () => {
   if (covers !== PROJECTS.length) problems.push(`${covers} project covers for ${PROJECTS.length} projects`)
   rows.push({ path: '(work)', chars: workCards, links: covers, h1: `samples=${sampleCount} labelled=${!!workNotice}` })
 
-  /* ---- careers: empty state + form that starts disabled ---- */
-  await navigate('/careers', h1Has('Build the studio'))
-  const emptyRoles = document.querySelector('.empty-roles')
-  const roleCards = document.querySelectorAll('.role').length
-  const roleNotice = document.querySelector('.sample-note')
-  const careerFields = document.querySelectorAll('.apply-form input, .apply-form textarea').length
-  const careerSubmit = document.querySelector('.apply-submit')
-  if (ROLES.length === 0 && !emptyRoles) problems.push('careers page has no empty state for zero open roles')
-  if (roleCards !== ROLES.length) problems.push(`careers lists ${roleCards} roles, data has ${ROLES.length}`)
-  if (ROLES.some((r) => r.sample) && !roleNotice) {
-    problems.push('careers renders sample listings with no notice saying they are samples')
-  }
-  if (careerFields < 4) problems.push(`careers form has ${careerFields} fields, expected 4`)
-  if (!careerSubmit?.disabled) problems.push('careers submit should start disabled')
-  rows.push({ path: '(careers)', chars: careerFields, links: 0, h1: `emptyState=${!!emptyRoles} disabled=${!!careerSubmit?.disabled}` })
-
   /* ---- contact: topics select, submit starts disabled ---- */
   await navigate('/contact', h1Has('Tell us what'))
   const topics = document.querySelectorAll('.topic').length
@@ -270,7 +251,7 @@ const run = async () => {
   rows.push({ path: '(contact)', chars: topics, links: 0, h1: 'topic selection works' })
 
   /* ---- the statement is one sentence, word-split for the fill ---- */
-  await navigate('/', h1Has('Seen, understood'))
+  await navigate('/', h1Has('We design with strategy'))
   const stmt = document.querySelector('.statement')
   if (stmt && stmt.textContent.replace(/\s+/g, ' ').trim() !== STATEMENT) {
     problems.push('the statement no longer reads as its own sentence after the word split')
