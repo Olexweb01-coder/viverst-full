@@ -3,6 +3,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
+import { SHOWCASE } from '../src/data/agro.js'
 
 /* Each route states the heading it expects. A flat wait proves nothing: if the
    page has not swapped yet the walk measures the one it just left, and the
@@ -124,7 +125,7 @@ const run = async () => {
   const stage = document.querySelector('.hero-bg')
   const slides = document.querySelectorAll('.hero-layer img').length
   if (!stage) problems.push('hero image backdrop did not render')
-  if (slides !== 6) problems.push(`hero has ${slides} frames, expected 6`)
+  if (slides !== SHOWCASE.length) problems.push(`hero has ${slides} frames, data has ${SHOWCASE.length}`)
   if (document.querySelector('.stage-dot')) problems.push('hero should have no manual controls')
   // the headline must be split into words for the staggered rise
   const words = document.querySelectorAll('.hero-word').length
@@ -163,20 +164,17 @@ const run = async () => {
   }
 
   // every frame must carry real alt text, since these are content images
-  // hero pictures are decorative: the caption carries the meaning, so they
+  // hero pictures are decorative: the headline carries the meaning, so they
   // take empty alt and must not be announced
   for (const img of document.querySelectorAll('.hero-layer img')) {
     if (img.getAttribute('alt') !== '') a11y.push('hero backdrop image should have empty alt')
     if (!img.getAttribute('src')) problems.push('hero backdrop image has no src')
   }
 
-  // Nothing may sit behind the type — no plate, no per-line backing. The
-  // scrim on the image is the only thing keeping the words readable, so it
-  // has to be present.
+  // Nothing may sit behind the type — no plate, no per-line backing, and by
+  // the client's decision no scrim either: the photographs show as shot.
   if (document.querySelector('.hero-plate')) problems.push('a full plate is back behind the type')
-  if (!document.querySelector('.hero-scrim')) {
-    problems.push('the hero scrim is missing — type is on a bare photograph')
-  }
+  if (document.querySelector('.hero-scrim')) problems.push('a scrim is back over the photographs')
   if (document.querySelector('.hero-lede > span')) {
     problems.push('the supporting line still has a backing wrapper')
   }
@@ -188,7 +186,7 @@ const run = async () => {
   }
   const figures = document.querySelectorAll('.figures .figure').length
   if (figures !== 3) problems.push(`figures band has ${figures} entries, expected 3`)
-  rows.push({ path: '(hero backdrop)', chars: slides, links: words, h1: `${lines.length} centred lines · ${gaps} spaces · scrim only` })
+  rows.push({ path: '(hero backdrop)', chars: slides, links: words, h1: `${lines.length} centred lines · ${gaps} spaces · no scrim` })
   rows.push({ path: '(figures band)', chars: figures, links: 0, h1: 'counts sit below the hero' })
 
   /* ---- gallery (now on the solutions page) ---- */

@@ -11,6 +11,13 @@ import store from '@brand-assets/agro/img/store.webp'
 import silos from '@brand-assets/agro/img/silos.webp'
 import soil from '@brand-assets/agro/img/soil.webp'
 import processing from '@brand-assets/agro/img/processing.webp'
+/* Hero photography. The set above still serves the value chain, gallery and
+   product cards. */
+import crates from '@brand-assets/agro/img/crates.webp'
+import tomatoes from '@brand-assets/agro/img/tomatoes.webp'
+import agtech from '@brand-assets/agro/img/agtech.webp'
+import drone from '@brand-assets/agro/img/drone.webp'
+import greenhouse from '@brand-assets/agro/img/greenhouse.webp'
 
 export const IMG = { farmland, irrigation, orchard, harvest, store, silos, soil }
 
@@ -118,14 +125,14 @@ export const STATS = [
   { value: 1, label: 'Group behind us' },
 ]
 
-/** The rotating hero images. Swap these for your own photographs. */
+/** The rotating hero photographs, in order. Each holds 6 seconds. To swap
+    one, drop a 1120x788 file in with the same filename. */
 export const SHOWCASE = [
-  { img: farmland,   label: 'On the farm',   caption: 'Crops planted and spaced for the harvest you actually want.' },
-  { img: irrigation, label: 'Water',         caption: 'Irrigation planned and run from one place.' },
-  { img: orchard,    label: 'From above',    caption: 'Seeing the whole farm before deciding anything.' },
-  { img: silos,      label: 'Storage',       caption: 'Stored properly, so a good harvest stays good.' },
-  { img: store,      label: 'Bagged',        caption: 'Bagged and ready to move to the buyer.' },
-  { img: harvest,    label: 'Harvest',       caption: 'Cleaned and graded before quality starts costing money.' },
+  { key: 'agtech',     img: agtech },
+  { key: 'crates',     img: crates },
+  { key: 'drone',      img: drone },
+  { key: 'tomatoes',   img: tomatoes },
+  { key: 'greenhouse', img: greenhouse },
 ]
 
 /** Grid of imagery. Replace with your own photographs. */

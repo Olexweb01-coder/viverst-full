@@ -13,22 +13,6 @@
 .hero-layer { position: absolute; inset: 0; will-change: transform, opacity; }
 .hero-layer img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Load-bearing. Nothing sits behind the type, so this is what keeps it
-   readable: 0.84 puts white at 5.8:1 over the palest frame in the set and
-   better over every other one. */
-.hero-scrim {
-  position: absolute; inset: 0;
-  /* above every photo layer (they carry z-index 1 and 2 while cross-fading);
-     without this the picture paints over the scrim and the type sits on the
-     raw photograph */
-  z-index: 3;
-  background:
-    linear-gradient(to bottom,
-      rgba(14, 52, 27, 0.86) 0%,
-      rgba(16, 58, 30, 0.84) 42%,
-      rgba(12, 46, 24, 0.90) 100%);
-}
-
 .hero-inner {
   position: relative; z-index: 2;
   width: min(100%, 980px);
@@ -60,7 +44,7 @@
   text-wrap: balance;
   /* a soft shadow, not a box — buys another point of separation on the
      brightest frames without putting anything visible behind the words */
-  text-shadow: 0 2px 26px rgba(8, 32, 16, 0.55);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55), 0 2px 28px rgba(0, 0, 0, 0.6);
 }
 .hero-word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: 0.12em; }
 .hero-word > span { display: inline-block; }
@@ -71,7 +55,7 @@
   font-size: clamp(16px, 1.65vw, 21px);
   line-height: 1.58;
   color: rgba(254, 254, 254, 0.92);
-  text-shadow: 0 1px 16px rgba(8, 32, 16, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 1px 18px rgba(0, 0, 0, 0.6);
 }
 
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
@@ -83,22 +67,10 @@
 }
 .btn--onGlass:hover { background: rgba(254, 254, 254, 0.26); border-color: #fefefe; }
 
-.hero-now {
-  position: absolute; z-index: 2;
-  left: 50%; bottom: clamp(20px, 3.2vw, 32px); transform: translateX(-50%);
-  display: inline-flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  justify-content: center; max-width: min(92vw, 720px); text-align: center;
-}
-.hero-now-label {
-  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand-soft);
-}
-.hero-now-text { font-size: 13.5px; color: rgba(254, 254, 254, 0.86); }
 
 @media (max-width: 860px) {
   .hero { min-height: 92svh; padding-bottom: 72px; }
   .hero-line { font-size: clamp(27px, 7.2vw, 42px); }
-  .hero-now-text { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import gsap from 'gsap'
@@ -14,17 +14,14 @@ const FADE = 1.6  // seconds the two overlap
  * The photograph fills the panel, pushes in the whole time it is on screen,
  * and the next fades up underneath while the current is still travelling.
  *
- * The type sits directly on the picture with nothing behind it. What makes
- * that safe is the scrim on the image itself, held at 0.84: over the palest
- * frame in the set that still puts white at 5.8:1, and it only improves from
- * there. A lighter scrim is what made the words hard to read before — no text
- * colour can fix it, because contrast runs one way only and the picture keeps
- * changing underneath.
+ * The photographs show as shot: no scrim, no tint, nothing behind the type.
+ * The client chose this over the guaranteed-contrast scrim. What keeps the
+ * words legible is the shadow on the type itself, which is on the letters,
+ * not the picture.
  */
 export default function Hero({ frames, lines, summary }) {
   const root = useRef(null)
   const layers = useRef([])
-  const [index, setIndex] = useState(0)
   const reduced = useReducedMotion()
 
   useEffect(() => {
@@ -43,7 +40,6 @@ export default function Hero({ frames, lines, summary }) {
           .set(el, { zIndex: 1 }, `${at}+=${DWELL - FADE}`)
           .to(next, { autoAlpha: 1, duration: FADE, ease: 'power2.inOut' }, `${at}+=${DWELL - FADE}`)
           .to(el, { autoAlpha: 0, duration: FADE, ease: 'power2.inOut' }, `${at}+=${DWELL - FADE}`)
-          .call(() => setIndex((i + 1) % els.length), null, `${at}+=${DWELL}`)
       })
     }, root)
     return () => ctx.revert()
@@ -62,13 +58,11 @@ export default function Hero({ frames, lines, summary }) {
     return () => ctx.revert()
   }, [reduced])
 
-  const shot = frames[index]
-
   return (
     <section className="hero" ref={root} aria-label="Viverst Agro">
       <div className="hero-bg" aria-hidden="true">
         {frames.map((f, i) => (
-          <div key={f.label} className="hero-layer"
+          <div key={f.key} className="hero-layer"
                ref={(el) => { layers.current[i] = el }}
                style={{ opacity: i === 0 ? 1 : 0, visibility: i === 0 ? 'visible' : 'hidden', zIndex: i === 0 ? 2 : 1 }}>
             <img src={f.img} alt="" width="1120" height="788"
@@ -76,8 +70,6 @@ export default function Hero({ frames, lines, summary }) {
                  fetchPriority={i === 0 ? 'high' : 'low'} />
           </div>
         ))}
-        {/* this is load-bearing: the type has nothing else behind it */}
-        <span className="hero-scrim" />
       </div>
 
       <div className="hero-inner">
@@ -111,12 +103,6 @@ export default function Hero({ frames, lines, summary }) {
         </div>
       </div>
 
-      <p className="hero-now" data-fade>
-        <span className="hero-now-label">{shot.label}</span>
-        <span className="hero-now-text">{shot.caption}</span>
-      </p>
-
-      <p className="visually-hidden" aria-live="polite">{shot.label}. {shot.caption}</p>
     </section>
   )
 }
