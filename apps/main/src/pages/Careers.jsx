@@ -86,9 +86,9 @@ export default function Careers() {
             <p className="eyebrow">Careers</p>
             <h1>Build your career with Viverst.</h1>
             <p className="lede">
-              We are a growing group with companies in agriculture and design, and more on the way.
-              We are always interested in capable people. Tell us who you are, what you do and where
-              you would like to work, and we will get in touch when there is a role that fits.
+              We are a growing group of businesses and are always interested in capable people.
+              Tell us who you are, what you do, and where you would like to work. Submit your
+              application below, and we&rsquo;ll get in touch when an opportunity that fits comes up.
             </p>
           </Reveal>
         </div>

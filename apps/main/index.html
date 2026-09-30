@@ -51,7 +51,7 @@
          homepage hero is dark; every other route is light. `:empty` stops
          matching the instant the app renders, so nothing needs cleaning up. -->
     <style>
-      #root:empty { min-height: 100svh; background: #f5faff; }
+      #root:empty { min-height: 100vh; min-height: 100svh; background: #f5faff; }
       html[data-route="home"] #root:empty { background: #14161a; }
     </style>
     <script>
