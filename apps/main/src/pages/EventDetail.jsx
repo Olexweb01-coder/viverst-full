@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Blocks, Float, Icon, Magnetic } from '@viverst/ui'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, ArrowUpRight, MapPin, Clock, Users, Calendar } from 'lucide-react'
 
@@ -8,11 +8,19 @@ import Seo from '../components/Seo.jsx'
 import Reveal from '../components/Reveal.jsx'
 import NotFound from './NotFound.jsx'
 import { getEvent, getEventTypes, isUpcoming } from '../lib/cms.js'
-import { formatDate, formatTime, dayNumber, monthShort, yearOf } from '../lib/format.js'
+import { formatDate, formatTimeRange, dayNumber, monthShort, yearOf } from '../lib/format.js'
+import RegisterForm from '../components/RegisterForm.jsx'
 import './Content.css'
+
+const SITE = 'https://www.viverst.com'
+
+function scrollToRegister() {
+  document.getElementById('register')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 export default function EventDetail() {
   const { slug } = useParams()
+  const { hash } = useLocation()
   // derived, not set inside the effect
   const [data, setData] = useState({ slug: null, event: null })
   const loading = data.slug !== slug
@@ -26,19 +34,32 @@ export default function EventDetail() {
     return () => { alive = false }
   }, [slug])
 
+  // Arriving from the events page's Register button (/events/:slug#register):
+  // wait for the page to load and the route cross-fade to settle, then scroll.
+  const loaded = data.slug === slug && Boolean(data.event)
+  useEffect(() => {
+    if (!loaded || hash !== '#register') return undefined
+    const id = setTimeout(scrollToRegister, 450)
+    return () => clearTimeout(id)
+  }, [loaded, hash])
+
   if (loading) return <div className="article-loading" aria-busy="true" />
   if (!data.event) return <NotFound />
 
   const e = data.event
   const upcoming = isUpcoming(e)
   const meta = types.find((t) => t.key === e.type)
+  const canRegister = upcoming && Boolean(e.registration?.whatsappUrl)
+  const imageUrl = e.image ? new URL(e.image, SITE).href : undefined
 
+  // endsAt, city and capacity are optional: a missing one is left out
+  // rather than rendering "undefined".
   const facts = [
     { icon: Calendar, label: 'Date', value: formatDate(e.startsAt) },
-    { icon: Clock, label: 'Time', value: `${formatTime(e.startsAt)} – ${formatTime(e.endsAt)}` },
-    { icon: MapPin, label: 'Location', value: `${e.venue}, ${e.city}` },
-    { icon: Users, label: 'Capacity', value: `${e.capacity} places` },
-  ]
+    { icon: Clock, label: 'Time', value: formatTimeRange(e.startsAt, e.endsAt) },
+    { icon: MapPin, label: 'Location', value: e.city ? `${e.venue}, ${e.city}` : e.venue },
+    e.capacity ? { icon: Users, label: 'Capacity', value: `${e.capacity} places` } : null,
+  ].filter(Boolean)
 
   return (
     <div className={`event-page brand--${e.brand}`}>
@@ -53,7 +74,8 @@ export default function EventDetail() {
           name: e.title,
           description: e.excerpt,
           startDate: e.startsAt,
-          endDate: e.endsAt,
+          ...(e.endsAt ? { endDate: e.endsAt } : {}),
+          ...(imageUrl ? { image: [imageUrl] } : {}),
           eventStatus: 'https://schema.org/EventScheduled',
           eventAttendanceMode:
             e.mode === 'online'
@@ -63,10 +85,10 @@ export default function EventDetail() {
                 : 'https://schema.org/OfflineEventAttendanceMode',
           location:
             e.mode === 'online'
-              ? { '@type': 'VirtualLocation', url: 'https://www.viverst.com/events/' + e.slug }
+              ? { '@type': 'VirtualLocation', url: `${SITE}/events/${e.slug}` }
               : { '@type': 'Place', name: e.venue, address: { '@type': 'PostalAddress', addressLocality: e.city } },
           organizer: { '@type': 'Organization', name: 'Viverst Global Limited', url: 'https://www.viverst.com/' },
-          maximumAttendeeCapacity: e.capacity,
+          ...(e.capacity ? { maximumAttendeeCapacity: e.capacity } : {}),
         }}
       />
 
@@ -110,6 +132,19 @@ export default function EventDetail() {
                 transition={{ duration: 0.75, delay: 0.14, ease: [0.16, 1, 0.3, 1] }}>
                 {e.excerpt}
               </motion.p>
+
+              {canRegister && (
+                <motion.div className="event-hero-cta"
+                  initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.75, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}>
+                  <Magnetic>
+                    <a className="btn btn--primary event-register-btn" href="#register"
+                       onClick={(ev) => { ev.preventDefault(); scrollToRegister() }}>
+                      Register now <ArrowUpRight size={16} aria-hidden="true" />
+                    </a>
+                  </Magnetic>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
@@ -117,7 +152,7 @@ export default function EventDetail() {
 
       <section className="section--tight">
         <div className="container">
-          <div className="grid grid--4">
+          <div className={`grid ${facts.length === 4 ? 'grid--4' : 'grid--3'}`}>
             {facts.map((f, i) => {
               const FIcon = f.icon
               return (
@@ -137,11 +172,28 @@ export default function EventDetail() {
       </section>
 
       <section className="section--tight">
-        <div className="container article-body">
-          <Reveal><Blocks blocks={e.body} /></Reveal>
+        <div className={`container ${e.image ? 'event-content' : 'article-body'}`}>
+          {e.image && (
+            <Reveal className="event-flyer-wrap">
+              <figure className="event-flyer">
+                <img src={e.image} alt={e.imageAlt || e.title} width="1200" height="1200"
+                     loading="eager" decoding="async" />
+              </figure>
+            </Reveal>
+          )}
+          <Reveal className={e.image ? 'article-body event-content-body' : undefined}>
+            <Blocks blocks={e.body} />
+          </Reveal>
         </div>
       </section>
 
+      {canRegister ? (
+        <section className="section--tight">
+          <div className="container">
+            <Reveal><RegisterForm event={e} /></Reveal>
+          </div>
+        </section>
+      ) : (
       <section className="section--tight">
         <div className="container">
           <Reveal>
@@ -152,7 +204,7 @@ export default function EventDetail() {
               </div>
               <div className="sub-next-actions">
                 <Magnetic>
-                  <Link className="btn btn--primary" to={e.registerUrl || '/contact'}>
+                  <Link className="btn btn--primary" to="/contact">
                     {upcoming ? 'Register interest' : 'Get in touch'} <ArrowUpRight size={16} aria-hidden="true" />
                   </Link>
                 </Magnetic>
@@ -162,6 +214,7 @@ export default function EventDetail() {
           </Reveal>
         </div>
       </section>
+      )}
     </div>
   )
 }

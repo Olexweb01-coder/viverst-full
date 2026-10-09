@@ -60,7 +60,7 @@ export default function Home() {
       </section>
 
       {/* ───────────── THE CHAIN ───────────── */}
-      <section className="section section--alt">
+      <section className="section section--mist">
         <span className="hex-field" aria-hidden="true" />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <Reveal>

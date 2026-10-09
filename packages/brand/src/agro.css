@@ -9,6 +9,9 @@
 :root {
   --bg:            #fefefe;   /* every page except the footer */
   --bg-alt:        #f3e8cc;   /* cream — alternating sections */
+  /* Mist: the header's grey-white. Not a new swatch — Agro deep green mixed
+     into Agro white, the same way the translucent header gets its tint. */
+  --bg-mist:       color-mix(in srgb, #18542a 12%, #fefefe);
   --surface:       #fefefe;
 
   --ink:           #18542a;   /* PRIMARY — headlines and body. 8.9:1 */

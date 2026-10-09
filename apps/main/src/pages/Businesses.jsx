@@ -56,7 +56,8 @@ export default function Businesses() {
 
                   <div className="biz-head">
                     <Float delay={i * 1.2} duration={9 + i} distance={-6}>
-                      <span className="biz-swatch" aria-hidden="true" />
+                      <img className="biz-logo" src={s.logo} alt="" aria-hidden="true"
+                           width="46" height="46" decoding="async" />
                     </Float>
                     <div>
                       <h2>{s.name}</h2>

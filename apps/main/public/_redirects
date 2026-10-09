@@ -1,3 +1,5 @@
+/event         /events                     301!
+/event/*       /events/:splat              301!
 /agro          https://agro.viverst.com    301!
 /agro/*        https://agro.viverst.com/:splat  301!
 /studio        https://studio.viverst.com  301!

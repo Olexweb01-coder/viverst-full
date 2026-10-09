@@ -119,3 +119,7 @@ body { font-variation-settings: "wdth" 100, "opsz" 14; }
 @media (max-width: 700px) {
   .figures-inner { grid-template-columns: 1fr; gap: 14px; }
 }
+
+/* Mist section: fades from the header's grey-white into Agro white, so it
+   reads as a continuation of the header rather than a cream band. */
+.section--mist { background: linear-gradient(180deg, var(--bg-mist) 0%, var(--bg) 100%); }

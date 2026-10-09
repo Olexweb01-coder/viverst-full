@@ -4,6 +4,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
 import { HERO_FRAMES, HERO_LINES, SUBSIDIARIES } from '../src/data/site.js'
+import { normalizePhone } from '../src/lib/register.js'
 
 /* Each route states the heading it expects. A flat wait proves nothing: if the
    page has not swapped yet the walk measures the one it just left, and the
@@ -14,7 +15,7 @@ const ROUTES = [
   ['/blog', 'thinking about'],
   ['/blog/why-we-put-our-name-on-every-company', 'Why we put our name'],
   ['/events', 'Come and see the work'],
-  ['/events/agro-field-day-2026', 'Field Day'],
+  ['/events/reimagining-agriculture-digital-economy', 'Reimagining Agriculture'],
   ['/contact', 'gap'],
   ['/careers', 'Build your career'],
   ['/businesses', 'Each company runs its own industry'],
@@ -24,6 +25,20 @@ const ROUTES = [
 ]
 
 const problems = []
+
+/* Never let the suite reach the live registrations sheet. Any request to
+   Google Apps Script that isn't intercepted by a test's own fake fails loudly. */
+{
+  const guard = (orig) => async (url, ...rest) => {
+    if (String(url).includes('script.google.com')) {
+      problems.push(`test tried to contact the live registration sheet: ${url}`)
+      throw new Error('blocked in tests')
+    }
+    return orig ? orig(url, ...rest) : Promise.reject(new Error('no fetch'))
+  }
+  globalThis.fetch = guard(globalThis.fetch)
+  if (typeof window !== 'undefined') window.fetch = guard(window.fetch)
+}
 const a11y = []
 const origError = console.error
 console.error = (...a) => {
@@ -191,7 +206,10 @@ const run = async () => {
   const evCards = document.querySelectorAll('.event-card').length
   results.push({ path: '(events)', chars: evCards, h1: `tabs=${tabs.length} countdown=${cells}`, links: 0, canvases: 0 })
   if (tabs.length !== 2) problems.push('expected exactly two event tabs (upcoming / past)')
-  if (cells !== 4) problems.push(`countdown rendered ${cells} cells, expected 4 — is the next event in the past?`)
+  // Only checked while an event is upcoming, so the suite doesn't start
+  // failing on its own the day the last scheduled event passes.
+  if (document.querySelector('.next-event') && cells !== 4)
+    problems.push(`countdown rendered ${cells} cells, expected 4`)
   if (tabs.length) {
     tabs[1].click()
     await wait(700)
@@ -209,7 +227,7 @@ const run = async () => {
     .filter(Boolean)
   if (!articleLd.some((d) => d['@type'] === 'BlogPosting')) problems.push('article is missing BlogPosting JSON-LD')
 
-  navigate('/events/agro-field-day-2026')
+  navigate('/events/reimagining-agriculture-digital-economy')
   await wait(1800)
   const eventLd = [...document.querySelectorAll('script[type="application/ld+json"]')]
     .map((n) => { try { return JSON.parse(n.textContent) } catch { return null } })
@@ -217,6 +235,124 @@ const run = async () => {
   if (!eventLd.some((d) => d['@type'] === 'Event')) problems.push('event page is missing Event JSON-LD')
   results.push({ path: '(structured data)', chars: articleLd.length + eventLd.length,
                  h1: 'BlogPosting + Event verified', links: 0, canvases: 0 })
+
+  /* ---- phone numbers: every way of typing a number reads the same ---- */
+  {
+    const same = ['7011172532', '07011172532', '2347011172532', '+2347011172532',
+                  '+234 (0) 701 117 2532', '00234 701 117 2532', '0701-117-2532']
+    for (const raw of same) {
+      const r = normalizePhone(raw, 'NG')
+      if (!r.ok || r.e164 !== '+2347011172532') problems.push(`phone "${raw}" should read as +2347011172532`)
+    }
+    for (const raw of ['162561626871', '0123456789', '070111725', '070111725321', 'abc', ''])
+      if (normalizePhone(raw, 'NG').ok) problems.push(`phone "${raw}" should be rejected`)
+    const intl = [['+44 7700 900123', 'GB', '+447700900123'], ['+1 415 555 0123', 'US', '+14155550123'],
+                  ['+233 24 123 4567', 'GH', '+233241234567'], ['+39 312 345 6789', 'IT', '+393123456789']]
+    for (const [raw, iso, e164] of intl) {
+      const r = normalizePhone(raw, 'NG')
+      if (!r.ok || r.iso !== iso || r.e164 !== e164) problems.push(`phone "${raw}" should read as ${e164} (${iso})`)
+    }
+    results.push({ path: '(phone numbers)', chars: same.length + 6 + intl.length, h1: 'NG variants · rejects · intl', links: 0, canvases: 0 })
+  }
+
+  /* ---- event registration form + success dialog ---- */
+  {
+    const form = document.querySelector('.reg-form')
+    if (!form) {
+      results.push({ path: '(registration)', chars: 0, h1: 'skipped: no upcoming event with registration', links: 0, canvases: 0 })
+    } else {
+      const setValue = (el, v) => {
+        const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
+        setter.call(el, v)
+        el.dispatchEvent(new window.Event('input', { bubbles: true }))
+      }
+      const q = (n) => form.querySelector(`input[name="${n}"]`)
+      const visible = [...form.querySelectorAll('input')].filter((i) => !i.closest('.reg-trap')).length
+      if (visible !== 4) problems.push(`registration form has ${visible} fields, expected 4`)
+      for (const n of ['name', 'phone', 'email']) if (!q(n)?.required) problems.push(`registration ${n} should be required`)
+      if (q('country')?.required) problems.push('registration country should be optional')
+
+      // The runner exposes Node's own fetch as a global, so the fake has to
+      // replace BOTH globalThis.fetch and window.fetch, or the test would
+      // post to the real registrations sheet.
+      const realGlobalFetch = globalThis.fetch
+      const realWindowFetch = window.fetch
+      let calls = []
+      let mode = 'fail'
+      const fakeFetch = async (url, opts) => {
+        calls.push({ url, opts })
+        if (mode === 'fail') throw new Error('offline')
+        return { ok: true, json: async () => ({ ok: true }) }
+      }
+      globalThis.fetch = fakeFetch
+      window.fetch = fakeFetch
+
+      // 0. phone: the code picker defaults to Nigeria and follows a typed +code
+      const picker = form.querySelector('.reg-cc select')
+      if (!picker || picker.value !== 'NG') problems.push('phone country code should default to Nigeria')
+      setValue(q('phone'), '+44 7700 900123')
+      await wait(100)
+      if (form.querySelector('.reg-cc select')?.value !== 'GB') problems.push('typing +44 did not switch the code picker to the UK')
+      setValue(q('phone'), '')
+      {
+        const sel = form.querySelector('.reg-cc select')
+        const setSel = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, 'value').set
+        setSel.call(sel, 'NG')
+        sel.dispatchEvent(new window.Event('change', { bubbles: true }))
+      }
+      await wait(100)
+
+      // 1. empty submit: three errors, nothing sent
+      form.querySelector('.reg-submit').click()
+      await wait(300)
+      const errs = form.querySelectorAll('.reg-error').length
+      if (errs !== 3) problems.push(`empty registration showed ${errs} errors, expected 3`)
+      if (calls.length) problems.push('empty registration was sent to the sheet')
+
+      // 2. network failure: friendly message, no dialog
+      setValue(q('name'), 'Test Person')
+      setValue(q('phone'), '0803 123 4567')
+      setValue(q('email'), 'test@example.com')
+      await wait(100)
+      form.querySelector('.reg-submit').click()
+      await wait(600)
+      if (!document.querySelector('.reg-server-error')) problems.push('failed registration showed no error message')
+      if (document.querySelector('.reg-dialog')) problems.push('success dialog opened after a failed registration')
+
+      // 3. success: dialog with the WhatsApp button, scroll locked
+      mode = 'ok'
+      calls = []
+      document.querySelector('.reg-form .reg-submit').click()
+      await wait(900)
+      const dialog = document.querySelector('.reg-dialog')
+      const wa = dialog?.querySelector('a.reg-wa-btn')
+      let payload = {}
+      try { payload = JSON.parse(calls[0]?.opts?.body || '{}') } catch { /* reported below */ }
+      if (calls.length !== 1) problems.push(`registration sent ${calls.length} requests, expected 1`)
+      if (calls[0]?.opts?.headers?.['Content-Type']?.startsWith('text/plain') !== true)
+        problems.push('registration must be sent as text/plain or Apps Script rejects it')
+      if (payload.eventId !== 'reimagining-agriculture-digital-economy' || payload.name !== 'Test Person' || payload.country !== '')
+        problems.push('registration payload is wrong')
+      if (payload.phone !== '+2348031234567')
+        problems.push(`phone should be saved as +2348031234567, got ${payload.phone}`)
+      if (!dialog) problems.push('success dialog did not open')
+      if (!wa || !wa.href.startsWith('https://chat.whatsapp.com/') || wa.target !== '_blank')
+        problems.push('success dialog is missing the WhatsApp group button')
+      if (!dialog?.textContent.includes('Required')) problems.push('WhatsApp step is not labelled as required')
+      const locked = document.body.style.overflow === 'hidden'
+      if (!locked) problems.push('success dialog did not lock body scroll')
+
+      window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape' }))
+      await wait(300)
+      if (document.querySelector('.reg-dialog')) problems.push('success dialog did not close on Escape')
+      if (document.body.style.overflow === 'hidden') problems.push('body scroll not released after the dialog closed')
+      if (!document.querySelector('.reg-done a.reg-wa-btn')) problems.push('WhatsApp button not kept on the page after closing the dialog')
+
+      globalThis.fetch = realGlobalFetch
+      window.fetch = realWindowFetch
+      results.push({ path: '(registration)', chars: visible, h1: `errors=${errs} dialog=${Boolean(dialog)} locked=${locked}`, links: wa ? 1 : 0, canvases: 0 })
+    }
+  }
 
   /* ---- mobile drawer open/close ---- */
   const toggle = document.querySelector('.nav-toggle')

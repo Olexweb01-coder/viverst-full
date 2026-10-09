@@ -206,9 +206,10 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md)
 
 .biz-head { position: relative; display: flex; gap: 18px; align-items: flex-start; }
 .biz-head > .float { flex: 0 0 auto; inline-size: 46px; block-size: 46px; }
-.biz-swatch {
-  display: block; inline-size: 100%; block-size: 100%; border-radius: 14px;
-  background: linear-gradient(135deg, var(--c-deep), var(--c-bright));
+/* The subsidiary's real icon, not a colour block. */
+.biz-logo {
+  display: block; inline-size: 100%; block-size: 100%;
+  object-fit: contain;
 }
 .biz-head h2 { margin: 0; font-family: var(--c-font); color: var(--c-deep); font-size: clamp(22px, 2.6vw, 31px); }
 .biz-tagline { margin: 8px 0 0; color: var(--ink-2); font-size: 15.5px; line-height: 1.6; max-inline-size: 46ch; }
@@ -246,7 +247,6 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md)
 @media (max-width: 560px) {
   .biz-head { gap: 14px; }
   .biz-head > .float { inline-size: 38px; block-size: 38px; }
-  .biz-swatch { border-radius: 11px; }
   .biz-units { grid-template-columns: 1fr; }
 }
 

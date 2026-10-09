@@ -8,6 +8,8 @@ import growth from '@brand-assets/main/img/growth.webp'
 import partnership from '@brand-assets/main/img/partnership.webp'
 import boardroom from '@brand-assets/main/img/boardroom.webp'
 import city from '@brand-assets/main/img/city.webp'
+import agroIcon from '@brand-assets/agro/icon-small.webp'
+import studioIcon from '@brand-assets/studio/icon-small.webp'
 
 export const COMPANY = {
   legalName: "Viverst Global Limited",
@@ -28,6 +30,7 @@ export const SUBSIDIARIES = [
     path: "https://agro.viverst.com",
     external: true,
     name: "Viverst Agro",
+    logo: agroIcon,
     short: "Agro",
     tagline: "Strengthening food systems and agricultural value chains.",
     summary: "Agricultural solutions built for the field, not the spreadsheet.",
@@ -53,6 +56,7 @@ export const SUBSIDIARIES = [
     path: "https://studio.viverst.com",
     external: true,
     name: "Viverst Studio",
+    logo: studioIcon,
     short: "Studio",
     tagline: "Building brands that are strong and memorable.",
     summary: "Design for businesses that want to be remembered, not just seen.",

@@ -145,8 +145,9 @@ export default function Home() {
                           style={{ '--spin-dur': `${52 + i * 12}s` }} />
 
                     <div className="company-head">
-                      <span className="company-swatch breathe" aria-hidden="true"
-                            style={{ '--breathe-dur': `${5.5 + i}s`, '--breathe': 1.09 }} />
+                      <img className="company-logo breathe" src={s.logo} alt="" aria-hidden="true"
+                           width="30" height="30" decoding="async"
+                           style={{ '--breathe-dur': `${5.5 + i}s`, '--breathe': 1.09 }} />
                       <h3>{s.name}</h3>
                       <ArrowRight className="company-arrow" size={20} aria-hidden="true" />
                     </div>

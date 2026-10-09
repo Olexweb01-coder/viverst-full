@@ -1,6 +1,16 @@
 {
   "redirects": [
     {
+      "source": "/event",
+      "destination": "/events",
+      "permanent": true
+    },
+    {
+      "source": "/event/:path*",
+      "destination": "/events/:path*",
+      "permanent": true
+    },
+    {
       "source": "/agro",
       "destination": "https://agro.viverst.com",
       "permanent": true

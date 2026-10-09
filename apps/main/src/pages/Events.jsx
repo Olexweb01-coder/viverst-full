@@ -8,7 +8,7 @@ import Seo from '../components/Seo.jsx'
 import Reveal from '../components/Reveal.jsx'
 import WaveField from '../components/WaveField.jsx'
 import { getEvents, getEventTypes, splitByTime } from '../lib/cms.js'
-import { formatTime, dayNumber, monthShort, yearOf, countdown } from '../lib/format.js'
+import { formatTimeRange, dayNumber, monthShort, yearOf, countdown } from '../lib/format.js'
 import './Content.css'
 
 /** Ticks once a second, straight into the DOM-free state of the parent. */
@@ -88,9 +88,15 @@ export default function Events() {
           <div className="container">
             <Reveal>
               <Float distance={-7} duration={9}>
-                <div className={`next-event brand--${next.brand}`}>
+                <div className={`next-event brand--${next.brand} ${next.image ? 'has-flyer' : ''}`}>
                   <span className="next-event-glow drift" aria-hidden="true" />
                   <span className="next-event-ring spin-slow" aria-hidden="true" />
+
+                  {next.image && (
+                    <Link to={`/events/${next.slug}`} className="next-event-flyer" aria-label={`${next.title}: event details and flyer`}>
+                      <img src={next.image} alt="" width="1200" height="1200" decoding="async" />
+                    </Link>
+                  )}
 
                   <div className="next-event-date">
                     <strong>{dayNumber(next.startsAt)}</strong>
@@ -105,18 +111,27 @@ export default function Events() {
                     <h2>{next.title}</h2>
                     <p>{next.excerpt}</p>
                     <div className="event-facts">
-                      <span><MapPin size={14} aria-hidden="true" /> {next.venue}, {next.city}</span>
-                      <span><Clock size={14} aria-hidden="true" /> {formatTime(next.startsAt)}&ndash;{formatTime(next.endsAt)}</span>
-                      <span><Users size={14} aria-hidden="true" /> {next.capacity} places</span>
+                      <span><MapPin size={14} aria-hidden="true" /> {next.city ? `${next.venue}, ${next.city}` : next.venue}</span>
+                      <span><Clock size={14} aria-hidden="true" /> {formatTimeRange(next.startsAt, next.endsAt)}</span>
+                      {next.capacity ? <span><Users size={14} aria-hidden="true" /> {next.capacity} places</span> : null}
                     </div>
                     <Countdown iso={next.startsAt} />
                   </div>
 
-                  <Magnetic>
-                    <Link className="btn btn--primary" to={`/events/${next.slug}`}>
-                      Details <ArrowUpRight size={16} aria-hidden="true" />
-                    </Link>
-                  </Magnetic>
+                  <div className="next-event-actions">
+                    {next.registration?.whatsappUrl && (
+                      <Magnetic>
+                        <Link className="btn btn--primary" to={`/events/${next.slug}#register`}>
+                          Register <ArrowUpRight size={16} aria-hidden="true" />
+                        </Link>
+                      </Magnetic>
+                    )}
+                    <Magnetic>
+                      <Link className={`btn ${next.registration?.whatsappUrl ? '' : 'btn--primary'}`} to={`/events/${next.slug}`}>
+                        Details <ArrowUpRight size={16} aria-hidden="true" />
+                      </Link>
+                    </Magnetic>
+                  </div>
                 </div>
               </Float>
             </Reveal>
@@ -186,7 +201,7 @@ export default function Events() {
                           <h3>{e.title}</h3>
                           <p>{e.excerpt}</p>
                           <span className="event-foot">
-                            <MapPin size={13} aria-hidden="true" /> {e.city}
+                            <MapPin size={13} aria-hidden="true" /> {e.city || e.venue}
                             <ArrowUpRight className="post-arrow" size={15} aria-hidden="true" />
                           </span>
                         </div>

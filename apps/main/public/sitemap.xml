@@ -5,6 +5,7 @@
   <url><loc>https://www.viverst.com/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.viverst.com/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.viverst.com/events</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.viverst.com/events/reimagining-agriculture-digital-economy</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.viverst.com/careers</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.viverst.com/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.viverst.com/agro</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -15,9 +16,4 @@
   <url><loc>https://www.viverst.com/blog/brand-systems-that-survive-a-printer</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.viverst.com/blog/packaging-quiet-lever-agro-processing</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.viverst.com/blog/building-long-term-in-a-short-term-market</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://www.viverst.com/events/agro-field-day-2026</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://www.viverst.com/events/studio-open-critique-november</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://www.viverst.com/events/group-investor-briefing-q4</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://www.viverst.com/events/agro-processing-workshop-july</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://www.viverst.com/events/brand-systems-masterclass-august</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 </urlset>
