@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { Seo, Reveal, Float, Tilt, Magnetic, Icon } from '@viverst/ui'
 import Gallery from '../components/Gallery.jsx'
-import { BUSINESS, FOCUS_AREAS, CHAIN, AUDIENCE, GALLERY, IMG } from '../data/agro.js'
+import { BUSINESS, FOCUS_AREAS, CHAIN, AUDIENCE, GALLERY } from '../data/agro.js'
 import './Pages.css'
 
 export default function Solutions() {
@@ -46,10 +46,6 @@ export default function Solutions() {
                       <h2>{f.title}</h2>
                       <p>{f.body}</p>
                     </div>
-                    <figure className="solution-shot">
-                      <img src={Object.values(IMG)[i % 8]} alt="" width="1200" height="860"
-                           loading="lazy" decoding="async" />
-                    </figure>
                   </Tilt>
                 </Float>
               </Reveal>

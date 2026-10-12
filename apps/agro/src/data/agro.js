@@ -18,8 +18,24 @@ import tomatoes from '@brand-assets/agro/img/tomatoes.webp'
 import agtech from '@brand-assets/agro/img/agtech.webp'
 import drone from '@brand-assets/agro/img/drone.webp'
 import greenhouse from '@brand-assets/agro/img/greenhouse.webp'
+/* The value chain's own photographs, one per step. */
+import chainFarming from '@brand-assets/agro/img/chain-farming.webp'
+import chainTools from '@brand-assets/agro/img/chain-tools.webp'
+import chainProcessing from '@brand-assets/agro/img/chain-processing.webp'
+import chainPackaging from '@brand-assets/agro/img/chain-packaging.webp'
+import chainMarket from '@brand-assets/agro/img/chain-market.webp'
+/* The seven-areas diagram (homepage door) and the About page photograph.
+   farm-from-above.webp: StockSnap, CC0 1.0 (public domain, no credit
+   required) — https://stocksnap.io/photo/farming-fields-VRZVVGVJN4 */
+import sevenAreas from '@brand-assets/agro/img/seven-areas.webp'
+import farmFromAbove from '@brand-assets/agro/img/farm-from-above.webp'
+/* Homepage doors. StockSnap, CC0 1.0 (public domain, no credit required):
+   door-group.webp   https://stocksnap.io/photo/business-people-IS1XRUWYW4
+   door-contact.webp https://stocksnap.io/photo/people-business-VMBHOPBDVR */
+import doorGroup from '@brand-assets/agro/img/door-group.webp'
+import doorContact from '@brand-assets/agro/img/door-contact.webp'
 
-export const IMG = { farmland, irrigation, orchard, harvest, store, silos, soil }
+export const IMG = { farmland, irrigation, orchard, harvest, store, silos, soil, sevenAreas, farmFromAbove, doorGroup, doorContact }
 
 export const BUSINESS = {
   name: 'Viverst Agro',
@@ -61,23 +77,23 @@ export const MISSION =
 
 /** The five steps, in the order produce actually moves. */
 export const CHAIN = [
-  { key: 'farm', stage: 'Farming', icon: 'sprout', img: soil,
+  { key: 'farm', stage: 'Farming', icon: 'sprout', img: chainFarming,
     headline: 'Better farming, better harvest',
     body: 'What you harvest is decided long before harvest day. We work at the seed, soil and method stage, where the money is really made or lost.',
     loss: 'Small harvest' },
-  { key: 'tools', stage: 'Tools', icon: 'cpu', img: irrigation,
+  { key: 'tools', stage: 'Tools', icon: 'cpu', img: chainTools,
     headline: 'Tools that work where you farm',
     body: 'Built for the network, power and conditions that actually exist on the ground — not the ones a brochure assumes.',
     loss: 'No access to tools' },
-  { key: 'process', stage: 'Processing', icon: 'factory', img: silos,
+  { key: 'process', stage: 'Processing', icon: 'factory', img: chainProcessing,
     headline: 'Processing that matches your demand',
     body: 'A line sized against what you can truly sell, so it keeps running instead of standing idle.',
     loss: 'Waste after harvest' },
-  { key: 'package', stage: 'Packaging', icon: 'package', img: store,
+  { key: 'package', stage: 'Packaging', icon: 'package', img: chainPackaging,
     headline: 'Packaging chosen early, not last',
     body: 'It decides how long produce lasts, how much freight costs, and what a buyer thinks before tasting anything.',
     loss: 'Weak packaging' },
-  { key: 'market', stage: 'Getting to market', icon: 'truck', img: harvest,
+  { key: 'market', stage: 'Getting to market', icon: 'truck', img: chainMarket,
     headline: 'Routes that hold in a bad season',
     body: 'Supply deals and distribution built to survive a difficult year, not only a good one.',
     loss: 'Broken supply routes' },

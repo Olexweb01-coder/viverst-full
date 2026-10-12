@@ -10,13 +10,13 @@ import './Pages.css'
 /* The homepage introduces; the dedicated pages explain. Each door below is a
    short promise plus a way through, not a summary of the page behind it. */
 const DOORS = [
-  { to: '/solutions', img: IMG.orchard,  icon: 'wrench',
+  { to: '/solutions', img: IMG.sevenAreas, icon: 'wrench', fit: 'contain',
     kicker: 'What we do', title: 'Seven areas, one chain',
     body: 'From seed to buyer, and the steps in between.' },
-  { to: '/about', img: IMG.farmland, icon: 'leaf',
+  { to: '/about', img: IMG.doorGroup, icon: 'leaf',
     kicker: 'Who we are', title: 'Part of a bigger group',
     body: 'Backed by Viverst Global Limited, with the standards that come with it.' },
-  { to: '/contact', img: IMG.store, icon: 'handshake',
+  { to: '/contact', img: IMG.doorContact, icon: 'handshake',
     kicker: 'Work with us', title: 'Tell us the problem',
     body: 'Supply, processing, packaging or partnership.' },
 ]
@@ -80,7 +80,7 @@ export default function Home() {
                 <Float delay={i * 0.8} duration={7.6 + i * 0.7} distance={-8}>
                   <Tilt max={4}>
                     <Link to={d.to} className="door">
-                      <span className="door-media">
+                      <span className={`door-media${d.fit === 'contain' ? ' door-media--contain' : ''}`}>
                         <img src={d.img} alt="" width="1120" height="788" loading="lazy" decoding="async" />
                       </span>
                       <span className="door-body">

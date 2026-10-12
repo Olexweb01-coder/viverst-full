@@ -32,8 +32,8 @@ export default function About() {
           <Reveal className="split-media">
             <Float distance={-9} duration={9.5}>
               <figure className="framed">
-                <img src={IMG.orchard} alt="A farm seen from above before planning begins"
-                     width="1200" height="860" loading="lazy" decoding="async" />
+                <img src={IMG.farmFromAbove} alt="Farm plots and a red earth track seen from above"
+                     width="960" height="640" loading="lazy" decoding="async" />
                 <span className="framed-tag">From above</span>
               </figure>
             </Float>
