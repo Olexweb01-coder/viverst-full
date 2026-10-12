@@ -189,18 +189,6 @@ const run = async () => {
   rows.push({ path: '(hero backdrop)', chars: slides, links: words, h1: `${lines.length} centred lines · ${gaps} spaces · no scrim` })
   rows.push({ path: '(figures band)', chars: figures, links: 0, h1: 'counts sit below the hero' })
 
-  /* ---- gallery (now on the solutions page) ---- */
-  navigate('/solutions')
-  await wait(1100)
-  const tiles = document.querySelectorAll('.tile').length
-  const tileImgs = [...document.querySelectorAll('.tile img')]
-  if (tiles < 4) problems.push(`gallery rendered ${tiles} tiles, expected at least 4`)
-  for (const img of tileImgs) {
-    if (!img.getAttribute('alt')) a11y.push('gallery tile image has no alt text')
-    if (img.getAttribute('loading') !== 'lazy') problems.push('gallery image is not lazy-loaded')
-  }
-  rows.push({ path: '(gallery)', chars: tiles, links: 0, h1: 'all tiles lazy with alt text' })
-
   /* ---- chain imagery swaps with the stage ---- */
   navigate('/')
   await wait(1100)

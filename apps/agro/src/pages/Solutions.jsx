@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { Seo, Reveal, Float, Tilt, Magnetic, Icon } from '@viverst/ui'
-import Gallery from '../components/Gallery.jsx'
-import { BUSINESS, FOCUS_AREAS, CHAIN, AUDIENCE, GALLERY } from '../data/agro.js'
+import { BUSINESS, FOCUS_AREAS, CHAIN, AUDIENCE } from '../data/agro.js'
 import './Pages.css'
 
 export default function Solutions() {
@@ -88,7 +87,6 @@ export default function Solutions() {
               {AUDIENCE.map((a, i) => <li key={a} style={{ '--i': i }}>{a}</li>)}
             </ul>
           </Reveal>
-          <Reveal delay={0.1}><Gallery items={GALLERY.slice(0, 4)} /></Reveal>
           <Reveal delay={0.16}>
             <div className="center-cta">
               <Magnetic>

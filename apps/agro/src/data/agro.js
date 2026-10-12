@@ -11,8 +11,7 @@ import store from '@brand-assets/agro/img/store.webp'
 import silos from '@brand-assets/agro/img/silos.webp'
 import soil from '@brand-assets/agro/img/soil.webp'
 import processing from '@brand-assets/agro/img/processing.webp'
-/* Hero photography. The set above still serves the value chain, gallery and
-   product cards. */
+/* Hero photography. The set above still serves the value chain and product cards. */
 import crates from '@brand-assets/agro/img/crates.webp'
 import tomatoes from '@brand-assets/agro/img/tomatoes.webp'
 import agtech from '@brand-assets/agro/img/agtech.webp'
@@ -149,16 +148,6 @@ export const SHOWCASE = [
   { key: 'drone',      img: drone },
   { key: 'tomatoes',   img: tomatoes },
   { key: 'greenhouse', img: greenhouse },
-]
-
-/** Grid of imagery. Replace with your own photographs. */
-export const GALLERY = [
-  { img: orchard,    label: 'Farm from above', meta: 'Planning' },
-  { img: soil,       label: 'Ploughed land',   meta: 'Farming' },
-  { img: irrigation, label: 'Irrigation',      meta: 'Water' },
-  { img: store,      label: 'Bagged and ready', meta: 'Packaging' },
-  { img: silos,      label: 'Storage',         meta: 'Processing' },
-  { img: harvest,    label: 'Cleaned grain',   meta: 'Harvest' },
 ]
 
 /**
