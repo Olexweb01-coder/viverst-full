@@ -74,20 +74,6 @@ body { font-variation-settings: "wdth" 100, "opsz" 14; }
 }
 .page-title { text-wrap: balance; }
 
-@media (min-width: 900px) {
-  .page-hero-inner { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; }
-  .page-hero-inner > .eyebrow { grid-column: 1 / -1; }
-  .page-hero-inner > h1 { grid-column: 1 / -1; }
-  .page-hero-inner > .lede {
-    grid-column: 7 / -1;
-    max-width: none;
-    margin-top: 26px;
-    padding-left: 22px;
-    border-left: 2px solid var(--brand-soft);
-    font-size: 17px;
-  }
-}
-
 /* ── figures band ──────────────────────────────────────── */
 .figures {
   background: var(--ink);
