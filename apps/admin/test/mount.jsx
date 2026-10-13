@@ -6,6 +6,8 @@ import { state, rpcCalls } from './supabase-mock.js'
 
 const ROUTES = [
   ['/', 'Good'],
+  ['/assistant', 'Assistant'],
+  ['/notifications', 'Notifications'],
   ['/orders', 'Orders'],
   ['/orders?open=o1', 'Orders'],
   ['/products', 'Products'],
@@ -19,6 +21,7 @@ const ROUTES = [
   ['/events', 'Events'],
   ['/events/new', 'New event'],
   ['/events/e1', 'Reimagining Agriculture'],
+  ['/analytics', 'Analytics'],
   ['/settings', 'Settings'],
   ['/staff', 'Staff'],
   ['/no-such-page', 'Good'],
@@ -52,6 +55,11 @@ function audit(route) {
   }
   if (document.querySelectorAll('h1').length !== 1) a11y.push(`${route}: expected one h1, found ${document.querySelectorAll('h1').length}`)
 }
+
+// the registrations sheet summary comes from a Google Apps Script; fake it here
+globalThis.fetch = async (url) => ({ ok: true, json: async () => url.includes('script.test')
+  ? { ok: true, url: 'https://docs.google.com/spreadsheets/d/SHEET/edit', events: [{ eventId: 'reimagining', title: 'Reimagining Agriculture', tab: 'Reimagining', gid: 42, count: 10 }, { eventId: 'field-day-2027', title: 'Field day', tab: 'Field day', gid: 43, count: 3 }] }
+  : { ok: false } })
 
 const root = createRoot(document.getElementById('root'))
 root.render(<App />)
@@ -137,7 +145,7 @@ if (!document.querySelector('.drawer .note-error')) problems.push('negative stoc
 document.querySelector('.drawer-head button').click(); await sleep(40)
 
 console.log('\n SETTINGS')
-go('/settings'); await waitFor(() => h1() === 'Settings' && document.querySelectorAll('section.panel').length === 5, 'five settings panels')
+go('/settings'); await waitFor(() => h1() === 'Settings' && document.querySelectorAll('section.panel').length === 7, 'seven settings panels')
 const bank = [...document.querySelectorAll('input.input')].find((i) => i.value === 'GTB')
 console.log(`  loaded: bank=${bank ? 'GTB' : 'MISSING'}, fee=${[...document.querySelectorAll('.input-prefix input')][0]?.value}`)
 state.writes.length = 0
@@ -185,7 +193,7 @@ go('/automation'); await waitFor(() => h1() === 'Automation' && document.querySe
 console.log(`  tabs → ${[...document.querySelectorAll('.tabs button')].map((b) => b.textContent).join(' | ')}`)
 if (![...document.querySelectorAll('.tabs button')][0].textContent.startsWith('Topics')) problems.push('Topics is not the first tab')
 console.log(`  rail order → ${[...document.querySelectorAll('.rail nav a')].map((a) => a.textContent.replace(/\d+$/, '')).join(' · ')}`)
-if ([...document.querySelectorAll('.rail nav a')][1].textContent.replace(/\d+$/, '') !== 'Blog') problems.push('Blog is not first after Today')
+{ const kids = [...document.querySelector('.rail nav').children]; const i = kids.findIndex((k) => k.textContent === 'Content'); if (!(kids[i + 1]?.textContent || '').replace(/\d+$/, '').startsWith('Blog')) problems.push('Blog is not first in Content') }
 ;[...document.querySelectorAll('.tabs button')][3].click(); await waitFor(() => document.querySelector('input[type=password]'), 'keys tab')
 const keyStatus = document.querySelector('section.panel').textContent
 console.log(`  keys panel → groq ${keyStatus.includes('Groq — ● set') ? 'set' : 'MISSING'}, cerebras ${keyStatus.includes('Cerebras — ○ not set') ? 'not set' : 'WRONG'}`)
@@ -211,13 +219,49 @@ const dn = [...document.querySelectorAll('tbody .btn')].find((b) => b.textConten
 console.log(`  "Draft now" on queued topic → invoke ${state.invokes[0]?.name} topic_id=${state.invokes[0]?.body.topic_id}; message: ${document.querySelector('.note-ok')?.textContent.slice(0, 60)}`)
 if (state.invokes[0]?.body.topic_id !== 7) problems.push('draft now did not invoke with topic id')
 
+console.log('\n ASSISTANT')
+go('/assistant'); await waitFor(() => h1() === 'Assistant' && document.querySelector('.chat-starters button'), 'assistant with starters')
+state.invokes.length = 0
+document.querySelector('.chat-starters button').click(); await waitFor(() => document.querySelector('.bubble-assistant .bubble-actions'), 'assistant reply')
+const sent = state.invokes.find((i) => i.name === 'assistant')
+console.log(`  starter click → invoke assistant with ${sent?.body.messages.length} message(s); reply rendered with ${document.querySelectorAll('.bubble-assistant li').length} bullet, ${document.querySelectorAll('.bubble-actions button').length} actions`)
+if (!sent || sent.body.messages[0].role !== 'user') problems.push('assistant did not send the user message')
+if (document.querySelectorAll('.bubble-actions button').length !== 2) problems.push('assistant actions not rendered')
+state.writes.length = 0
+document.querySelector('.bubble-actions button').click(); await sleep(80)
+const qt = state.writes.find((w) => w.table === 'ai_topics')
+console.log(`  "Queue blog topic" action → insert ai_topics "${qt?.row.topic}" [${qt?.row.arm}]; confirmation: ${document.querySelector('.note-ok') ? 'shown' : 'MISSING'}`)
+if (!qt || qt.row.arm !== 'agro') problems.push('queue_topic action did not insert')
+;[...document.querySelectorAll('.bubble-actions button')][1].click(); await waitFor(() => h1() === 'Orders', 'open action navigates')
+console.log(`  "open" action → ${window.location.pathname}${window.location.search}`)
+
+console.log('\n NOTIFICATIONS')
+go('/notifications'); await waitFor(() => h1() === 'Notifications' && document.querySelectorAll('.notif').length === 2, 'two notifications')
+console.log(`  list → ${document.querySelectorAll('.notif').length} items, ${document.querySelectorAll('.notif.unread').length} unread; rail badge ${[...document.querySelectorAll('.rail nav a')].find((a) => a.textContent.includes('Notifications'))?.querySelector('.badge')?.textContent ?? 'MISSING'}`)
+if (document.querySelectorAll('.notif.unread').length !== 1) problems.push('unread state wrong')
+rpcCalls.length = 0
+;[...document.querySelectorAll('button')].find((b) => b.textContent === 'Mark all read').click(); await sleep(80)
+console.log(`  mark all read → rpc ${rpcCalls.some((c) => c.name === 'mark_all_read') ? 'called' : 'MISSING'}, unread now ${document.querySelectorAll('.notif.unread').length}`)
+if (document.querySelectorAll('.notif.unread').length !== 0) problems.push('mark all read did not clear')
+
+console.log('\n ANALYTICS')
+go('/analytics'); await waitFor(() => h1() === 'Analytics' && document.querySelectorAll('.bars').length === 2, 'two charts')
+console.log(`  figures → ${[...document.querySelectorAll('.figure b')].map((b) => b.textContent).join(' · ')}; charts ${document.querySelectorAll('.bars rect').length} bars; top product ${document.querySelector('.panel tbody td')?.textContent}`)
+if (document.querySelectorAll('.bars rect').length !== 6) problems.push('charts did not draw 3 weeks × 2')
+if (!document.querySelector('.figure b').textContent.includes('90,000')) problems.push('paid revenue figure wrong')
+
 console.log('\n EVENTS')
 go('/events'); await waitFor(() => h1() === 'Events' && document.querySelector('tbody tr'), 'events list')
-console.log(`  upcoming filter → ${document.querySelectorAll('tbody tr').length} row(s), registered=${document.querySelector('tbody tr td.num').textContent}`)
-if (document.querySelectorAll('tbody tr').length !== 1) problems.push('upcoming filter wrong')
+await waitFor(() => document.querySelector('tbody tr td.num a'), 'sheet count in list')
+const sheetLink = document.querySelector('tbody tr td.num a')
+console.log(`  upcoming filter → ${document.querySelectorAll('.panel')[0].querySelectorAll('tbody tr').length} row(s); signups from sheet = ${sheetLink.textContent.trim()} → ${sheetLink.href}`)
+if (sheetLink.textContent.trim() !== '10' || !sheetLink.href.includes('gid=42')) problems.push('sheet signups/link wrong')
+const sheetPanel = [...document.querySelectorAll('.panel')].find((p) => p.textContent.includes('Registrations sheet'))
+console.log(`  sheet panel → ${sheetPanel.querySelectorAll('tbody tr').length} events, one flagged "${sheetPanel.textContent.includes('not yet in the admin') ? 'not yet in the admin' : 'MISSING FLAG'}"`)
+if (!sheetPanel || sheetPanel.querySelectorAll('tbody tr').length !== 2) problems.push('sheet panel wrong')
 go('/events/e1'); await waitFor(() => h1() === 'Reimagining Agriculture' && document.querySelectorAll('.panel')[1], 'event editor')
 await waitFor(() => document.querySelectorAll('.panel tbody tr').length === 2, 'two registrations')
-console.log(`  registrations table → ${document.querySelectorAll('.panel tbody tr').length} rows; CSV button ${[...document.querySelectorAll('button')].some((b) => b.textContent.includes('Download CSV')) ? 'present' : 'MISSING'}`)
+console.log(`  registrations table → ${document.querySelectorAll('.panel tbody tr').length} rows; CSV button ${[...document.querySelectorAll('button')].some((b) => b.textContent.includes('Download CSV')) ? 'present' : 'MISSING'}; View leads button ${[...document.querySelectorAll('a.btn')].some((a) => a.textContent.includes('View leads')) ? 'present' : 'absent'}`)
 const ev = [...document.querySelectorAll('input.input')]; const starts = document.querySelector('input[type=datetime-local]')
 setVal(ev.find((i) => i.required), 'Reimagining Agriculture 2'); setVal(starts, ''); document.querySelector('form').requestSubmit(); await sleep(80)
 console.log(`  save with no start → ${document.querySelector('.note-error')?.textContent.slice(0, 40) ?? 'no message (native required)'}`)

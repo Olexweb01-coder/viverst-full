@@ -13,6 +13,9 @@ import Staff from './pages/Staff.jsx'
 import Events, { EventEdit } from './pages/Events.jsx'
 import Posts, { PostEdit } from './pages/Posts.jsx'
 import Automation from './pages/Automation.jsx'
+import Assistant from './pages/Assistant.jsx'
+import Notifications from './pages/Notifications.jsx'
+import Analytics from './pages/Analytics.jsx'
 
 function Gate() {
   const { session, staff } = useAuth()
@@ -30,6 +33,8 @@ export default function App() {
         <Routes>
           <Route element={<Gate />}>
             <Route index element={<Dashboard />} />
+            <Route path="assistant" element={<Assistant />} />
+            <Route path="notifications" element={<Notifications />} />
             <Route path="orders" element={<Orders />} />
             <Route path="products" element={<Products />} />
             <Route path="products/new" element={<ProductEdit />} />
@@ -42,6 +47,7 @@ export default function App() {
             <Route path="events" element={<Events />} />
             <Route path="events/new" element={<EventEdit />} />
             <Route path="events/:id" element={<EventEdit />} />
+            <Route path="analytics" element={<Analytics />} />
             <Route path="settings" element={<Settings />} />
             <Route path="staff" element={<Staff />} />
             <Route path="*" element={<Navigate to="/" replace />} />

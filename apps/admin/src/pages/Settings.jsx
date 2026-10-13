@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { fromKobo, toKobo } from '../lib/format.js'
 import { useAuth, useFlash } from '../lib/hooks.js'
-import { PageHead, Note, Field } from '../components/ui.jsx'
+import { PageHead, Note, Field, Group } from '../components/ui.jsx'
 
 /* Non-secret settings live in the settings table (one JSON row per area).
    Secret keys go through set_secret() and can never be read back here. */
@@ -17,6 +17,8 @@ export default function Settings() {
   const [paystackReady, setPaystackReady] = useState(null)
   const [secretKey, setSecretKey] = useState('')
   const [publicKey, setPublicKey] = useState('')
+  const [resendReady, setResendReady] = useState(null)
+  const [resendKey, setResendKey] = useState('')
 
   useEffect(() => {
     let alive = true
@@ -30,10 +32,14 @@ export default function Settings() {
         delivery: { flat_fee: fromKobo(map.delivery?.flat_fee_kobo ?? 0), note: map.delivery?.note ?? '' },
         payments: { transfer: { enabled: true, bank_name: '', account_name: '', account_number: '', instructions: '', ...map.payments?.transfer }, paystack: { enabled: false, public_key: '', ...map.payments?.paystack } },
         contact: { email: '', phone: '', whatsapp: '', ...map.contact },
+        integrations: { registrations_script_url: '', ...map.integrations },
+        notifications: { email_enabled: true, email_to: '', from: 'Viverst Admin <admin@viverst.com>', ...map.notifications },
       })
       setPublicKey(map.payments?.paystack?.public_key || '')
       const { data: has } = await supabase.rpc('has_secret', { p_key: 'paystack_secret_key' })
       if (alive) setPaystackReady(!!has)
+      const { data: hasResend } = await supabase.rpc('has_secret', { p_key: 'resend_api_key' })
+      if (alive) setResendReady(!!hasResend)
     })()
     return () => { alive = false }
   }, [])
@@ -145,6 +151,31 @@ export default function Settings() {
               <Field label="Phone"><input className="input" value={s.contact.phone} onChange={set('contact', 'phone')} /></Field>
               <Field label="WhatsApp" hint="Number only, e.g. 2348012345678."><input className="input" value={s.contact.whatsapp} onChange={set('contact', 'whatsapp')} /></Field>
             </div>
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Notifications by email</h2><button type="button" className="btn btn-sm" onClick={() => saveArea('notifications')}>Save</button></div>
+          <div className="panel-body form">
+            <label className="check"><input type="checkbox" checked={!!s.notifications.email_enabled} onChange={set('notifications', 'email_enabled')} />Email me a digest of new notifications</label>
+            <div className="form-row">
+              <Field label="Send to" hint="Leave blank to use the Contact email."><input className="input" type="email" value={s.notifications.email_to} onChange={set('notifications', 'email_to')} /></Field>
+              <Field label="From" hint="Must be on a domain verified in Resend, e.g. Viverst Admin <admin@viverst.com>."><input className="input" value={s.notifications.from} onChange={set('notifications', 'from')} /></Field>
+            </div>
+            <Group label={`Resend API key — ${resendReady ? '● set' : '○ not set'}`} hint="resend.com → API Keys. Free tier covers thousands of emails a month. Owner only.">
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input className="input" type="password" aria-label="Resend API key" autoComplete="off" placeholder="re_…" value={resendKey} onChange={(e) => setResendKey(e.target.value)} disabled={!isOwner} />
+                <button type="button" className="btn" disabled={!isOwner || busy || resendKey.trim().length < 10} onClick={async () => { const { error } = await supabase.rpc('set_secret', { p_key: 'resend_api_key', p_value: resendKey.trim() }); if (error) setError(error.message); else { setResendKey(''); setResendReady(true); setFlash('Resend key saved. Digests start with the next notification.') } }}>{resendReady ? 'Replace' : 'Save'}</button>
+              </div>
+            </Group>
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="panel-head"><h2>Integrations</h2><button type="button" className="btn btn-sm" onClick={() => saveArea('integrations')}>Save</button></div>
+          <div className="panel-body form">
+            <Field label="Event registrations script" hint="The Google Apps Script web-app URL (ends in /exec) that the sites post registrations to. The admin reads signup counts from it.">
+              <input className="input" value={s.integrations.registrations_script_url} onChange={set('integrations', 'registrations_script_url')} placeholder="https://script.google.com/macros/s/…/exec" />
+            </Field>
           </div>
         </section>
       </fieldset>

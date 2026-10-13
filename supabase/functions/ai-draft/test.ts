@@ -40,12 +40,16 @@ function fakeDb(seed: Record<string, Record<string, unknown>[]>) {
 
 // ---- fake providers --------------------------------------------------------
 const calls: string[] = [];
+let groqModel = "";
 globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) => {
   const url = String(input instanceof Request ? input.url : input);
   calls.push(new URL(url).host);
   const reply = (obj: unknown, status = 200) => new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
   if (url.includes("tavily")) return reply({ results: [{ title: "FAO cassava report", url: "https://fao.org/x", content: "Cassava output rose 4% in 2025." }, { title: "NBS prices", url: "https://nbs.gov.ng/y", content: "Garri prices fell 12% in Q3." }] });
-  if (url.includes("groq")) return reply({ error: "rate limited" }, 429);   // groq is throttled → must fall through
+  if (url.includes("groq") && url.endsWith("/models")) return reply({ data: [{ id: "whisper-large-v3" }, { id: "llama-guard-4-12b" }, { id: "meta-llama/llama-4-maverick-17b-128e-instruct" }] }); // retired names gone
+  if (url.includes("groq")) { groqModel = JSON.parse(String(init?.body)).model; return reply({ error: "rate limited" }, 429); }   // groq is throttled → must fall through
+  if (url.includes("cerebras") && url.endsWith("/models")) return reply({ data: [{ id: "llama-3.3-70b" }, { id: "gpt-oss-120b" }] });
+  if (url.includes("generativelanguage") && url.includes("/models?")) return reply({ models: [{ name: "models/gemini-3.8-flash", supportedGenerationMethods: ["generateContent"] }, { name: "models/gemini-3.8-flash-lite", supportedGenerationMethods: ["generateContent"] }, { name: "models/embedding-001", supportedGenerationMethods: ["embedContent"] }] });
   if (url.includes("cerebras")) {
     const body = JSON.parse(String(init?.body));
     const isPick = body.messages[0].content.includes("pick ONE blog topic");
@@ -67,6 +71,7 @@ const check = (name: string, ok: boolean, info = "") => { console.log(`  ${ok ? 
   console.log("\n1. queued topic");
   check("returns ok", r.ok === true, JSON.stringify(r).slice(0, 90));
   check("fell through groq → cerebras", (r as { provider: string }).provider === "cerebras", calls.join(" → "));
+  check("groq picked a live model from its list, not a retired name", groqModel === "meta-llama/llama-4-maverick-17b-128e-instruct", groqModel);
   const post = db.tables.posts[0] as Record<string, unknown>;
   check("post saved in review with 24h window", post?.status === "review" && new Date(post.review_until as string).getTime() - Date.now() > 23 * 3600_000);
   check("post carries arm, slug, sources", post?.arm === "agro" && post?.slug === "what-falling-garri-prices-mean-for-cassava-farmers" && (post?.sources as unknown[]).length === 2);
@@ -102,6 +107,24 @@ const check = (name: string, ok: boolean, info = "") => { console.log(`  ${ok ? 
   console.log("\n4. duplicate slug");
   check("new post gets -2 suffix", r.ok && (db.tables.posts[1] as Record<string, unknown>).slug === "what-falling-garri-prices-mean-for-cassava-farmers-2");
   check("works with no tavily key (no sources)", (db.tables.posts[1] as Record<string, unknown>).sources instanceof Array && ((db.tables.posts[1] as Record<string, unknown>).sources as unknown[]).length === 0);
+}
+
+// ---- 5. gemini only: picks current flash model from the list -----------------
+{
+  calls.length = 0;
+  let geminiModel = "";
+  const prev = globalThis.fetch;
+  globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) => {
+    const url = String(input instanceof Request ? input.url : input);
+    if (url.includes(":generateContent")) { geminiModel = url.split("/models/")[1].split(":")[0]; return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ title: "Soil tests that pay", excerpt: "x", body: "## y", tags: ["soil"] }) }] } }] }), { headers: { "content-type": "application/json" } }); }
+    return prev(input, init);
+  }) as typeof fetch;
+  const db = fakeDb({ settings: [], ai_topics: [{ id: 1, topic: "Soil testing", arm: "agro", status: "queued", created_at: "2026-01-01" }], posts: [], ai_runs: [] });
+  const r = await runDraft({ sb: db as never, trigger: "manual", providers: { gemini: "g" } });
+  console.log("\n5. gemini model discovery");
+  check("drafted with gemini", r.ok && (r as { provider: string }).provider === "gemini");
+  check("chose gemini-3.8-flash from the live list (not -lite, not retired 2.5)", geminiModel === "gemini-3.8-flash", geminiModel);
+  globalThis.fetch = prev;
 }
 
 console.log(`\n${pass} passed, ${failN} failed`);

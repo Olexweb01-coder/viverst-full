@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase.js'
 import { slugify, when } from '../lib/format.js'
 import { imageUrl, uploadImage, removeImage } from '../lib/images.js'
 import { useAuth, useFlash } from '../lib/hooks.js'
-import { PageHead, Note, Empty, Field, Chip } from '../components/ui.jsx'
+import { PageHead, Note, Empty, Field, Group, Chip } from '../components/ui.jsx'
 
 export const ARMS = { global: 'Viverst Global', agro: 'Agro', studio: 'Studio' }
 const STATUS = { draft: 'Draft', review: 'In review', scheduled: 'Scheduled', published: 'Published', rejected: 'Rejected' }
@@ -202,18 +202,18 @@ function PostEditor({ id }) {
         <Field label="Excerpt" hint="One or two sentences shown in lists and previews."><textarea className="textarea" style={{ minHeight: 60 }} value={form.excerpt} onChange={set('excerpt')} maxLength={300} /></Field>
         <Field label="Body" hint="Plain text with blank lines between paragraphs. Markdown works: **bold**, ## Heading, - lists, [link](https://…)."><textarea className="textarea" style={{ minHeight: 360, fontFamily: 'var(--font-mono)', fontSize: 13.5 }} value={form.body} onChange={set('body')} /></Field>
         <div className="form-row">
-          <Field label="Cover image">
+          <Group label="Cover image">
             <div className="images">
               {form.cover && <figure><img src={imageUrl(form.cover, 'content-images')} alt="" /><button type="button" aria-label="Remove cover" onClick={async () => { const c = form.cover; setForm((f) => ({ ...f, cover: '' })); await removeImage(c, 'content-images') }}><X /></button></figure>}
               {!form.cover && <label className="add"><input type="file" accept="image/*" onChange={onCover} disabled={busy} />{busy ? 'Uploading…' : 'Add cover'}</label>}
             </div>
-          </Field>
+          </Group>
           <Field label="Tags" hint="Comma-separated."><input className="input" value={form.tags} onChange={set('tags')} /></Field>
         </div>
         {form.sources?.length > 0 && (
-          <Field label="Sources the AI used">
+          <Group label="Sources the AI used">
             <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{form.sources.map((s, i) => <li key={i}><a href={s.url} target="_blank" rel="noreferrer">{s.title || s.url}</a></li>)}</ul>
-          </Field>
+          </Group>
         )}
         <div className="form-actions">
           <button className="btn" type="submit" disabled={busy}>Save draft</button>

@@ -34,6 +34,13 @@ export function Chip({ kind = 'dim', children }) {
   return <span className={`chip chip-${kind}`}>{children}</span>
 }
 
+/* Field: a <label> around ONE input, so clicking the caption focuses it.
+   Group: the same look, but a <div>, for anything holding buttons or several
+   controls: a <label> would forward clicks to its first control and make
+   toggles misfire. */
 export function Field({ label, hint, children }) {
   return <label className="field"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>
+}
+export function Group({ label, hint, children }) {
+  return <div className="field" role="group" aria-label={typeof label === 'string' ? label : undefined}><span>{label}</span>{children}{hint && <small>{hint}</small>}</div>
 }

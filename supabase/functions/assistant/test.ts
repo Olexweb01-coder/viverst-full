@@ -1,0 +1,33 @@
+// deno run --allow-net --allow-env test.ts
+import { runAssistant, buildBrief } from "./index.ts";
+
+const rows: Record<string, Record<string, unknown>[]> = {
+  orders: [{ number: "VA-1001", name: "Ada", status: "awaiting_payment", total_kobo: 13500000, payment_method: "transfer", created_at: new Date().toISOString() }],
+  inventory: [{ on_hand: 2, low_stock_at: 5, products: { name: "Yellow maize", active: true } }],
+  products: [{ name: "Yellow maize", unit: "50 kg bag", price_kobo: 4500000, active: true }],
+  posts: [{ title: "Cassava prices", arm: "agro", status: "review", author_kind: "ai", review_until: new Date().toISOString() }],
+  events: [], settings: [{ key: "shop", value: { name: "Viverst Agro Shop" } }], ai_topics: [],
+};
+const sb = { from(t: string) { const q: Record<string, unknown> = {}; const self = new Proxy(q, { get: (_o, k) => k === "then" ? (res: (v: unknown) => void) => res({ data: rows[t] ?? [], error: null }) : () => self }); return self; } };
+
+let asked = "";
+globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) => {
+  const url = String(input instanceof Request ? input.url : input);
+  const reply = (o: unknown, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json" } });
+  if (url.endsWith("/models")) return reply({ data: [{ id: "llama-3.3-70b-versatile" }] });
+  if (url.includes("groq")) { asked = JSON.parse(String(init?.body)).messages[1].content; return reply({ choices: [{ message: { content: JSON.stringify({ answer: "One order, VA-1001 from Ada, is awaiting payment (₦135,000). Yellow maize is low: 2 bags.", actions: [{ type: "open", path: "/orders?status=awaiting_payment", label: "Awaiting payment" }, { type: "queue_topic", topic: "Why maize prices rise before the rains", arm: "agro" }] }) } }] }); }
+  return reply({ error: "unexpected" }, 500);
+}) as typeof fetch;
+
+let pass = 0, fail = 0; const check = (n: string, ok: boolean, i = "") => { console.log(`  ${ok ? "✓" : "✗"} ${n}${i ? " — " + i : ""}`); ok ? pass++ : fail++; };
+
+const brief = await buildBrief(sb as never);
+check("brief includes orders, stock, posts", brief.includes("VA-1001") && brief.includes("Yellow maize: 2 on hand") && brief.includes('"Cassava prices" [agro] — review'));
+const r = await runAssistant(sb as never, [{ role: "user", content: "What needs my attention?" }], { groq: "g" });
+check("answers ok via groq", r.ok === true && (r as { provider: string }).provider === "groq");
+check("brief and question were sent to the model", asked.includes("BUSINESS BRIEF") && asked.includes("What needs my attention?"));
+check("answer text returned", (r as { answer: string }).answer.includes("VA-1001"));
+check("two actions returned, both valid", (r as { actions: unknown[] }).actions.length === 2);
+const r2 = await runAssistant(sb as never, [{ role: "user", content: "hi" }], {});
+check("no keys → clear message", r2.ok === false && /No AI provider key/.test((r2 as { error: string }).error));
+console.log(`\n${pass} passed, ${fail} failed`); if (fail) Deno.exit(1);

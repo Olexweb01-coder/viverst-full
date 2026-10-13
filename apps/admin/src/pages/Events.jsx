@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Download, Plus, X } from 'lucide-react'
+import { ArrowLeft, Download, ExternalLink, Plus, RefreshCw, X } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { slugify, when } from '../lib/format.js'
 import { imageUrl, uploadImage, removeImage } from '../lib/images.js'
 import { useFlash } from '../lib/hooks.js'
-import { PageHead, Note, Empty, Field, Chip } from '../components/ui.jsx'
+import { loadRegistrationSummary, tabLink } from '../lib/registrations.js'
+import { PageHead, Note, Empty, Field, Group, Chip } from '../components/ui.jsx'
 
 export const SITES = { main: 'Viverst Global', agro: 'Viverst Agro', studio: 'Viverst Studio' }
 
@@ -14,18 +15,26 @@ export default function Events() {
   const [rows, setRows] = useState(null)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('upcoming')
+  const [sheet, setSheet] = useState(null)
 
   useEffect(() => {
     let alive = true
     ;(async () => {
-      const { data, error } = await supabase.from('events')
-        .select('id, site, slug, title, starts_at, ends_at, location, status, registration, event_registrations(count)')
-        .order('starts_at', { ascending: false })
+      const [{ data, error }, summary] = await Promise.all([
+        supabase.from('events')
+          .select('id, site, slug, title, starts_at, ends_at, location, status, registration, event_registrations(count)')
+          .order('starts_at', { ascending: false }),
+        loadRegistrationSummary(),
+      ])
       if (!alive) return
       if (error) setError(error.message); else setRows(data)
+      setSheet(summary)
     })()
     return () => { alive = false }
   }, [])
+
+  const signups = (e) => sheet?.bySlug?.[e.slug]?.count ?? (e.registration ? (e.event_registrations?.[0]?.count ?? 0) : null)
+  const inAdmin = new Set((rows || []).map((e) => e.slug))
 
   const now = Date.now()
   const shown = (rows || []).filter((e) => filter === 'all' || (filter === 'upcoming' ? new Date(e.starts_at) >= now : new Date(e.starts_at) < now))
@@ -45,17 +54,42 @@ export default function Events() {
               <button key={k} type="button" className={filter === k ? 'active' : ''} onClick={() => setFilter(k)}>{l}</button>))}
           </div>
           <div className="panel"><div className="table-wrap"><table>
-            <thead><tr><th>Event</th><th>Site</th><th>When</th><th>Status</th><th className="num">Registered</th></tr></thead>
+            <thead><tr><th>Event</th><th>Site</th><th>When</th><th>Status</th><th className="num">Signups</th></tr></thead>
             <tbody>{shown.map((e) => (
               <tr key={e.id} className="row-link" data-status={e.status === 'published' ? undefined : e.status === 'cancelled' ? 'cancelled' : 'inactive'} onClick={() => nav(`/events/${e.id}`)}>
                 <td><strong>{e.title}</strong><div className="muted small">{e.location}</div></td>
                 <td>{SITES[e.site]}</td>
                 <td className="small">{when(e.starts_at)}</td>
                 <td><Chip kind={{ published: 'ok', draft: 'dim', cancelled: 'alert' }[e.status]}>{e.status}</Chip></td>
-                <td className="num">{e.registration ? (e.event_registrations?.[0]?.count ?? 0) : '—'}</td>
+                <td className="num">{signups(e) == null ? '—' : sheet?.bySlug?.[e.slug]
+                  ? <a href={tabLink(sheet, sheet.bySlug[e.slug])} target="_blank" rel="noreferrer" onClick={(ev) => ev.stopPropagation()} title="View leads in Google Sheets">{signups(e)} <ExternalLink aria-hidden="true" style={{ width: 13, height: 13, verticalAlign: '-2px' }} /></a>
+                  : signups(e)}</td>
               </tr>))}</tbody>
           </table></div></div>
         </>
+      )}
+
+      {sheet && (
+        <div className="panel">
+          <div className="panel-head"><h2>Registrations sheet</h2>
+            <div className="page-actions">
+              {sheet.url && <a className="btn btn-sm" href={sheet.url} target="_blank" rel="noreferrer"><ExternalLink aria-hidden="true" />Open in Google Sheets</a>}
+              <button type="button" className="btn btn-sm btn-quiet" onClick={async () => setSheet(await loadRegistrationSummary(true))}><RefreshCw aria-hidden="true" />Refresh</button>
+            </div></div>
+          {!sheet.ok ? <div className="panel-body"><p className="muted">{sheet.reason}</p></div>
+          : sheet.events.length === 0 ? <div className="empty">No registrations recorded yet.</div>
+          : <div className="table-wrap"><table>
+              <thead><tr><th>Event (as registered on the site)</th><th className="num">Signups</th><th>Leads</th><th></th></tr></thead>
+              <tbody>{sheet.events.map((ev) => (
+                <tr key={ev.eventId}>
+                  <td><strong>{ev.title || ev.eventId}</strong><div className="muted small">{ev.eventId}{!inAdmin.has(ev.eventId) && ' · not yet in the admin'}</div></td>
+                  <td className="num">{ev.count}</td>
+                  <td>{ev.gid != null ? <a href={tabLink(sheet, ev)} target="_blank" rel="noreferrer">View leads <ExternalLink aria-hidden="true" style={{ width: 13, height: 13, verticalAlign: '-2px' }} /></a> : <span className="muted">no tab yet</span>}</td>
+                  <td></td>
+                </tr>))}</tbody>
+            </table></div>}
+          <div className="panel-body small muted" style={{ paddingTop: 0 }}>Names, phones and emails stay in the sheet. The admin only reads counts. Match an admin event to a sheet entry by giving it the same web address.</div>
+        </div>
       )}
     </div>
   )
@@ -80,6 +114,9 @@ function EventEditor({ id }) {
   const [flash, setFlash] = useFlash()
   const [busy, setBusy] = useState(false)
   const [slugTouched, setSlugTouched] = useState(!isNew)
+  const [sheet, setSheet] = useState(null)
+  useEffect(() => { if (!isNew) loadRegistrationSummary().then(setSheet) }, [isNew])
+  const sheetEv = sheet?.bySlug?.[form.slug]
 
   const loadRegs = useCallback(async () => {
     if (isNew) return
@@ -175,12 +212,12 @@ function EventEditor({ id }) {
         </div>
         <Field label="One-line summary"><input className="input" value={form.summary} onChange={set('summary')} maxLength={200} /></Field>
         <Field label="Details" hint="Shown on the event page. Blank lines separate paragraphs."><textarea className="textarea" value={form.body} onChange={set('body')} /></Field>
-        <Field label="Cover image" hint="JPG, PNG or WebP, up to 4 MB.">
+        <Group label="Cover image" hint="JPG, PNG or WebP, up to 4 MB.">
           <div className="images">
             {form.cover && <figure><img src={imageUrl(form.cover, 'content-images')} alt="" /><button type="button" aria-label="Remove cover" onClick={async () => { const c = form.cover; setForm((f) => ({ ...f, cover: '' })); await removeImage(c, 'content-images') }}><X /></button></figure>}
             {!form.cover && <label className="add"><input type="file" accept="image/*" onChange={onCover} disabled={busy} />{busy ? 'Uploading…' : 'Add cover'}</label>}
           </div>
-        </Field>
+        </Group>
         <div className="form-row">
           <label className="check"><input type="checkbox" checked={!!form.registration} onChange={set('registration')} />Take registrations on the site</label>
           <Field label="Capacity" hint="Optional. Registration closes when reached."><input className="input" type="number" min="1" value={form.capacity} onChange={set('capacity')} /></Field>
@@ -196,9 +233,13 @@ function EventEditor({ id }) {
 
       {!isNew && regs && (
         <div className="panel">
-          <div className="panel-head"><h2>Registrations ({regs.length}{form.capacity ? ` of ${form.capacity}` : ''})</h2>
-            {regs.length > 0 && <button type="button" className="btn btn-sm" onClick={exportCsv}><Download aria-hidden="true" />Download CSV</button>}</div>
-          {regs.length === 0 ? <div className="empty">No one has registered yet.</div> : (
+          <div className="panel-head"><h2>Registrations ({sheetEv ? sheetEv.count : regs.length}{form.capacity ? ` of ${form.capacity}` : ''})</h2>
+            <div className="page-actions">
+              {sheetEv && <a className="btn btn-sm btn-primary" href={tabLink(sheet, sheetEv)} target="_blank" rel="noreferrer"><ExternalLink aria-hidden="true" />View leads in Google Sheets</a>}
+              {regs.length > 0 && <button type="button" className="btn btn-sm" onClick={exportCsv}><Download aria-hidden="true" />Download CSV</button>}
+            </div></div>
+          {sheetEv && <div className="panel-body small muted">{sheetEv.count} signup{sheetEv.count === 1 ? '' : 's'} recorded in the sheet for “{sheetEv.title || form.slug}”. {regs.length ? 'The rows below came through the site’s own form instead.' : ''}</div>}
+          {regs.length === 0 ? (!sheetEv && <div className="empty">No one has registered yet.</div>) : (
             <div className="table-wrap"><table>
               <thead><tr><th>Name</th><th>Contact</th><th>Organisation</th><th>Registered</th></tr></thead>
               <tbody>{regs.map((r) => <tr key={r.id}><td>{r.name}</td><td>{r.email}<div className="muted small">{r.phone}</div></td><td className="muted">{r.organisation || '—'}</td><td className="muted small">{when(r.created_at)}</td></tr>)}</tbody>

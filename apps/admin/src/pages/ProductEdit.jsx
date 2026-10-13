@@ -4,7 +4,7 @@ import { ArrowLeft, ImagePlus, X } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { fromKobo, toKobo, slugify } from '../lib/format.js'
 import { imageUrl, uploadImage, removeImage } from '../lib/images.js'
-import { PageHead, Note, Field } from '../components/ui.jsx'
+import { PageHead, Note, Field, Group } from '../components/ui.jsx'
 import { useFlash } from '../lib/hooks.js'
 
 const BLANK = { name: '', slug: '', category_id: '', summary: '', description: '', unit: '', price: '', compare_at: '', images: [], active: false, featured: false, sort: 0 }
@@ -141,12 +141,12 @@ function Editor({ id }) {
               {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </Field>
-          <Field label="Add a category" hint="Type a name and press Add.">
+          <Group label="Add a category" hint="Type a name and press Add.">
             <div style={{ display: 'flex', gap: 8 }}>
-              <input className="input" value={newCat} onChange={(e) => setNewCat(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCategory() } }} />
+              <input className="input" aria-label="New category name" value={newCat} onChange={(e) => setNewCat(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCategory() } }} />
               <button type="button" className="btn" onClick={addCategory} disabled={!newCat.trim()}>Add</button>
             </div>
-          </Field>
+          </Group>
         </div>
 
         <div className="form-row">
@@ -168,14 +168,14 @@ function Editor({ id }) {
           <textarea className="textarea" value={form.description} onChange={set('description')} />
         </Field>
 
-        <Field label="Photos" hint="First photo is the main one. JPG, PNG or WebP, up to 4 MB each.">
+        <Group label="Photos" hint="First photo is the main one. JPG, PNG or WebP, up to 4 MB each.">
           <div className="images">
             {form.images.map((p) => (
               <figure key={p}><img src={imageUrl(p)} alt="" />
                 <button type="button" aria-label="Remove photo" onClick={() => dropImage(p)}><X /></button></figure>))}
             <label className="add"><input type="file" accept="image/*" multiple onChange={onFiles} disabled={busy} /><ImagePlus aria-hidden="true" />{busy ? 'Uploading…' : 'Add photos'}</label>
           </div>
-        </Field>
+        </Group>
 
         <div className="form-row">
           <label className="check"><input type="checkbox" checked={form.active} onChange={set('active')} />Show in the shop</label>

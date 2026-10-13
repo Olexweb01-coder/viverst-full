@@ -4,7 +4,7 @@ import { Sparkles, Trash2 } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { when } from '../lib/format.js'
 import { useAuth, useFlash } from '../lib/hooks.js'
-import { PageHead, Note, Field } from '../components/ui.jsx'
+import { PageHead, Note, Field, Group } from '../components/ui.jsx'
 import { ARMS } from './Posts.jsx'
 
 const DAYS = [[1, 'Mon'], [2, 'Tue'], [3, 'Wed'], [4, 'Thu'], [5, 'Fri'], [6, 'Sat'], [7, 'Sun']]
@@ -18,8 +18,7 @@ const KEYS = [
 export default function Automation() {
   const { staff } = useAuth()
   const [params, setParams] = useSearchParams()
-  const tab = params.get('tab') || 'schedule'
-  const setTab = (t) => setParams(t === 'schedule' ? {} : { tab: t })
+  const setTab = (t) => setParams(t === 'topics' ? {} : { tab: t })
   const isOwner = staff?.role === 'owner'
   const [s, setS] = useState(null)
   const [present, setPresent] = useState({})
@@ -46,6 +45,8 @@ export default function Automation() {
   useEffect(() => { const t = setTimeout(load, 0); return () => clearTimeout(t) }, [load])
 
   const anyModel = present.groq_api_key || present.cerebras_api_key || present.gemini_api_key
+  // opens on Topics (daily use); on AI keys until at least one key exists
+  const tab = params.get('tab') || (s && !anyModel ? 'keys' : 'topics')
 
   async function saveSchedule() {
     setBusy(true); setError('')
@@ -116,7 +117,7 @@ export default function Automation() {
       <Note kind="ok">{flash}</Note>
 
       <div className="tabs" role="tablist" aria-label="Automation sections">
-        {[['schedule', 'Schedule'], ['keys', `AI keys${anyModel ? '' : ' · none set'}`], ['topics', `Topics${topics.filter((t) => t.status === 'queued').length ? ` · ${topics.filter((t) => t.status === 'queued').length} queued` : ''}`], ['runs', 'Runs']].map(([k, l]) => (
+        {[['topics', `Topics${topics.filter((t) => t.status === 'queued').length ? ` · ${topics.filter((t) => t.status === 'queued').length} queued` : ''}`], ['runs', 'Runs'], ['schedule', `Schedule · ${s.enabled ? 'on' : 'off'}`], ['keys', `AI keys${anyModel ? '' : ' · none set'}`]].map(([k, l]) => (
           <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>{l}</button>))}
       </div>
 
@@ -125,11 +126,11 @@ export default function Automation() {
         <div className="panel-body form">
           <label className="check"><input type="checkbox" checked={!!s.enabled} onChange={(e) => setS({ ...s, enabled: e.target.checked })} /><strong>Automation is {s.enabled ? 'on' : 'off'}</strong></label>
           {s.enabled && !anyModel && <Note kind="error">Automation is on but no AI key is set yet, so nothing will be written. Add a key below.</Note>}
-          <Field label="Days (Lagos time)">
+          <Group label="Days (Lagos time)">
             <div className="filters" style={{ marginBottom: 0 }}>{DAYS.map(([d, l]) => (
               <button key={d} type="button" className={s.days.includes(d) ? 'active' : ''} aria-pressed={s.days.includes(d)}
                 onClick={() => setS({ ...s, days: s.days.includes(d) ? s.days.filter((x) => x !== d) : [...s.days, d].sort() })}>{l}</button>))}</div>
-          </Field>
+          </Group>
           <div className="form-row">
             <Field label="At what hour" hint="24-hour clock. One draft per chosen day, at this hour.">
               <select className="select" value={s.hour} onChange={(e) => setS({ ...s, hour: Number(e.target.value) })}>{Array.from({ length: 24 }, (_, h) => <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>)}</select>
@@ -138,11 +139,11 @@ export default function Automation() {
               <select className="select" value={s.review_hours} onChange={(e) => setS({ ...s, review_hours: Number(e.target.value) })}>{[6, 12, 24, 48, 72].map((h) => <option key={h} value={h}>{h} hours</option>)}</select>
             </Field>
           </div>
-          <Field label="Write about">
+          <Group label="Write about">
             <div className="filters" style={{ marginBottom: 0 }}>{Object.entries(ARMS).map(([k, l]) => (
               <button key={k} type="button" className={s.arms.includes(k) ? 'active' : ''} aria-pressed={s.arms.includes(k)}
                 onClick={() => setS({ ...s, arms: s.arms.includes(k) ? s.arms.filter((x) => x !== k) : [...s.arms, k] })}>{l}</button>))}</div>
-          </Field>
+          </Group>
           <label className="check"><input type="checkbox" checked={!!s.self_find} onChange={(e) => setS({ ...s, self_find: e.target.checked })} />When the topic queue is empty, find a topic from this week’s news (needs the Tavily key)</label>
         </div>
       </section>}

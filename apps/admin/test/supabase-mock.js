@@ -29,6 +29,8 @@ const DATA = {
     { id: 'post2', slug: 'brand-refresh', title: 'Our brand refresh', arm: 'studio', excerpt: '', body: '', cover: null, tags: [], status: 'published', author_kind: 'staff', author_id: OWNER.id, sources: [], review_until: null, held: false, publish_at: null, published_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   ],
   review_notes: [],
+  notifications: [{ id: 1, kind: 'order', title: 'New order VA-1001', body: 'Ada · ₦135,000', link: '/orders?open=o1', created_at: new Date().toISOString() }, { id: 2, kind: 'stock_low', title: 'Running low: Yellow maize', body: '2 left', link: '/inventory', created_at: new Date().toISOString() }],
+  notification_reads: [{ notification_id: 2, staff_id: OWNER.id }],
   ai_topics: [{ id: 7, topic: 'How to store maize through the rains', arm: 'agro', status: 'queued', post_id: null, error: null, created_at: new Date().toISOString() }],
   ai_runs: [{ id: 3, started_at: new Date().toISOString(), finished_at: new Date().toISOString(), trigger: 'manual', provider: 'groq', ok: true, detail: '4 source(s)', post_id: 'post1' }],
   settings: [
@@ -36,6 +38,8 @@ const DATA = {
     { key: 'delivery', value: { flat_fee_kobo: 150000, note: 'Lagos only' } },
     { key: 'payments', value: { transfer: { enabled: true, bank_name: 'GTB', account_name: 'Viverst', account_number: '0123', instructions: 'Pay' }, paystack: { enabled: false } } },
     { key: 'contact', value: { email: 'info@viverst.com', phone: '', whatsapp: '' } },
+    { key: 'notifications', value: { email_enabled: true, email_to: '', from: 'Viverst Admin <admin@viverst.com>' } },
+    { key: 'integrations', value: { registrations_script_url: 'https://script.test/exec' } },
     { key: 'automation', value: { enabled: false, arms: ['global', 'agro'], days: [1, 3, 5], hour: 9, review_hours: 24, self_find: true } },
   ],
 }
@@ -43,6 +47,9 @@ export const rpcCalls = []
 const RPC = {
   has_secret: () => false,
   ai_keys_present: () => ({ groq_api_key: true, cerebras_api_key: false, gemini_api_key: false, tavily_api_key: true }),
+  analytics_summary: () => ({ weeks: [{ week: '29 Sep', orders: 0, revenue_kobo: 0 }, { week: '06 Oct', orders: 2, revenue_kobo: 9000000 }, { week: '13 Oct', orders: 1, revenue_kobo: 13500000 }], top_products: [{ name: 'Yellow maize', qty: 5, kobo: 22500000 }], by_status: { awaiting_payment: 1, paid: 2 }, posts: [{ arm: 'agro', status: 'review', n: 1 }, { arm: 'studio', status: 'published', n: 1 }], totals: { orders_all: 3, revenue_paid_kobo: 9000000, awaiting: 1, customers: 2, posts_published: 1, events_upcoming: 1, registrations_30d: 2 } }),
+  notification_counts: () => ({ unread: 1 }),
+  mark_all_read: () => null,
   content_counts: () => ({ posts_in_review: 1, posts_held: 0, events_upcoming: 1, registrations_7d: 2 }),
   send_post_to_review: () => ({ status: 'review' }),
   set_secret: () => null,
@@ -84,7 +91,10 @@ export function createClient() {
       signOut: async () => { state.session = null },
     },
     from: builder,
-    functions: { invoke: async (name, { body }) => { state.invokes.push({ name, body }); return { data: { ok: true, post: { id: 'post9', title: 'Storing maize well' }, provider: 'groq', sources: 3 }, error: null } } },
+    functions: { invoke: async (name, { body }) => {
+      state.invokes.push({ name, body })
+      if (name === 'assistant') return { data: { ok: true, provider: 'groq', answer: 'One order is **awaiting payment**.\n\n- VA-1001 from Ada', actions: [{ type: 'queue_topic', topic: 'Storing maize through the rains', arm: 'agro' }, { type: 'open', path: '/orders?status=awaiting_payment', label: 'See awaiting payment' }] }, error: null }
+      return { data: { ok: true, post: { id: 'post9', title: 'Storing maize well' }, provider: 'groq', sources: 3 }, error: null } } },
     rpc: async (name, args) => { rpcCalls.push({ name, args }); const r = RPC[name]?.(args); return r && (r.error || 'data' in r) ? r : { data: r ?? null, error: null } },
     storage: { from: () => ({
       getPublicUrl: (p) => ({ data: { publicUrl: `https://cdn.test/${p}` } }),

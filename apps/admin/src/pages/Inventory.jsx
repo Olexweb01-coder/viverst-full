@@ -3,7 +3,7 @@ import { X } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { when } from '../lib/format.js'
 import { useAuth, useFlash } from '../lib/hooks.js'
-import { PageHead, Note, Empty, Field } from '../components/ui.jsx'
+import { PageHead, Note, Empty, Field, Group } from '../components/ui.jsx'
 
 const REASONS = [
   ['received', 'Received (delivery in)', +1],
@@ -127,12 +127,12 @@ function StockPanel({ row, onClose, onChanged }) {
           <div className="figures" style={{ gridTemplateColumns: '1fr 1fr' }}>
             <div className="panel figure"><b>{onHand}</b><span>on hand · {row.products.unit}</span></div>
             <div className="panel figure" style={{ padding: 12 }}>
-              <Field label="Alert me at">
+              <Group label="Alert me at">
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <input className="input" type="number" min="0" value={alertAt} onChange={(e) => setAlertAt(e.target.value)} />
+                  <input className="input" type="number" min="0" aria-label="Alert me at" value={alertAt} onChange={(e) => setAlertAt(e.target.value)} />
                   <button type="button" className="btn btn-sm" onClick={saveAlert} disabled={alertAt === String(row.low_stock_at)}>Save</button>
                 </div>
-              </Field>
+              </Group>
             </div>
           </div>
 
