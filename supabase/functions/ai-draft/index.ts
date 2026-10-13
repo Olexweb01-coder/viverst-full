@@ -25,18 +25,51 @@ const ARM_BRIEF: Record<Arm, string> = {
   studio: "Viverst Studio, a Nigerian brand and digital studio doing identity, websites and campaigns. Audience: founders and marketing leads of growing Nigerian businesses.",
 };
 
+// the admin calls this from the browser, so every reply carries CORS headers
+const CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
+  "access-control-allow-methods": "POST, OPTIONS",
+};
 const json = (status: number, body: unknown) =>
-  new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+  new Response(JSON.stringify(body), { status, headers: { ...CORS, "content-type": "application/json" } });
 
 // ---------------------------------------------------------------- providers
 // Each returns the model's text or throws. Order = fastest first. A provider
 // that fails is skipped; the next one is tried within the same request.
 
+// Model names change often. Each provider is asked for its current list and
+// the best available model is chosen from preferences, so a retired name
+// never breaks drafting again. Results are cached for the life of the process.
+const modelCache = new Map<string, string>();
+
+async function pickModel(cacheKey: string, listUrl: string, headers: Record<string, string>, prefer: string[], fallback: (name: string) => boolean, extract: (d: unknown) => string[]): Promise<string> {
+  const cached = modelCache.get(cacheKey);
+  if (cached) return cached;
+  const r = await fetch(listUrl, { headers, signal: AbortSignal.timeout(15_000) });
+  if (!r.ok) throw new Error(`${new URL(listUrl).host} models ${r.status}: ${(await r.text()).slice(0, 160)}`);
+  const names = extract(await r.json());
+  const chosen = prefer.find((p) => names.includes(p))
+    ?? names.filter(fallback).sort((a, b) => b.length - a.length)[0];
+  if (!chosen) throw new Error(`${new URL(listUrl).host}: no usable model in list (${names.slice(0, 6).join(", ")})`);
+  modelCache.set(cacheKey, chosen);
+  return chosen;
+}
+
+const openaiList = (d: unknown) => ((d as { data?: Array<{ id: string }> }).data ?? []).map((m) => m.id);
+const isChatLlama = (n: string) => /llama|qwen|mixtral|gpt-oss|deepseek/i.test(n) && !/guard|whisper|tts|vision|embed|safety|prompt/i.test(n);
+
 async function groq(key: string, system: string, user: string): Promise<string> {
-  return openaiCompatible("https://api.groq.com/openai/v1/chat/completions", key, "llama-3.3-70b-versatile", system, user);
+  const model = await pickModel("groq", "https://api.groq.com/openai/v1/models", { authorization: `Bearer ${key}` },
+    ["llama-3.3-70b-versatile", "meta-llama/llama-4-maverick-17b-128e-instruct", "meta-llama/llama-4-scout-17b-16e-instruct", "openai/gpt-oss-120b", "llama-3.1-70b-versatile", "llama-3.1-8b-instant"],
+    isChatLlama, openaiList);
+  return openaiCompatible("https://api.groq.com/openai/v1/chat/completions", key, model, system, user);
 }
 async function cerebras(key: string, system: string, user: string): Promise<string> {
-  return openaiCompatible("https://api.cerebras.ai/v1/chat/completions", key, "llama-3.3-70b", system, user);
+  const model = await pickModel("cerebras", "https://api.cerebras.ai/v1/models", { authorization: `Bearer ${key}` },
+    ["llama-3.3-70b", "gpt-oss-120b", "qwen-3-235b-a22b-instruct-2507", "llama3.1-70b", "llama3.1-8b"],
+    isChatLlama, openaiList);
+  return openaiCompatible("https://api.cerebras.ai/v1/chat/completions", key, model, system, user);
 }
 async function openaiCompatible(url: string, key: string, model: string, system: string, user: string): Promise<string> {
   const r = await fetch(url, {
@@ -52,13 +85,19 @@ async function openaiCompatible(url: string, key: string, model: string, system:
   return text;
 }
 async function gemini(key: string, system: string, user: string): Promise<string> {
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
+  const model = await pickModel("gemini", `https://generativelanguage.googleapis.com/v1beta/models?key=${key}&pageSize=200`, {},
+    ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3-flash", "gemini-2.5-flash", "gemini-2.0-flash"],
+    (n) => /flash/i.test(n) && !/lite|image|tts|live|audio|embedding|preview|exp/i.test(n),
+    (d) => ((d as { models?: Array<{ name: string; supportedGenerationMethods?: string[] }> }).models ?? [])
+      .filter((m) => !m.supportedGenerationMethods || m.supportedGenerationMethods.includes("generateContent"))
+      .map((m) => m.name.replace(/^models\//, "")));
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: "user", parts: [{ text: user }] }], generationConfig: { temperature: 0.6, maxOutputTokens: 2200 } }),
     signal: AbortSignal.timeout(60_000),
   });
-  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  if (!r.ok) throw new Error(`gemini(${model}) ${r.status}: ${(await r.text()).slice(0, 200)}`);
   const d = await r.json();
   const text = d?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("");
   if (!text) throw new Error("gemini: empty reply");
@@ -208,28 +247,46 @@ async function fail(sb: Db, t0: string, trigger: string, topicId: number | null,
 
 if (import.meta.main) {
   Deno.serve(async (req) => {
+    if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
     if (req.method !== "POST") return json(405, { error: "POST only" });
-    const url = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const admin: Db = createClient(url, serviceKey);
+    let stage = "setup";
+    try {
+      const url = Deno.env.get("SUPABASE_URL")!;
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const admin: Db = createClient(url, serviceKey);
+      const body = await req.json().catch(() => ({}));
+      let trigger: "schedule" | "manual" = "manual";
 
-    // who is calling? the scheduler (shared secret) or a staff member (JWT)
-    const body = await req.json().catch(() => ({}));
-    const cronSecret = Deno.env.get("CRON_SECRET");
-    const auth = req.headers.get("authorization") ?? "";
-    let trigger: "schedule" | "manual" = "manual";
-    if (cronSecret && req.headers.get("x-cron-secret") === cronSecret) {
-      trigger = "schedule";
-      const { data: due } = await admin.rpc("ai_post_due");
-      if (!due && !body.force) return json(200, { ok: true, skipped: "not due" });
-    } else {
-      const jwt = auth.replace(/^Bearer\s+/i, "");
-      const { data: userData } = await createClient(url, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { authorization: `Bearer ${jwt}` } } }).auth.getUser(jwt);
-      if (!userData?.user) return json(401, { error: "sign in first" });
-      const { data: staff } = await admin.from("staff").select("role, active").eq("user_id", userData.user.id).maybeSingle();
-      if (!staff?.active) return json(403, { error: "staff only" });
+      const cronSecret = Deno.env.get("CRON_SECRET");
+      if (cronSecret && req.headers.get("x-cron-secret") === cronSecret) {
+        stage = "schedule check";
+        trigger = "schedule";
+        const { data: due, error } = await admin.rpc("ai_post_due");
+        if (error) return json(500, { error: `${stage}: ${error.message}` });
+        if (!due && !body.force) return json(200, { ok: true, skipped: "not due" });
+      } else {
+        // Verify the caller exactly the way the browser does: its own token and
+        // its own apikey against the auth server. No other key is assumed.
+        stage = "sign-in check";
+        const jwt = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+        const apikey = req.headers.get("apikey") ?? "";
+        if (!jwt) return json(401, { error: `${stage}: no login token was sent` });
+        const r = await fetch(`${url}/auth/v1/user`, { headers: { authorization: `Bearer ${jwt}`, apikey } });
+        if (!r.ok) return json(401, { error: `${stage}: auth server said ${r.status} ${(await r.text()).slice(0, 160)}` });
+        const user = await r.json() as { id?: string };
+        if (!user?.id) return json(401, { error: `${stage}: token did not resolve to a user` });
+
+        stage = "staff check";
+        const { data: staff, error } = await admin.from("staff").select("role, active").eq("user_id", user.id).maybeSingle();
+        if (error) return json(500, { error: `${stage}: ${error.message}` });
+        if (!staff?.active) return json(403, { error: `${stage}: this account is not on the staff list` });
+      }
+
+      stage = "drafting";
+      const result = await runDraft({ sb: admin, trigger, topicId: body.topic_id ? Number(body.topic_id) : undefined });
+      return json(result.ok ? 200 : 422, result);
+    } catch (e) {
+      return json(500, { error: `${stage}: ${(e as Error).message}` });
     }
-    const result = await runDraft({ sb: admin, trigger, topicId: body.topic_id ? Number(body.topic_id) : undefined });
-    return json(result.ok ? 200 : 422, result);
   });
 }

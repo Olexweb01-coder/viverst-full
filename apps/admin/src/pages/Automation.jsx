@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Sparkles, Trash2 } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { when } from '../lib/format.js'
@@ -17,6 +17,9 @@ const KEYS = [
 
 export default function Automation() {
   const { staff } = useAuth()
+  const [params, setParams] = useSearchParams()
+  const tab = params.get('tab') || 'schedule'
+  const setTab = (t) => setParams(t === 'schedule' ? {} : { tab: t })
   const isOwner = staff?.role === 'owner'
   const [s, setS] = useState(null)
   const [present, setPresent] = useState({})
@@ -89,7 +92,12 @@ export default function Automation() {
     setDrafting(true); setError('')
     const { data, error } = await supabase.functions.invoke('ai-draft', { body: topicId ? { topic_id: topicId } : {} })
     setDrafting(false)
-    if (error) { setError(`The drafting function didn’t respond: ${error.message}. Is it deployed?`); await load(); return }
+    if (error) {
+      // supabase-js hides the body on non-2xx; read it so the real reason shows
+      let detail = error.message
+      try { const body = await error.context?.json(); if (body?.error) detail = `${body.error} (HTTP ${error.context.status})` } catch { /* keep message */ }
+      setError(`Drafting failed: ${detail}`); await load(); return
+    }
     if (!data?.ok) { setError(data?.error || 'Drafting failed.'); await load(); return }
     setFlash(`Drafted “${data.post.title}” with ${data.provider} from ${data.sources} source(s). It’s in the review queue.`)
     await load()
@@ -107,7 +115,12 @@ export default function Automation() {
       <Note kind="error">{error}</Note>
       <Note kind="ok">{flash}</Note>
 
-      <section className="panel">
+      <div className="tabs" role="tablist" aria-label="Automation sections">
+        {[['schedule', 'Schedule'], ['keys', `AI keys${anyModel ? '' : ' · none set'}`], ['topics', `Topics${topics.filter((t) => t.status === 'queued').length ? ` · ${topics.filter((t) => t.status === 'queued').length} queued` : ''}`], ['runs', 'Runs']].map(([k, l]) => (
+          <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>{l}</button>))}
+      </div>
+
+      {tab === 'schedule' && <section className="panel">
         <div className="panel-head"><h2>Schedule</h2><button type="button" className="btn btn-sm" disabled={busy} onClick={saveSchedule}>Save</button></div>
         <div className="panel-body form">
           <label className="check"><input type="checkbox" checked={!!s.enabled} onChange={(e) => setS({ ...s, enabled: e.target.checked })} /><strong>Automation is {s.enabled ? 'on' : 'off'}</strong></label>
@@ -132,9 +145,9 @@ export default function Automation() {
           </Field>
           <label className="check"><input type="checkbox" checked={!!s.self_find} onChange={(e) => setS({ ...s, self_find: e.target.checked })} />When the topic queue is empty, find a topic from this week’s news (needs the Tavily key)</label>
         </div>
-      </section>
+      </section>}
 
-      <section className="panel">
+      {tab === 'keys' && <section className="panel">
         <div className="panel-head"><h2>AI keys</h2><span className="small muted">{isOwner ? 'Owner only' : 'Only the owner can change these'}</span></div>
         <div className="panel-body form">
           {KEYS.map(([k, label, prefix, hint]) => (
@@ -148,9 +161,9 @@ export default function Automation() {
               </div>
             </div>))}
         </div>
-      </section>
+      </section>}
 
-      <section className="panel">
+      {tab === 'topics' && <section className="panel">
         <div className="panel-head"><h2>Topic queue</h2></div>
         <div className="panel-body form">
           <form onSubmit={addTopic} className="form-row" style={{ alignItems: 'end' }}>
@@ -173,9 +186,9 @@ export default function Automation() {
                 </tr>))}</tbody>
             </table></div>)}
         </div>
-      </section>
+      </section>}
 
-      <section className="panel">
+      {tab === 'runs' && <section className="panel">
         <div className="panel-head"><h2>Recent runs</h2></div>
         {runs.length === 0 ? <div className="empty">Nothing has run yet.</div> : (
           <div className="table-wrap"><table>
@@ -187,7 +200,7 @@ export default function Automation() {
                 <td className="muted">{r.provider || '—'}</td>
               </tr>))}</tbody>
           </table></div>)}
-      </section>
+      </section>}
     </div>
   )
 }

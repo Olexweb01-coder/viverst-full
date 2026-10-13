@@ -181,8 +181,13 @@ console.log(`  new post → send to review: insert slug="${ins?.row.slug}", rpc 
 if (!ins || ins.row.slug !== 'why-soil-tests-pay' || !rv) problems.push('send to review flow broken')
 
 console.log('\n AUTOMATION')
-go('/automation'); await waitFor(() => h1() === 'Automation' && document.querySelectorAll('section.panel').length === 4, 'four panels')
-const keyStatus = [...document.querySelectorAll('section.panel')][1].textContent
+go('/automation'); await waitFor(() => h1() === 'Automation' && document.querySelectorAll('.tabs button').length === 4, 'four tabs')
+console.log(`  tabs → ${[...document.querySelectorAll('.tabs button')].map((b) => b.textContent).join(' | ')}`)
+if (![...document.querySelectorAll('.tabs button')][0].textContent.startsWith('Topics')) problems.push('Topics is not the first tab')
+console.log(`  rail order → ${[...document.querySelectorAll('.rail nav a')].map((a) => a.textContent.replace(/\d+$/, '')).join(' · ')}`)
+if ([...document.querySelectorAll('.rail nav a')][1].textContent.replace(/\d+$/, '') !== 'Blog') problems.push('Blog is not first after Today')
+;[...document.querySelectorAll('.tabs button')][3].click(); await waitFor(() => document.querySelector('input[type=password]'), 'keys tab')
+const keyStatus = document.querySelector('section.panel').textContent
 console.log(`  keys panel → groq ${keyStatus.includes('Groq — ● set') ? 'set' : 'MISSING'}, cerebras ${keyStatus.includes('Cerebras — ○ not set') ? 'not set' : 'WRONG'}`)
 if (!keyStatus.includes('Groq — ● set')) problems.push('key presence not shown')
 rpcCalls.length = 0
@@ -193,6 +198,7 @@ setVal(keyInputs[1], 'csk-abc123def456ghi789jkl'); keyInputs[1].closest('.form-r
 const sk2 = rpcCalls.find((c) => c.name === 'set_secret')
 console.log(`  good cerebras key → set_secret(${sk2?.args.p_key}) ${sk2 ? 'called' : 'MISSING'}; leaked into settings? ${state.writes.some((w) => JSON.stringify(w).includes('csk-abc123def')) ? 'YES (BAD)' : 'no'}`)
 if (sk2?.args.p_key !== 'cerebras_api_key') problems.push('cerebras key not saved via set_secret')
+;[...document.querySelectorAll('.tabs button')][2].click(); await waitFor(() => [...document.querySelectorAll('section.panel button')].some((b) => b.textContent === 'Tue'), 'schedule tab')
 const dayBtn = [...document.querySelectorAll('section.panel button')].find((b) => b.textContent === 'Tue'); dayBtn.click(); await sleep(30)
 state.writes.length = 0
 document.querySelector('section.panel .panel-head .btn').click(); await sleep(100)
@@ -200,6 +206,7 @@ const sched = state.writes.find((w) => w.table === 'settings')
 console.log(`  toggle Tue + save → days=${JSON.stringify(sched?.row.value.days)}`)
 if (!sched || !sched.row.value.days.includes(2)) problems.push('schedule save did not include Tuesday')
 state.invokes.length = 0
+;[...document.querySelectorAll('.tabs button')][0].click(); await waitFor(() => document.querySelector('tbody .btn'), 'topics tab')
 const dn = [...document.querySelectorAll('tbody .btn')].find((b) => b.textContent === 'Draft now'); dn.click(); await sleep(150)
 console.log(`  "Draft now" on queued topic → invoke ${state.invokes[0]?.name} topic_id=${state.invokes[0]?.body.topic_id}; message: ${document.querySelector('.note-ok')?.textContent.slice(0, 60)}`)
 if (state.invokes[0]?.body.topic_id !== 7) problems.push('draft now did not invoke with topic id')

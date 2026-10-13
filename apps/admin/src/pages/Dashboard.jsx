@@ -42,9 +42,9 @@ export default function Dashboard() {
 
   const firstName = (staff?.name || '').split(' ')[0]
   const todo = data ? [
+    data.content.posts_in_review && `${data.content.posts_in_review} blog draft${data.content.posts_in_review > 1 ? 's' : ''} in review`,
     data.awaiting && `${data.awaiting} order${data.awaiting > 1 ? 's' : ''} waiting for payment`,
     data.low.length && `${data.low.length} product${data.low.length > 1 ? 's' : ''} running low`,
-    data.content.posts_in_review && `${data.content.posts_in_review} blog draft${data.content.posts_in_review > 1 ? 's' : ''} in review`,
   ].filter(Boolean) : []
 
   return (
@@ -59,6 +59,12 @@ export default function Dashboard() {
       {data && (
         <>
           <div className="figures">
+            <Link to="/posts" className={`panel figure${data.content.posts_in_review ? ' warn' : ''}`}>
+              <b>{data.content.posts_in_review ?? 0}</b><span>posts in review</span><span className="ico"><Newspaper aria-hidden="true" /></span>
+            </Link>
+            <Link to="/events" className="panel figure">
+              <b>{data.content.events_upcoming ?? 0}</b><span>upcoming events</span><span className="ico"><CalendarDays aria-hidden="true" /></span>
+            </Link>
             <Link to="/orders?status=awaiting_payment" className={`panel figure${data.awaiting ? ' warn' : ''}`}>
               <b>{data.awaiting}</b><span>awaiting payment</span><span className="ico"><Clock aria-hidden="true" /></span>
             </Link>
@@ -66,12 +72,6 @@ export default function Dashboard() {
             <div className="panel figure ok"><b className="money">{money(data.todayKobo)}</b><span>taken today</span><span className="ico"><Wallet aria-hidden="true" /></span></div>
             <Link to="/inventory" className={`panel figure${data.low.length ? ' alert' : ''}`}>
               <b>{data.low.length}</b><span>low or out of stock</span><span className="ico"><PackageOpen aria-hidden="true" /></span>
-            </Link>
-            <Link to="/posts" className={`panel figure${data.content.posts_in_review ? ' warn' : ''}`}>
-              <b>{data.content.posts_in_review ?? 0}</b><span>posts in review</span><span className="ico"><Newspaper aria-hidden="true" /></span>
-            </Link>
-            <Link to="/events" className="panel figure">
-              <b>{data.content.events_upcoming ?? 0}</b><span>upcoming events</span><span className="ico"><CalendarDays aria-hidden="true" /></span>
             </Link>
           </div>
 

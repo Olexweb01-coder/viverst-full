@@ -7,18 +7,18 @@ import logoLight from '@brand-assets/main/logo-light.webp'
 import vMark from '@brand-assets/main/v-mark.webp'
 
 const NAV = [
-  { to: '/',          label: 'Today',     icon: LayoutDashboard, end: true },
-  { group: 'Shop' },
-  { to: '/orders',    label: 'Orders',    icon: ShoppingBag },
-  { to: '/products',  label: 'Products',  icon: Package },
-  { to: '/inventory', label: 'Stock',     icon: Boxes },
+  { to: '/',           label: 'Today',      icon: LayoutDashboard, end: true },
   { group: 'Content' },
-  { to: '/posts',     label: 'Blog',      icon: Newspaper, badge: 'posts_in_review' },
-  { to: '/events',    label: 'Events',    icon: CalendarDays },
+  { to: '/posts',      label: 'Blog',       icon: Newspaper, badge: 'posts_in_review' },
+  { to: '/events',     label: 'Events',     icon: CalendarDays },
   { to: '/automation', label: 'Automation', icon: Sparkles },
+  { group: 'Shop' },
+  { to: '/orders',     label: 'Orders',     icon: ShoppingBag },
+  { to: '/products',   label: 'Products',   icon: Package },
+  { to: '/inventory',  label: 'Stock',      icon: Boxes },
   { group: 'Admin' },
-  { to: '/settings',  label: 'Settings',  icon: Settings },
-  { to: '/staff',     label: 'Staff',     icon: Users, owner: true },
+  { to: '/settings',   label: 'Settings',   icon: Settings },
+  { to: '/staff',      label: 'Staff',      icon: Users, owner: true },
 ]
 
 function useCounts() {
