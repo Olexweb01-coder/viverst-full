@@ -10,6 +10,9 @@ import Inventory from './pages/Inventory.jsx'
 import Orders from './pages/Orders.jsx'
 import Settings from './pages/Settings.jsx'
 import Staff from './pages/Staff.jsx'
+import Events, { EventEdit } from './pages/Events.jsx'
+import Posts, { PostEdit } from './pages/Posts.jsx'
+import Automation from './pages/Automation.jsx'
 
 function Gate() {
   const { session, staff } = useAuth()
@@ -32,6 +35,13 @@ export default function App() {
             <Route path="products/new" element={<ProductEdit />} />
             <Route path="products/:id" element={<ProductEdit />} />
             <Route path="inventory" element={<Inventory />} />
+            <Route path="posts" element={<Posts />} />
+            <Route path="posts/new" element={<PostEdit />} />
+            <Route path="posts/:id" element={<PostEdit />} />
+            <Route path="automation" element={<Automation />} />
+            <Route path="events" element={<Events />} />
+            <Route path="events/new" element={<EventEdit />} />
+            <Route path="events/:id" element={<EventEdit />} />
             <Route path="settings" element={<Settings />} />
             <Route path="staff" element={<Staff />} />
             <Route path="*" element={<Navigate to="/" replace />} />

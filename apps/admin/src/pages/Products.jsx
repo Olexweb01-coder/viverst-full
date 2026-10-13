@@ -4,7 +4,7 @@ import { Plus } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { money } from '../lib/format.js'
 import { imageUrl } from '../lib/images.js'
-import { PageHead, Note, Empty } from '../components/ui.jsx'
+import { PageHead, Note, Empty, Chip } from '../components/ui.jsx'
 
 export default function Products() {
   const nav = useNavigate()
@@ -47,7 +47,7 @@ export default function Products() {
                 <td className="muted">{p.product_categories?.name || '—'}</td>
                 <td className="num">{money(p.price_kobo)}</td>
                 <td className="num">{p.inventory?.on_hand ?? 0}</td>
-                <td>{p.active ? 'Yes' : 'No'}</td>
+                <td><Chip kind={p.active ? 'ok' : 'dim'}>{p.active ? 'In shop' : 'Hidden'}</Chip></td>
               </tr>))}</tbody>
           </table></div></div>
         </>

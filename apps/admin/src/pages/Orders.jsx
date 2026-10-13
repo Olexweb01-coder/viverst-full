@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { money, when } from '../lib/format.js'
-import { PageHead, Note, Empty, Field } from '../components/ui.jsx'
+import { PageHead, Note, Empty, Field, Chip } from '../components/ui.jsx'
 import { useFlash } from '../lib/hooks.js'
 
 const STATUSES = ['awaiting_payment', 'paid', 'packed', 'shipped', 'delivered', 'cancelled', 'refunded']
@@ -11,6 +11,7 @@ const LABEL = { awaiting_payment: 'Awaiting payment', paid: 'Paid', packed: 'Pac
 /* the only moves that make sense from each status */
 const NEXT = { awaiting_payment: ['paid'], paid: ['packed', 'refunded'], packed: ['shipped'], shipped: ['delivered'], delivered: ['refunded'] }
 const CANCELLABLE = ['awaiting_payment', 'paid', 'packed', 'shipped']
+const CHIP = { awaiting_payment: 'warn', paid: 'brand', packed: 'brand', shipped: 'brand', delivered: 'ok', cancelled: 'alert', refunded: 'alert' }
 
 export default function Orders() {
   const [params, setParams] = useSearchParams()
@@ -48,7 +49,7 @@ export default function Orders() {
             <tr key={o.id} className="row-link" data-status={o.status} onClick={() => open(o.id)}>
               <td><span className="order-number">{o.number}</span></td>
               <td><strong>{o.name}</strong><div className="muted small">{o.phone}</div></td>
-              <td>{LABEL[o.status]}</td>
+              <td><Chip kind={CHIP[o.status]}>{LABEL[o.status]}</Chip></td>
               <td className="muted">{o.payment_method === 'paystack' ? 'Card / Paystack' : 'Bank transfer'}</td>
               <td className="num">{money(o.total_kobo)}</td>
               <td className="muted small">{when(o.created_at)}</td>
