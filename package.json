@@ -9,6 +9,7 @@
     "dev:agro": "npm run dev -w @viverst/agro",
     "dev:studio": "npm run dev -w @viverst/studio",
     "dev:admin": "npm run dev -w @viverst/admin",
+    "dev:shop": "npm run dev -w @viverst/shop",
     "build": "npm run build --workspaces --if-present",
     "lint": "oxlint",
     "test": "npm run test --workspaces --if-present"

@@ -6,9 +6,9 @@ import { slugify, when } from '../lib/format.js'
 import { imageUrl, uploadImage, removeImage } from '../lib/images.js'
 import { useFlash } from '../lib/hooks.js'
 import { loadRegistrationSummary, tabLink } from '../lib/registrations.js'
+import { SITES } from '../lib/constants.js'
 import { PageHead, Note, Empty, Field, Group, Chip } from '../components/ui.jsx'
 
-export const SITES = { main: 'Viverst Global', agro: 'Viverst Agro', studio: 'Viverst Studio' }
 
 export default function Events() {
   const nav = useNavigate()
@@ -36,7 +36,7 @@ export default function Events() {
   const signups = (e) => sheet?.bySlug?.[e.slug]?.count ?? (e.registration ? (e.event_registrations?.[0]?.count ?? 0) : null)
   const inAdmin = new Set((rows || []).map((e) => e.slug))
 
-  const now = Date.now()
+  const [now] = useState(() => Date.now())
   const shown = (rows || []).filter((e) => filter === 'all' || (filter === 'upcoming' ? new Date(e.starts_at) >= now : new Date(e.starts_at) < now))
 
   return (

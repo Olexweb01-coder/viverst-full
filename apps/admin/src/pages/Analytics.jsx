@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { money } from '../lib/format.js'
 import { PageHead, Note, Empty } from '../components/ui.jsx'
-import { ARMS } from './Posts.jsx'
+import { ARMS } from '../lib/constants.js'
 import { loadRegistrationSummary } from '../lib/registrations.js'
 
 /* a small bar chart drawn as SVG: no library to load, prints and scales cleanly */

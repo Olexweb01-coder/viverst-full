@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase.js'
 import { when } from '../lib/format.js'
 import { useAuth, useFlash } from '../lib/hooks.js'
 import { PageHead, Note, Field, Group } from '../components/ui.jsx'
-import { ARMS } from './Posts.jsx'
+import { ARMS } from '../lib/constants.js'
 
 const DAYS = [[1, 'Mon'], [2, 'Tue'], [3, 'Wed'], [4, 'Thu'], [5, 'Fri'], [6, 'Sat'], [7, 'Sun']]
 const KEYS = [

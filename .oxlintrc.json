@@ -1,8 +1,21 @@
 {
-  "ignorePatterns": ["**/node_modules/**", "**/dist/**", "**/test-dist/**"],
-  "plugins": ["react", "oxc"],
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/test-dist/**",
+    "supabase/functions/**/test.ts"
+  ],
+  "plugins": [
+    "react",
+    "oxc"
+  ],
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true
+      }
+    ]
   }
 }

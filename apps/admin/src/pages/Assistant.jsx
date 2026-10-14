@@ -4,7 +4,7 @@ import { Send, Sparkles, Trash2, Plus, Pencil, PanelLeftClose, PanelLeftOpen, Ch
 import { supabase } from '../lib/supabase.js'
 import { useAuth } from '../lib/hooks.js'
 import { Note } from '../components/ui.jsx'
-import { ARMS } from './Posts.jsx'
+import { ARMS } from '../lib/constants.js'
 
 const STARTERS = [
   'What needs my attention today?',

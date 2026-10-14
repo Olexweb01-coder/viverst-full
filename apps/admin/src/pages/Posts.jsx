@@ -6,8 +6,8 @@ import { slugify, when } from '../lib/format.js'
 import { imageUrl, uploadImage, removeImage } from '../lib/images.js'
 import { useAuth, useFlash } from '../lib/hooks.js'
 import { PageHead, Note, Empty, Field, Group, Chip } from '../components/ui.jsx'
+import { ARMS } from '../lib/constants.js'
 
-export const ARMS = { global: 'Viverst Global', agro: 'Agro', studio: 'Studio' }
 const STATUS = { draft: 'Draft', review: 'In review', scheduled: 'Scheduled', published: 'Published', rejected: 'Rejected' }
 
 function hoursLeft(iso) { return Math.max(0, Math.round((new Date(iso) - Date.now()) / 36e5)) }
