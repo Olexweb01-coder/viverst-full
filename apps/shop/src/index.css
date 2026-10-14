@@ -182,3 +182,23 @@ body { font-variation-settings: "wdth" 100, "opsz" 14; }
 .shop-footer-links { display: grid; gap: 8px; align-content: start; }
 .shop-footer-small { grid-column: 1 / -1; font-size: 13px; color: rgba(255,255,255,0.6); }
 @media (max-width: 640px) { .shop-footer-inner { grid-template-columns: 1fr; } }
+
+/* ── account ───────────────────────────────────────── */
+.account-link { margin-left: auto; }
+.account-link + .cart-link { margin-left: 0; }
+.account-auth { max-width: 460px; }
+.auth-form { display: grid; gap: 12px; margin-top: 18px; }
+.auth-form label { display: grid; gap: 6px; font-size: 14px; font-weight: 500; }
+.auth-form h2 { font-size: 20px; }
+.auth-links { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.linklike { background: none; border: 0; padding: 0; color: var(--brand); text-decoration: underline; cursor: pointer; font: inherit; font-size: 14px; }
+.shop-ok { color: var(--brand); background: color-mix(in srgb, var(--brand-soft) 18%, var(--bg)); border: 1px solid color-mix(in srgb, var(--brand) 25%, transparent); padding: 10px 14px; border-radius: 10px; }
+.account-grid { display: grid; grid-template-columns: 360px 1fr; gap: 36px; align-items: start; }
+.account-grid h2 { font-size: 20px; margin-bottom: 10px; }
+.order-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.order-list a { display: grid; grid-template-columns: 110px 1fr auto auto; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent); text-decoration: none; color: inherit; }
+.order-status { font-size: 13px; font-weight: 600; }
+.order-status--awaiting_payment { color: var(--accent-deep); }
+.order-status--delivered { color: var(--brand); }
+.order-status--cancelled, .order-status--refunded { color: var(--alert); }
+@media (max-width: 760px) { .account-grid { grid-template-columns: 1fr; } .order-list a { grid-template-columns: 1fr auto; } }

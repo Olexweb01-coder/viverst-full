@@ -1,16 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Building2, CreditCard, Lock } from 'lucide-react'
 import { Seo } from '@viverst/ui'
 import { supabase } from '../lib/supabase.js'
 import { money } from '../lib/format.js'
 import { useCart } from '../lib/cartContext.js'
+import { redirectTo } from '../lib/redirect.js'
+import { useAuth } from '../lib/authContext.js'
 
 const STATES = ['Lagos', 'Ogun', 'Oyo', 'Osun', 'Ondo', 'Ekiti', 'Kwara', 'Kogi', 'Edo', 'Delta', 'Rivers', 'Bayelsa', 'Akwa Ibom', 'Cross River', 'Abia', 'Imo', 'Anambra', 'Enugu', 'Ebonyi', 'Benue', 'Nasarawa', 'Plateau', 'FCT', 'Niger', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Sokoto', 'Zamfara', 'Jigawa', 'Bauchi', 'Gombe', 'Yobe', 'Borno', 'Adamawa', 'Taraba']
 
 export default function Checkout({ shopName, settings }) {
   const nav = useNavigate()
   const { items, subtotal, clear } = useCart()
+  const { user } = useAuth()
   const [f, setF] = useState({ name: '', email: '', phone: '', line1: '', line2: '', city: '', state: 'Lagos', note: '' })
   const [payChoice, setPay] = useState('transfer')
   const [busy, setBusy] = useState(false)
@@ -22,6 +25,20 @@ export default function Checkout({ shopName, settings }) {
   const pay = paystackOn ? payChoice : 'transfer'   // card can only be chosen while Paystack is on
 
   const set = (k) => (e) => setF((o) => ({ ...o, [k]: e.target.value }))
+  // signed in: fill what we already know, once
+  useEffect(() => {
+    if (!user) return
+    let alive = true
+    ;(async () => {
+      const [{ data: c }, { data: a }] = await Promise.all([
+        supabase.from('customers').select('name, phone, email').eq('user_id', user.id).maybeSingle(),
+        supabase.from('addresses').select('line1, line2, city, state').eq('customer_id', user.id).order('is_default', { ascending: false }).limit(1).maybeSingle(),
+      ])
+      if (!alive) return
+      setF((o) => ({ ...o, name: o.name || c?.name || '', email: o.email || c?.email || user.email || '', phone: o.phone || c?.phone || '', line1: o.line1 || a?.line1 || '', line2: o.line2 || a?.line2 || '', city: o.city || a?.city || '', state: a?.state || o.state }))
+    })()
+    return () => { alive = false }
+  }, [user])
 
   async function submit(e) {
     e.preventDefault()
@@ -35,9 +52,23 @@ export default function Checkout({ shopName, settings }) {
     })
     setBusy(false)
     if (error) { setError(friendly(error.message)); return }
-    try { window.sessionStorage.setItem('viverst-shop:last-order', JSON.stringify({ ...data, email: f.email.trim(), pay, items, subtotal, fee })) } catch { /* ignore */ }
+    const summary = { ...data, email: f.email.trim(), pay, items, subtotal, fee }
+    if (user) {   // remember the address for next time (best effort)
+      supabase.from('addresses').upsert({ customer_id: user.id, label: 'Home', name: f.name.trim(), phone: f.phone.trim(), line1: f.line1.trim(), line2: f.line2.trim(), city: f.city.trim(), state: f.state, is_default: true }, { onConflict: 'customer_id,label' }).then(() => {})
+      supabase.from('customers').update({ name: f.name.trim(), phone: f.phone.trim() }).eq('user_id', user.id).then(() => {})
+    }
+    try { window.sessionStorage.setItem('viverst-shop:last-order', JSON.stringify(summary)) } catch { /* ignore */ }
     clear()
-    nav(`/order/${data.number}`, { replace: true, state: { ...data, email: f.email.trim(), pay, items, subtotal, fee } })
+    if (pay === 'paystack') {
+      // the server creates the Paystack transaction; the browser only gets a page to go to
+      setBusy(true)
+      const { data: ps, error: psErr } = await supabase.functions.invoke('paystack/init', { body: { order_id: data.id } })
+      setBusy(false)
+      if (psErr || !ps?.ok) { setError(`We saved your order as ${data.number} but couldn’t start the card payment (${ps?.error || psErr?.message}). You can pay by transfer instead — we’ll call you.`); nav(`/order/${data.number}`, { replace: true, state: { ...summary, pay: 'transfer' } }); return }
+      redirectTo(ps.url)
+      return
+    }
+    nav(`/order/${data.number}`, { replace: true, state: summary })
   }
 
   if (items.length === 0) return (

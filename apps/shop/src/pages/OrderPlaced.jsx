@@ -1,6 +1,7 @@
-import { useLocation, useParams, Link } from 'react-router-dom'
+import { useLocation, useParams, useSearchParams, Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase.js'
 import { CheckCircle2, Copy } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Seo } from '@viverst/ui'
 import { money } from '../lib/format.js'
 
@@ -11,6 +12,18 @@ export default function OrderPlaced({ shopName, settings }) {
   if (!order) { try { const s = JSON.parse(window.sessionStorage.getItem('viverst-shop:last-order') || 'null'); if (s?.number === number) order = s } catch { /* ignore */ } }
   const bank = settings?.payments?.transfer || {}
   const [copied, setCopied] = useState('')
+  const [params] = useSearchParams()
+  const ref = params.get('ref') || params.get('reference')
+  const [verify, setVerify] = useState(ref ? 'checking' : null)   // back from Paystack: confirm with the server
+  useEffect(() => {
+    if (!ref) return
+    let alive = true
+    supabase.functions.invoke('paystack/verify', { body: { reference: ref } }).then(({ data, error }) => {
+      if (!alive) return
+      setVerify(error || !data?.ok ? 'error' : data.paid ? 'paid' : 'pending')
+    })
+    return () => { alive = false }
+  }, [ref])
   const copy = async (t, k) => { try { await navigator.clipboard.writeText(t); setCopied(k); setTimeout(() => setCopied(''), 1500) } catch { /* ignore */ } }
   return (
     <section className="section shop-page">
@@ -33,7 +46,13 @@ export default function OrderPlaced({ shopName, settings }) {
             {!bank.account_number && <p className="muted small">Bank details will be sent to you by phone or email shortly.</p>}
           </div>
         )}
-        {order?.pay === 'paystack' && <p className="lede">Your card payment is being confirmed. We’ll email you the moment it clears.</p>}
+        {verify === 'checking' && <p className="lede">Confirming your payment…</p>}
+        {verify === 'paid' && <div className="bank-box"><h2>Payment received</h2><p>Your card payment went through. We’ll call before delivery.</p></div>}
+        {verify === 'pending' && <div className="bank-box"><h2>Payment not completed</h2><p>Paystack didn’t confirm the payment. If money left your account, don’t worry — it will reflect within a few minutes and we’ll email you. Otherwise you can pay by bank transfer below.</p></div>}
+        {verify === 'error' && <p className="lede">We couldn’t confirm the payment right now. We’ll check it and email you.</p>}
+        {!verify && order?.pay === 'paystack' && <p className="lede">Your card payment is being confirmed. We’ll email you the moment it clears.</p>}
+        {(verify === 'pending' || verify === 'error') && bank.account_number && (
+          <div className="bank-box"><h2>Pay by bank transfer instead</h2><dl><div><dt>Bank</dt><dd>{bank.bank_name}</dd></div><div><dt>Account name</dt><dd>{bank.account_name}</dd></div><div><dt>Account number</dt><dd><strong>{bank.account_number}</strong></dd></div><div><dt>Reference</dt><dd><strong>{number}</strong></dd></div></dl></div>)}
         {order?.items?.length > 0 && <ul className="checkout-items order-done-items">{order.items.map((i) => <li key={i.id}><span>{i.qty} × {i.name}<small>{i.unit}</small></span><span>{money(i.qty * i.price_kobo)}</span></li>)}</ul>}
         <Link to="/products" className="btn">Keep shopping</Link>
       </div>

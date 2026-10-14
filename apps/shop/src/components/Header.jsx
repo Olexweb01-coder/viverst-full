@@ -1,11 +1,13 @@
 import { Link, NavLink } from 'react-router-dom'
-import { ShoppingBag, ArrowUpRight } from 'lucide-react'
+import { ShoppingBag, ArrowUpRight, UserRound } from 'lucide-react'
 import lockup from '@brand-assets/agro/lockup.webp'
 import { useCart } from '../lib/cartContext.js'
+import { useAuth } from '../lib/authContext.js'
 import { SHOP } from '../lib/config.js'
 
 export default function Header() {
   const { count } = useCart()
+  const { user } = useAuth()
   return (
     <header className="shop-header">
       <div className="container shop-header-inner">
@@ -15,6 +17,7 @@ export default function Header() {
           <NavLink to="/products">Products</NavLink>
           <a href={SHOP.parentUrl} className="shop-nav-ext">Viverst Agro <ArrowUpRight size={14} aria-hidden="true" /></a>
         </nav>
+        <Link to="/account" className="cart-link account-link" aria-label={user ? 'Your account' : 'Sign in'}><UserRound size={20} aria-hidden="true" /></Link>
         <Link to="/cart" className="cart-link" aria-label={`Cart, ${count} item${count === 1 ? '' : 's'}`}>
           <ShoppingBag size={20} aria-hidden="true" />{count > 0 && <span className="cart-count">{count}</span>}
         </Link>

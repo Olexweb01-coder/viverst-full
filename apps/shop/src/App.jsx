@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { ScrollToTop } from '@viverst/ui'
 import { CartProvider } from './lib/cart.jsx'
+import { AuthProvider } from './lib/auth.jsx'
 import { getSettings } from './lib/catalog.js'
 import { SHOP } from './lib/config.js'
 import Header from './components/Header.jsx'
@@ -13,6 +14,7 @@ import Cart from './pages/Cart.jsx'
 import Checkout from './pages/Checkout.jsx'
 import OrderPlaced from './pages/OrderPlaced.jsx'
 import NotFound from './pages/NotFound.jsx'
+import Account from './pages/Account.jsx'
 
 function Frame() {
   const { pathname } = useLocation()
@@ -30,6 +32,7 @@ function Frame() {
           <Route path="/cart" element={<Cart shopName={shopName} delivery={settings.delivery} />} />
           <Route path="/checkout" element={<Checkout shopName={shopName} settings={settings} />} />
           <Route path="/order/:number" element={<OrderPlaced shopName={shopName} settings={settings} />} />
+          <Route path="/account" element={<Account shopName={shopName} />} />
           <Route path="*" element={<NotFound shopName={shopName} />} />
         </Routes>
       </main>
@@ -38,5 +41,5 @@ function Frame() {
   )
 }
 export default function App() {
-  return <CartProvider><BrowserRouter><ScrollToTop /><Frame /></BrowserRouter></CartProvider>
+  return <AuthProvider><CartProvider><BrowserRouter><ScrollToTop /><Frame /></BrowserRouter></CartProvider></AuthProvider>
 }
