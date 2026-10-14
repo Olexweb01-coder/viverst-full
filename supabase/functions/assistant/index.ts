@@ -6,12 +6,13 @@
 // reply. Staff only; keys never leave the server.
 
 import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2";
-import { CORS, json, makeAsk, parseJson, loadKeys, requireStaff } from "../_shared/ai.ts";
+import { CORS, json, makeAsk, parseJson, loadKeys, requireStaff, tavily, type Source } from "../_shared/ai.ts";
+import { COMPANY_PROFILE } from "../_shared/company.ts";
 
 // deno-lint-ignore no-explicit-any
 type Db = SupabaseClient<any, "public", any>;
 type Msg = { role: "user" | "assistant"; content: string };
-type Reply = { answer: string; actions?: Array<{ type: "queue_topic"; topic: string; arm: "global" | "agro" | "studio" } | { type: "open"; path: string; label: string }> };
+type Reply = { answer: string; search?: string; actions?: Array<{ type: "queue_topic"; topic: string; arm: "global" | "agro" | "studio" } | { type: "open"; path: string; label: string }> };
 
 const money = (kobo: number) => `₦${(Number(kobo || 0) / 100).toLocaleString("en-NG", { maximumFractionDigits: 0 })}`;
 
@@ -53,27 +54,45 @@ export async function buildBrief(sb: Db): Promise<string> {
   return lines.join("\n");
 }
 
-const SYSTEM = `You are the assistant inside the Viverst admin, used by the owner and staff of Viverst Global Limited (Nigeria): Viverst Agro (farm inputs, processing, packaging, produce sales via the shop) and Viverst Studio (brand and digital). You have a current brief of the business below. Answer from it; if the brief doesn't contain something, say so plainly rather than guessing. Be concise, warm and specific. Nigerian/British English. Use naira. No emojis.
+const SYSTEM = `You are the assistant inside the Viverst admin, used by the owner and staff. You know the company well (profile below), you have a live brief of the business (numbers below), and you may use general knowledge. If something is neither in the profile, the brief nor general knowledge, you can ask for a web search: reply with {"search":"<query>"} and nothing else, and you will be called again with results. Search when the person asks you to, or when the question needs current outside facts (prices, news, regulations, competitors). Never claim to have searched when you did not.
 
-You can propose actions. Only propose one when the person clearly asks for it:
-- queue_topic: when asked to write/draft/queue a blog post about something → {"type":"queue_topic","topic":"<clear topic sentence>","arm":"global|agro|studio"}
-- open: to point at a screen → {"type":"open","path":"/orders?open=<id>" or "/posts" or "/inventory" etc,"label":"short label"}
+Style: concise, warm, specific, plain. Nigerian/British English. Use naira. Markdown allowed (short paragraphs, bullets, **bold**). No emojis. Don't mention "the brief" — just answer.
 
-Reply ONLY as JSON: {"answer": "<markdown text for the person>", "actions": [ ... ]} (actions may be empty). No fences, no commentary.`;
+You can propose actions, only when clearly asked:
+- queue_topic: when asked to write/draft/queue a blog post → {"type":"queue_topic","topic":"<clear topic sentence>","arm":"global|agro|studio"}
+- open: to point at a screen → {"type":"open","path":"/orders?open=<id>" | "/posts" | "/inventory" | "/events" | "/automation" | "/settings","label":"short label"}
+
+Reply ONLY as JSON: {"answer":"<markdown>","actions":[...]} or {"search":"<query>"}. No fences, no commentary.
+
+COMPANY PROFILE
+${COMPANY_PROFILE}`;
 
 export async function runAssistant(sb: Db, messages: Msg[], keys?: Awaited<ReturnType<typeof loadKeys>>) {
   const k = keys ?? await loadKeys(sb);
   const ask = makeAsk(k);
   if (!ask) return { ok: false, error: "No AI provider key is set. Add one on Automation → AI keys." };
   const brief = await buildBrief(sb);
-  const history = messages.slice(-12).map((m) => `${m.role === "user" ? "Person" : "Assistant"}: ${m.content}`).join("\n\n");
-  const user = `BUSINESS BRIEF\n${brief}\n\nCONVERSATION\n${history}\n\nAssistant:`;
-  const out = await ask(SYSTEM, user);
-  let reply: Reply;
-  try { reply = parseJson<Reply>(out.text); } catch { reply = { answer: out.text, actions: [] }; }
-  if (!reply.answer) reply.answer = out.text;
-  reply.actions = (reply.actions ?? []).filter((a) => a && (a.type === "queue_topic" ? !!a.topic : a.type === "open" ? !!a.path : false)).slice(0, 3);
-  return { ok: true, provider: out.provider, ...reply };
+  const history = messages.slice(-14).map((m) => `${m.role === "user" ? "Person" : "Assistant"}: ${m.content}`).join("\n\n");
+  let extra = "";
+  let searched: Source[] | null = null;
+  let provider = "";
+  for (let round = 0; round < 2; round++) {
+    const user = `LIVE BUSINESS BRIEF\n${brief}\n${extra}\nCONVERSATION\n${history}\n\nAssistant:`;
+    const out = await ask(SYSTEM, user);
+    provider = out.provider;
+    let reply: Reply;
+    try { reply = parseJson<Reply>(out.text); } catch { reply = { answer: out.text, actions: [] }; }
+    if (reply.search && round === 0) {
+      if (!k.tavily) { extra = `\nWEB SEARCH: not available (no Tavily key). Answer from what you know and say you could not search.\n`; continue; }
+      try { searched = await tavily(k.tavily, reply.search); } catch (e) { searched = []; extra = `\nWEB SEARCH for "${reply.search}" failed: ${(e as Error).message}\n`; continue; }
+      extra = `\nWEB SEARCH RESULTS for "${reply.search}" (cite as [n]):\n` + (searched.length ? searched.map((r, i) => `[${i + 1}] ${r.title}\n${r.url}\n${r.snippet}`).join("\n\n") : "(nothing found)") + "\n";
+      continue;
+    }
+    if (!reply.answer) reply.answer = out.text;
+    const actions = (reply.actions ?? []).filter((a) => a && (a.type === "queue_topic" ? !!a.topic : a.type === "open" ? !!a.path : false)).slice(0, 3);
+    return { ok: true, provider, answer: reply.answer, actions, sources: searched ? searched.map(({ title, url }) => ({ title, url })) : [] };
+  }
+  return { ok: false, error: "The assistant could not settle on an answer. Try rephrasing." };
 }
 
 if (import.meta.main) {

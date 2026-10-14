@@ -220,17 +220,22 @@ console.log(`  "Draft now" on queued topic → invoke ${state.invokes[0]?.name} 
 if (state.invokes[0]?.body.topic_id !== 7) problems.push('draft now did not invoke with topic id')
 
 console.log('\n ASSISTANT')
-go('/assistant'); await waitFor(() => h1() === 'Assistant' && document.querySelector('.chat-starters button'), 'assistant with starters')
-state.invokes.length = 0
+go('/assistant'); await waitFor(() => h1() === 'Assistant' && document.querySelector('.chat-starters button') && document.querySelector('.chat-item'), 'assistant with starters and chat list')
+console.log(`  chat list → ${document.querySelectorAll('.chat-item').length} saved chat(s) under "${document.querySelector('.chat-group-label')?.textContent}"`)
+document.querySelector('.chat-item-open').click(); await waitFor(() => document.querySelectorAll('.bubble').length === 2 && h1() === 'Orders this week', 'open saved chat')
+console.log(`  open saved chat → title "${h1()}", ${document.querySelectorAll('.bubble').length} messages`)
+;[...document.querySelectorAll('.chat-list-head .btn')][0].click(); await waitFor(() => document.querySelectorAll('.bubble').length === 0 && document.querySelector('.chat-starters'), 'new chat')
+state.invokes.length = 0; state.writes.length = 0
 document.querySelector('.chat-starters button').click(); await waitFor(() => document.querySelector('.bubble-assistant .bubble-actions'), 'assistant reply')
 const sent = state.invokes.find((i) => i.name === 'assistant')
-console.log(`  starter click → invoke assistant with ${sent?.body.messages.length} message(s); reply rendered with ${document.querySelectorAll('.bubble-assistant li').length} bullet, ${document.querySelectorAll('.bubble-actions button').length} actions`)
-if (!sent || sent.body.messages[0].role !== 'user') problems.push('assistant did not send the user message')
-if (document.querySelectorAll('.bubble-actions button').length !== 2) problems.push('assistant actions not rendered')
+const created = state.writes.find((w) => w.table === 'assistant_chats' && w.op === 'insert'); const saved = state.writes.filter((w) => w.table === 'assistant_chats' && w.op === 'update').pop()
+console.log(`  starter → invoke assistant (${sent?.body.messages.length} msg); chat created "${created?.row.title}", reply saved with ${saved?.row.messages.length} messages; citation link ${document.querySelector('.cite') ? 'rendered' : 'MISSING'}; url ${window.location.search}`)
+if (!created || !saved || saved.row.messages.length !== 2) problems.push('chat was not persisted')
+if (!document.querySelector('.cite')) problems.push('citation not rendered')
 state.writes.length = 0
 document.querySelector('.bubble-actions button').click(); await sleep(80)
 const qt = state.writes.find((w) => w.table === 'ai_topics')
-console.log(`  "Queue blog topic" action → insert ai_topics "${qt?.row.topic}" [${qt?.row.arm}]; confirmation: ${document.querySelector('.note-ok') ? 'shown' : 'MISSING'}`)
+console.log(`  "Queue blog topic" action → insert ai_topics "${qt?.row.topic}" [${qt?.row.arm}]`)
 if (!qt || qt.row.arm !== 'agro') problems.push('queue_topic action did not insert')
 ;[...document.querySelectorAll('.bubble-actions button')][1].click(); await waitFor(() => h1() === 'Orders', 'open action navigates')
 console.log(`  "open" action → ${window.location.pathname}${window.location.search}`)

@@ -31,6 +31,7 @@ const DATA = {
   review_notes: [],
   notifications: [{ id: 1, kind: 'order', title: 'New order VA-1001', body: 'Ada · ₦135,000', link: '/orders?open=o1', created_at: new Date().toISOString() }, { id: 2, kind: 'stock_low', title: 'Running low: Yellow maize', body: '2 left', link: '/inventory', created_at: new Date().toISOString() }],
   notification_reads: [{ notification_id: 2, staff_id: OWNER.id }],
+  assistant_chats: [{ id: 'chat1', title: 'Orders this week', messages: [{ role: 'user', content: 'orders?' }, { role: 'assistant', content: 'Two orders.', actions: [], sources: [] }], created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
   ai_topics: [{ id: 7, topic: 'How to store maize through the rains', arm: 'agro', status: 'queued', post_id: null, error: null, created_at: new Date().toISOString() }],
   ai_runs: [{ id: 3, started_at: new Date().toISOString(), finished_at: new Date().toISOString(), trigger: 'manual', provider: 'groq', ok: true, detail: '4 source(s)', post_id: 'post1' }],
   settings: [
@@ -71,7 +72,7 @@ function builder(table) {
   })
   async function run() {
     if (q._write) {
-      const id = q._write === 'insert' ? 'new-id' : (q._f.find((f) => f[0] === 'id')?.[1] ?? 'id')
+      const id = q._write === 'insert' ? (table === 'assistant_chats' ? 'chat-new' : 'new-id') : (q._f.find((f) => f[0] === 'id')?.[1] ?? 'id')
       return { data: q._single ? { id, name: 'New', slug: 'new' } : null, error: null }
     }
     let rows = DATA[table] || []
@@ -93,7 +94,7 @@ export function createClient() {
     from: builder,
     functions: { invoke: async (name, { body }) => {
       state.invokes.push({ name, body })
-      if (name === 'assistant') return { data: { ok: true, provider: 'groq', answer: 'One order is **awaiting payment**.\n\n- VA-1001 from Ada', actions: [{ type: 'queue_topic', topic: 'Storing maize through the rains', arm: 'agro' }, { type: 'open', path: '/orders?status=awaiting_payment', label: 'See awaiting payment' }] }, error: null }
+      if (name === 'assistant') return { data: { ok: true, provider: 'groq', answer: 'One order is **awaiting payment** [1].\n\n- VA-1001 from Ada', sources: [{ title: 'Orders', url: 'https://x/orders' }], actions: [{ type: 'queue_topic', topic: 'Storing maize through the rains', arm: 'agro' }, { type: 'open', path: '/orders?status=awaiting_payment', label: 'See awaiting payment' }] }, error: null }
       return { data: { ok: true, post: { id: 'post9', title: 'Storing maize well' }, provider: 'groq', sources: 3 }, error: null } } },
     rpc: async (name, args) => { rpcCalls.push({ name, args }); const r = RPC[name]?.(args); return r && (r.error || 'data' in r) ? r : { data: r ?? null, error: null } },
     storage: { from: () => ({
