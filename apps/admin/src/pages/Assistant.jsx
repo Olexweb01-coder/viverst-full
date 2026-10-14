@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Send, Sparkles, Trash2, Plus, Pencil, PanelLeft, Check, X } from 'lucide-react'
+import { Send, Sparkles, Trash2, Plus, Pencil, PanelLeftClose, PanelLeftOpen, Check, X } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { useAuth } from '../lib/hooks.js'
 import { Note } from '../components/ui.jsx'
@@ -52,7 +52,12 @@ export default function Assistant() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState('')
-  const [listOpen, setListOpen] = useState(false)
+  const [listOpen, setListOpen] = useState(false)           // phone: slide-over
+  const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem('viverst-admin:chat-list') === 'closed' } catch { return false } })  // desktop: remembered
+  const toggleList = () => {
+    if (window.matchMedia('(max-width: 960px)').matches) { setListOpen((o) => !o); return }
+    setCollapsed((c) => { try { localStorage.setItem('viverst-admin:chat-list', c ? 'open' : 'closed') } catch { /* ignore */ } return !c })
+  }
   const [renaming, setRenaming] = useState(null)
   const [renameText, setRenameText] = useState('')
   const endRef = useRef(null)
@@ -136,7 +141,7 @@ export default function Assistant() {
   const current = chats?.find((c) => c.id === chatId)
 
   return (
-    <div className="assistant-wrap">
+    <div className={`assistant-wrap${collapsed ? ' collapsed' : ''}`}>
       <aside className={`chat-list${listOpen ? ' open' : ''}`} aria-label="Conversations">
         <div className="chat-list-head">
           <button type="button" className="btn btn-primary" onClick={newChat}><Plus aria-hidden="true" />New chat</button>
@@ -170,7 +175,8 @@ export default function Assistant() {
 
       <section className="chat-main">
         <div className="chat-top">
-          <button type="button" className="btn btn-quiet btn-sm chat-list-toggle" onClick={() => setListOpen(true)} aria-label="Show conversations"><PanelLeft aria-hidden="true" /></button>
+          <button type="button" className="btn btn-quiet btn-sm chat-list-toggle" onClick={toggleList} aria-label={collapsed ? 'Show conversations' : 'Hide conversations'} aria-expanded={!collapsed}>{collapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}</button>
+          {collapsed && <button type="button" className="btn btn-quiet btn-sm" onClick={newChat} aria-label="New chat"><Plus aria-hidden="true" /></button>}
           <h1>{current?.title || 'Assistant'}</h1>
         </div>
         <Note kind="error">{error}</Note>

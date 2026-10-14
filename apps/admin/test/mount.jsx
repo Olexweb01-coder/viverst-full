@@ -239,6 +239,12 @@ console.log(`  "Queue blog topic" action → insert ai_topics "${qt?.row.topic}"
 if (!qt || qt.row.arm !== 'agro') problems.push('queue_topic action did not insert')
 ;[...document.querySelectorAll('.bubble-actions button')][1].click(); await waitFor(() => h1() === 'Orders', 'open action navigates')
 console.log(`  "open" action → ${window.location.pathname}${window.location.search}`)
+go('/assistant'); await waitFor(() => h1() === 'Assistant' && document.querySelector('.chat-list-toggle'), 'assistant again')
+document.querySelector('.chat-list-toggle').click(); await sleep(40)
+const collapsedNow = document.querySelector('.assistant-wrap').classList.contains('collapsed')
+console.log(`  sidebar toggle → ${collapsedNow ? 'collapsed' : 'NOT collapsed'}, remembered=${window.localStorage.getItem('viverst-admin:chat-list')}`)
+if (!collapsedNow) problems.push('chat sidebar did not collapse')
+document.querySelector('.chat-list-toggle').click(); await sleep(40)
 
 console.log('\n NOTIFICATIONS')
 go('/notifications'); await waitFor(() => h1() === 'Notifications' && document.querySelectorAll('.notif').length === 2, 'two notifications')
