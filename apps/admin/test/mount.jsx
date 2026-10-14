@@ -279,7 +279,8 @@ console.log(`  save with no start → ${document.querySelector('.note-error')?.t
 setVal(starts, '2026-11-20T10:00'); state.writes.length = 0
 const unpub = [...document.querySelectorAll('button')].find((b) => b.textContent === 'Unpublish'); unpub.click(); await sleep(120)
 const evw = state.writes.find((w) => w.table === 'events' && w.op === 'update')
-console.log(`  unpublish → update status=${evw?.row.status}, site=${evw?.row.site}, starts_at=${evw?.row.starts_at?.slice(0, 10)}`)
+console.log(`  unpublish → update status=${evw?.row.status}, site=${evw?.row.site}, kind=${evw?.row.kind}, mode=${evw?.row.mode}, starts_at=${evw?.row.starts_at?.slice(0, 10)}`)
+if (!evw?.row.kind || !evw?.row.mode) problems.push('event type/format not saved')
 if (!evw || evw.row.status !== 'draft') problems.push('unpublish did not save draft status')
 
 console.log('\n STAFF')

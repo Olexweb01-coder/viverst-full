@@ -17,6 +17,9 @@ const ROUTES = [
   ['/not-a-real-page', 'Nothing growing here'],
 ]
 
+// the admin's database is not reachable in this headless run: the seed product list must show
+globalThis.fetch = async () => { throw new Error('adminProducts offline') }
+
 const problems = []
 const a11y = []
 const origError = console.error

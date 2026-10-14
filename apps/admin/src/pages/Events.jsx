@@ -95,7 +95,9 @@ export default function Events() {
   )
 }
 
-const BLANK = { site: 'agro', title: '', slug: '', summary: '', body: '', location: '', starts_at: '', ends_at: '', cover: '', registration: true, capacity: '', status: 'draft' }
+const BLANK = { site: 'agro', title: '', slug: '', summary: '', body: '', location: '', city: '', kind: 'webinar', mode: 'online', whatsapp_url: '', starts_at: '', ends_at: '', cover: '', registration: true, capacity: '', status: 'draft' }
+const KINDS = [['webinar', 'Webinar'], ['field-day', 'Field day'], ['workshop', 'Workshop'], ['briefing', 'Briefing'], ['masterclass', 'Masterclass']]
+const MODES = [['online', 'Online'], ['in-person', 'In person'], ['hybrid', 'Hybrid']]
 const toLocal = (iso) => iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''
 const fromLocal = (s) => s ? new Date(s).toISOString() : null
 
@@ -131,7 +133,7 @@ function EventEditor({ id }) {
       const { data, error } = await supabase.from('events').select('*').eq('id', id).maybeSingle()
       if (!alive) return
       if (error || !data) { setError(error?.message || 'That event no longer exists.'); setLoaded(true); return }
-      setForm({ ...data, starts_at: toLocal(data.starts_at), ends_at: toLocal(data.ends_at), capacity: data.capacity ?? '', cover: data.cover || '' })
+      setForm({ ...data, starts_at: toLocal(data.starts_at), ends_at: toLocal(data.ends_at), capacity: data.capacity ?? '', cover: data.cover || '', whatsapp_url: data.whatsapp_url || '', city: data.city || '', kind: data.kind || 'webinar', mode: data.mode || 'online' })
       setLoaded(true)
       await loadRegs()
     })()
@@ -157,7 +159,8 @@ function EventEditor({ id }) {
     setBusy(true); setError('')
     const row = {
       site: form.site, title: form.title.trim(), slug: slugify(form.slug || form.title), summary: form.summary.trim(), body: form.body,
-      location: form.location.trim(), starts_at: fromLocal(form.starts_at), ends_at: fromLocal(form.ends_at), cover: form.cover || null,
+      location: form.location.trim(), city: form.city.trim(), kind: form.kind, mode: form.mode, whatsapp_url: form.whatsapp_url.trim() || null,
+      starts_at: fromLocal(form.starts_at), ends_at: fromLocal(form.ends_at), cover: form.cover || null,
       registration: !!form.registration, capacity: form.capacity === '' ? null : Number(form.capacity), status: statusOverride || form.status,
     }
     if (!row.title) { setError('Give the event a title.'); setBusy(false); return }
@@ -208,7 +211,12 @@ function EventEditor({ id }) {
         <div className="form-row">
           <Field label="Starts"><input className="input" type="datetime-local" required value={form.starts_at} onChange={set('starts_at')} /></Field>
           <Field label="Ends" hint="Optional."><input className="input" type="datetime-local" value={form.ends_at} onChange={set('ends_at')} /></Field>
-          <Field label="Location" hint="Venue, or “Online”."><input className="input" value={form.location} onChange={set('location')} /></Field>
+          <Field label="Venue" hint="e.g. “Online, live on Zoho” or the hall’s name."><input className="input" value={form.location} onChange={set('location')} /></Field>
+        </div>
+        <div className="form-row">
+          <Field label="Type"><select className="select" value={form.kind} onChange={set('kind')}>{KINDS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></Field>
+          <Field label="Format"><select className="select" value={form.mode} onChange={set('mode')}>{MODES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></Field>
+          <Field label="City" hint="Shown after the venue. Leave blank for online."><input className="input" value={form.city} onChange={set('city')} /></Field>
         </div>
         <Field label="One-line summary"><input className="input" value={form.summary} onChange={set('summary')} maxLength={200} /></Field>
         <Field label="Details" hint="Shown on the event page. Blank lines separate paragraphs."><textarea className="textarea" value={form.body} onChange={set('body')} /></Field>
@@ -221,6 +229,7 @@ function EventEditor({ id }) {
         <div className="form-row">
           <label className="check"><input type="checkbox" checked={!!form.registration} onChange={set('registration')} />Take registrations on the site</label>
           <Field label="Capacity" hint="Optional. Registration closes when reached."><input className="input" type="number" min="1" value={form.capacity} onChange={set('capacity')} /></Field>
+          <Field label="WhatsApp group link" hint="Optional. Shown on the success screen after someone registers."><input className="input" value={form.whatsapp_url} onChange={set('whatsapp_url')} placeholder="https://chat.whatsapp.com/…" /></Field>
         </div>
         <div className="form-actions">
           <button className="btn" type="submit" disabled={busy}>{form.status === 'published' ? 'Save changes' : 'Save draft'}</button>

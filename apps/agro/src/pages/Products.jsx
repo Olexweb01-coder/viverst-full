@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Eye } from 'lucide-react'
 import { Seo, Reveal, Float, Tilt, Magnetic, Icon } from '@viverst/ui'
-import { BUSINESS, PRODUCTS, PRODUCT_CATEGORIES } from '../data/agro.js'
+import { BUSINESS, PRODUCTS as SEED_PRODUCTS, PRODUCT_CATEGORIES as SEED_CATEGORIES } from '../data/agro.js'
+import { fetchAdminProducts } from '../lib/adminProducts.js'
 import './Pages.css'
 
 const ALL = 'all'
@@ -12,6 +13,11 @@ const ALL = 'all'
    `sample`, the notice at the top says so, and it disappears on its own once
    the last flag goes. */
 export default function Products() {
+  /* products come from the admin; the seed list shows until they load, or if the admin is unreachable */
+  const [live, setLive] = useState(null)
+  useEffect(() => { let alive = true; fetchAdminProducts().then((d) => { if (alive && d.products.length) setLive(d) }).catch(() => {}); return () => { alive = false } }, [])
+  const PRODUCTS = live ? live.products : SEED_PRODUCTS
+  const PRODUCT_CATEGORIES = live ? live.categories : SEED_CATEGORIES
   const [cat, setCat] = useState(ALL)
   const samples = PRODUCTS.filter((p) => p.sample).length
   const shown = cat === ALL ? PRODUCTS : PRODUCTS.filter((p) => p.category === cat)

@@ -24,6 +24,9 @@ const ROUTES = [
   ['/events/no-such-event', 'part of the group'],
 ]
 
+// the admin's database is not reachable in this headless run: content must fall back to the seed files
+globalThis.fetch = async () => { throw new Error('adminContent offline') }
+
 const problems = []
 
 /* Never let the suite reach the live registrations sheet. Any request to
