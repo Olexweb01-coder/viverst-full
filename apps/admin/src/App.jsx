@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './lib/auth.jsx'
 import { useAuth } from './lib/hooks.js'
+import { isOps } from './lib/constants.js'
 import Shell from './components/Shell.jsx'
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -16,6 +17,12 @@ import Automation from './pages/Automation.jsx'
 import Assistant from './pages/Assistant.jsx'
 import Notifications from './pages/Notifications.jsx'
 import Analytics from './pages/Analytics.jsx'
+
+/* pages a writer may not open redirect to the blog */
+function Ops({ children }) {
+  const { staff } = useAuth()
+  return isOps(staff?.role) ? children : <Navigate to="/posts" replace />
+}
 
 function Gate() {
   const { session, staff } = useAuth()
@@ -35,21 +42,21 @@ export default function App() {
             <Route index element={<Dashboard />} />
             <Route path="assistant" element={<Assistant />} />
             <Route path="notifications" element={<Notifications />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="products" element={<Products />} />
-            <Route path="products/new" element={<ProductEdit />} />
-            <Route path="products/:id" element={<ProductEdit />} />
-            <Route path="inventory" element={<Inventory />} />
+            <Route path="orders" element={<Ops><Orders  /></Ops>} />
+            <Route path="products" element={<Ops><Products  /></Ops>} />
+            <Route path="products/new" element={<Ops><ProductEdit  /></Ops>} />
+            <Route path="products/:id" element={<Ops><ProductEdit  /></Ops>} />
+            <Route path="inventory" element={<Ops><Inventory  /></Ops>} />
             <Route path="posts" element={<Posts />} />
             <Route path="posts/new" element={<PostEdit />} />
             <Route path="posts/:id" element={<PostEdit />} />
             <Route path="automation" element={<Automation />} />
-            <Route path="events" element={<Events />} />
-            <Route path="events/new" element={<EventEdit />} />
-            <Route path="events/:id" element={<EventEdit />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="staff" element={<Staff />} />
+            <Route path="events" element={<Ops><Events  /></Ops>} />
+            <Route path="events/new" element={<Ops><EventEdit  /></Ops>} />
+            <Route path="events/:id" element={<Ops><EventEdit  /></Ops>} />
+            <Route path="analytics" element={<Ops><Analytics  /></Ops>} />
+            <Route path="settings" element={<Ops><Settings  /></Ops>} />
+            <Route path="staff" element={<Ops><Staff  /></Ops>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

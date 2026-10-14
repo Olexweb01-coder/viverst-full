@@ -17,7 +17,7 @@ type Reply = { answer: string; search?: string; actions?: Array<{ type: "queue_t
 const money = (kobo: number) => `₦${(Number(kobo || 0) / 100).toLocaleString("en-NG", { maximumFractionDigits: 0 })}`;
 
 /** Compact, current picture of the business for the model to reason over. */
-export async function buildBrief(sb: Db): Promise<string> {
+export async function buildBrief(sb: Db, contentOnly = false): Promise<string> {
   const since = new Date(Date.now() - 7 * 86400_000).toISOString();
   const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
   const [orders, today, low, products, posts, events, settings, topics] = await Promise.all([
@@ -34,6 +34,16 @@ export async function buildBrief(sb: Db): Promise<string> {
   // deno-lint-ignore no-explicit-any
   const lowRows: any[] = (low.data ?? []).filter((r: { on_hand: number; low_stock_at: number }) => r.on_hand <= r.low_stock_at);
   const todayOk = (today.data ?? []).filter((o: { status: string }) => !["cancelled", "refunded"].includes(o.status));
+  if (contentOnly) {
+    return [
+      `Date/time (Lagos): ${new Date().toLocaleString("en-NG", { timeZone: "Africa/Lagos" })}`,
+      `(This person is a writer: shop and order data are not shown to them.)`,
+      `Blog, recent (${(posts.data ?? []).length}):`,
+      ...(posts.data ?? []).map((p: { title: string; arm: string; status: string; author_kind: string; review_until?: string }) => `  "${p.title}" [${p.arm}] — ${p.status}${p.status === "review" && p.review_until ? ` (auto-publishes ${p.review_until.slice(0, 16)})` : ""} — by ${p.author_kind}`),
+      `Queued blog topics (${(topics.data ?? []).length}): ${(topics.data ?? []).map((t: { topic: string; arm: string }) => `"${t.topic}" [${t.arm}]`).join("; ") || "none"}`,
+      `Automation: ${JSON.stringify(s.automation ?? {})}`,
+    ].join("\n");
+  }
   const lines = [
     `Date/time (Lagos): ${new Date().toLocaleString("en-NG", { timeZone: "Africa/Lagos" })}`,
     `Shop: ${(s.shop as { name?: string })?.name ?? "Viverst Agro Shop"}. Delivery fee: ${money((s.delivery as { flat_fee_kobo?: number })?.flat_fee_kobo ?? 0)}. Contact: ${JSON.stringify(s.contact ?? {})}.`,
@@ -67,11 +77,11 @@ Reply ONLY as JSON: {"answer":"<markdown>","actions":[...]} or {"search":"<query
 COMPANY PROFILE
 ${COMPANY_PROFILE}`;
 
-export async function runAssistant(sb: Db, messages: Msg[], keys?: Awaited<ReturnType<typeof loadKeys>>) {
+export async function runAssistant(sb: Db, messages: Msg[], keys?: Awaited<ReturnType<typeof loadKeys>>, contentOnly = false) {
   const k = keys ?? await loadKeys(sb);
   const ask = makeAsk(k);
   if (!ask) return { ok: false, error: "No AI provider key is set. Add one on Automation → AI keys." };
-  const brief = await buildBrief(sb);
+  const brief = await buildBrief(sb, contentOnly);
   const history = messages.slice(-14).map((m) => `${m.role === "user" ? "Person" : "Assistant"}: ${m.content}`).join("\n\n");
   let extra = "";
   let searched: Source[] | null = null;
@@ -111,7 +121,7 @@ if (import.meta.main) {
       const messages: Msg[] = Array.isArray(body.messages) ? body.messages.filter((m: Msg) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string") : [];
       if (!messages.length) return json(400, { error: "no messages" });
       stage = "answering";
-      const result = await runAssistant(admin, messages);
+      const result = await runAssistant(admin, messages, undefined, who.role === "writer");
       return json(result.ok ? 200 : 422, result);
     } catch (e) {
       return json(500, { error: `${stage}: ${(e as Error).message}` });

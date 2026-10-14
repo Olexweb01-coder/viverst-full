@@ -5,7 +5,14 @@ import { SEED_PRODUCTS } from './seed.js'
 export const imageUrl = (p) => !p ? null : p.startsWith('http') ? p : IMAGE_BASE + p
 
 const SELECT = 'id, slug, name, unit, price_kobo, compare_at_kobo, summary, description, images, featured, sort, product_categories(slug, name), stock(in_stock, available)'
-const shape = (r) => ({ ...r, category: r.product_categories, inStock: r.stock?.in_stock ?? true, available: r.stock?.available ?? 99, image: imageUrl(r.images?.[0]), gallery: (r.images || []).map(imageUrl) })
+/* a product entered in the admin without photos borrows the stock photo of the
+   same name from the starter set, so the shop never shows an empty tile */
+const seedImage = (slug) => SEED_PRODUCTS.find((p) => p.slug === slug)?.image || null
+const shape = (r) => {
+  const own = (r.images || []).map(imageUrl)
+  const fallback = own.length ? null : seedImage(r.slug)
+  return { ...r, category: r.product_categories, inStock: r.stock?.in_stock ?? true, available: r.stock?.available ?? 99, image: own[0] || fallback, gallery: own.length ? own : fallback ? [fallback] : [] }
+}
 
 /* Until products exist in the admin, the placeholder catalogue shows. A sample
    product can be browsed but not bought: checkout is for real stock. */

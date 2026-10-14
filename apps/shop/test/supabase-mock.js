@@ -2,7 +2,7 @@
 export const state = { rpcs: [], invokes: [], paystack: false, user: null, writes: [], empty: typeof window !== 'undefined' && /[?&]seed=1/.test(window.location.search) }
 const PRODUCTS = [
   { id: 'p1', slug: 'yellow-maize', name: 'Yellow maize', unit: '50 kg bag', price_kobo: 4500000, compare_at_kobo: 5000000, summary: 'Dried and graded', description: 'Stores well.\n\nMills cleanly.', images: ['products/a.webp', 'products/b.webp'], featured: true, sort: 0, product_categories: { slug: 'grain', name: 'Grains' }, stock: { in_stock: true, available: 7 } },
-  { id: 'p2', slug: 'palm-oil', name: 'Red palm oil', unit: '25 L keg', price_kobo: 5500000, compare_at_kobo: null, summary: '', description: '', images: [], featured: false, sort: 1, product_categories: { slug: 'processed', name: 'Processed' }, stock: { in_stock: false, available: 0 } },
+  { id: 'p2', slug: 'red-palm-oil', name: 'Red palm oil', unit: '25 L keg', price_kobo: 5500000, compare_at_kobo: null, summary: '', description: '', images: [], featured: false, sort: 1, product_categories: { slug: 'processed', name: 'Processed' }, stock: { in_stock: false, available: 0 } },
 ]
 const SETTINGS = [
   { key: 'shop', value: { name: 'Viverst Agro Shop' } },

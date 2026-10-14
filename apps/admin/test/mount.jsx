@@ -236,6 +236,7 @@ console.log(`  open saved chat → title "${h1()}", ${document.querySelectorAll(
 ;[...document.querySelectorAll('.chat-list-head .btn')][0].click(); await waitFor(() => document.querySelectorAll('.bubble').length === 0 && document.querySelector('.chat-starters'), 'new chat')
 state.invokes.length = 0; state.writes.length = 0
 document.querySelector('.chat-starters button').click(); await waitFor(() => document.querySelector('.bubble-assistant .bubble-actions'), 'assistant reply')
+await waitFor(() => state.writes.some((w) => w.table === 'assistant_chats' && w.op === 'update' && w.row.messages?.length === 2), 'chat saved', 5000)
 const sent = state.invokes.find((i) => i.name === 'assistant')
 const created = state.writes.find((w) => w.table === 'assistant_chats' && w.op === 'insert'); const saved = state.writes.filter((w) => w.table === 'assistant_chats' && w.op === 'update').pop()
 console.log(`  starter → invoke assistant (${sent?.body.messages.length} msg); chat created "${created?.row.title}", reply saved with ${saved?.row.messages.length} messages; citation link ${document.querySelector('.cite') ? 'rendered' : 'MISSING'}; url ${window.location.search}`)
@@ -302,9 +303,20 @@ const added = rpcCalls.filter((c) => c.name === 'add_staff').pop()
 console.log(`  add → add_staff(${added?.args.p_email}, ${added?.args.p_role})`)
 if (added?.args.p_email !== 'new@x.com') problems.push('add_staff not called correctly')
 
-console.log('\n SIGNED OUT')
+console.log('\n WRITER ROLE')
+state.role = 'writer'
+root.unmount(); const rw = createRoot(document.getElementById('root')); rw.render(<App />); go('/')
+await waitFor(() => h1().startsWith('Good') && document.querySelectorAll('.rail nav a').length === 5 && document.querySelectorAll('.figure').length === 1, 'writer menu', 8000)
+console.log(`  menu → ${[...document.querySelectorAll('.rail nav a')].map((a) => a.textContent.replace(/\d+$/, '')).join(' · ')}; figures ${document.querySelectorAll('.figure').length} (content only)`)
+if ([...document.querySelectorAll('.rail nav a')].some((a) => /Orders|Products|Stock|Events|Settings|Staff|Analytics/.test(a.textContent))) problems.push('writer menu shows ops items')
+go('/orders'); await waitFor(() => h1() === 'Blog', 'orders bounced to blog')
+console.log(`  /orders as writer → "${h1()}" (${window.location.pathname})`)
+go('/settings'); await waitFor(() => h1() === 'Blog', 'settings bounced'); console.log(`  /settings as writer → ${window.location.pathname}`)
+go('/posts/new'); await waitFor(() => h1() === 'Write a post', 'writer can write'); console.log(`  /posts/new as writer → "${h1()}"`)
+rw.unmount(); state.role = 'owner'
+
 state.session = null
-root.unmount(); const root2 = createRoot(document.getElementById('root')); root2.render(<App />)
+const root2 = createRoot(document.getElementById('root')); root2.render(<App />)
 go('/products'); await waitFor(() => h1() === 'Sign in', 'login screen when signed out')
 console.log(`  /products while signed out → "${h1()}"`)
 audit('/login')

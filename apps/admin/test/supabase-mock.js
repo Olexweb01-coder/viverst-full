@@ -1,10 +1,10 @@
 /* A stand-in for @supabase/supabase-js used only by the headless test. It
    answers the queries the admin makes with fixed data and records writes. */
 const OWNER = { id: '11111111-1111-1111-1111-111111111111', email: 'owner@viverst.com' }
-export const state = { session: { user: OWNER }, writes: [], uploads: [], invokes: [] }
+export const state = { session: { user: OWNER }, writes: [], uploads: [], invokes: [], role: 'owner' }
 
 const DATA = {
-  staff: [{ user_id: OWNER.id, email: OWNER.email, name: 'Viverst', role: 'owner', active: true }],
+  get staff() { return [{ user_id: OWNER.id, email: OWNER.email, name: 'Viverst', role: state.role || 'owner', active: true }] },
   product_categories: [{ id: 'c1', name: 'Grains', slug: 'grains', sort: 0 }],
   products: [
     { id: 'p1', slug: 'yellow-maize', name: 'Yellow maize', unit: '50 kg bag', price_kobo: 4500000, compare_at_kobo: null, images: ['products/a.jpg'], active: true, featured: false, sort: 0, category_id: 'c1', summary: 'Dried and graded', description: '', product_categories: { name: 'Grains' }, inventory: { on_hand: 7 } },

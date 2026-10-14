@@ -6,6 +6,7 @@ import { money, when } from '../lib/format.js'
 import { Note, Empty, Chip } from '../components/ui.jsx'
 import HostingNotice from '../components/HostingNotice.jsx'
 import { useAuth } from '../lib/hooks.js'
+import { isOps } from '../lib/constants.js'
 
 const todayStart = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString() }
 const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening' }
@@ -13,12 +14,19 @@ const STATUS_CHIP = { awaiting_payment: ['warn', 'Awaiting payment'], paid: ['br
 
 export default function Dashboard() {
   const { staff } = useAuth()
+  const ops = isOps(staff?.role)
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (!staff) return
     let alive = true
     ;(async () => {
+      if (!ops) {
+        const { data: content } = await supabase.rpc('content_counts')
+        if (alive) setData({ awaiting: 0, todayCount: 0, todayKobo: 0, low: [], recent: [], content: content || {} })
+        return
+      }
       const [awaiting, today, low, recent, content] = await Promise.all([
         supabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'awaiting_payment'),
         supabase.from('orders').select('total_kobo').gte('created_at', todayStart()).not('status', 'in', '("cancelled","refunded")'),
@@ -38,13 +46,13 @@ export default function Dashboard() {
       })
     })()
     return () => { alive = false }
-  }, [])
+  }, [staff, ops])
 
   const firstName = (staff?.name || '').split(' ')[0]
   const todo = data ? [
     data.content.posts_in_review && `${data.content.posts_in_review} blog draft${data.content.posts_in_review > 1 ? 's' : ''} in review`,
-    data.awaiting && `${data.awaiting} order${data.awaiting > 1 ? 's' : ''} waiting for payment`,
-    data.low.length && `${data.low.length} product${data.low.length > 1 ? 's' : ''} running low`,
+    ops && data.awaiting && `${data.awaiting} order${data.awaiting > 1 ? 's' : ''} waiting for payment`,
+    ops && data.low.length && `${data.low.length} product${data.low.length > 1 ? 's' : ''} running low`,
   ].filter(Boolean) : []
 
   return (
@@ -62,20 +70,20 @@ export default function Dashboard() {
             <Link to="/posts" className={`panel figure${data.content.posts_in_review ? ' warn' : ''}`}>
               <b>{data.content.posts_in_review ?? 0}</b><span>posts in review</span><span className="ico"><Newspaper aria-hidden="true" /></span>
             </Link>
-            <Link to="/events" className="panel figure">
+            {ops && <Link to="/events" className="panel figure">
               <b>{data.content.events_upcoming ?? 0}</b><span>upcoming events</span><span className="ico"><CalendarDays aria-hidden="true" /></span>
-            </Link>
-            <Link to="/orders?status=awaiting_payment" className={`panel figure${data.awaiting ? ' warn' : ''}`}>
+            </Link>}
+            {ops && <><Link to="/orders?status=awaiting_payment" className={`panel figure${data.awaiting ? ' warn' : ''}`}>
               <b>{data.awaiting}</b><span>awaiting payment</span><span className="ico"><Clock aria-hidden="true" /></span>
             </Link>
             <div className="panel figure"><b>{data.todayCount}</b><span>orders today</span><span className="ico"><ShoppingBag aria-hidden="true" /></span></div>
             <div className="panel figure ok"><b className="money">{money(data.todayKobo)}</b><span>taken today</span><span className="ico"><Wallet aria-hidden="true" /></span></div>
             <Link to="/inventory" className={`panel figure${data.low.length ? ' alert' : ''}`}>
               <b>{data.low.length}</b><span>low or out of stock</span><span className="ico"><PackageOpen aria-hidden="true" /></span>
-            </Link>
+            </Link></>}
           </div>
 
-          {data.low.length > 0 && (
+          {ops && data.low.length > 0 && (
             <div className="panel">
               <div className="panel-head"><h2>Running low</h2><Link className="btn btn-sm" to="/inventory">Receive stock</Link></div>
               <div className="table-wrap"><table>
@@ -88,7 +96,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          <div className="panel">
+          {ops && <div className="panel">
             <div className="panel-head"><h2>Latest orders</h2><Link className="btn btn-sm" to="/orders">All orders</Link></div>
             {data.recent.length === 0
               ? <Empty title="No orders yet" body="They’ll appear here the moment the shop takes one." />
@@ -101,7 +109,7 @@ export default function Dashboard() {
                       <td className="num">{money(o.total_kobo)}</td><td className="muted small">{when(o.created_at)}</td>
                     </tr>))}</tbody>
                 </table></div>}
-          </div>
+          </div>}
         </>
       )}
     </div>

@@ -13,7 +13,6 @@ export default function Home({ shopName, contact }) {
   useEffect(() => { getProducts().then(setProducts) }, [])
   const featured = (products || []).filter((p) => p.featured).slice(0, 4)
   const show = featured.length ? featured : (products || []).slice(0, 4)
-  const sample = products?.some((p) => p.sample)
   return (
     <>
       <Seo title={`${shopName} | Grains, flour, oil and inputs, delivered`} description="Buy cleaned, graded produce and farm inputs from Viverst Agro. Retail quantities, delivered across Lagos and beyond." />
@@ -44,7 +43,6 @@ export default function Home({ shopName, contact }) {
       <section className="section section--alt">
         <div className="container">
           <Reveal className="shop-section-head"><div><span className="eyebrow">{featured.length ? 'Featured' : 'This week'}</span><h2>Popular this week</h2></div><Link to="/products" className="btn btn--sm">All products <ArrowRight size={14} aria-hidden="true" /></Link></Reveal>
-          {sample && <p className="shop-sample">Showing sample products while the real catalogue is loaded.</p>}
           <div className="pgrid">{show.map((p, i) => <Reveal key={p.id} delay={i * 0.06}><ProductCard p={p} /></Reveal>)}</div>
         </div>
       </section>

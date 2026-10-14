@@ -4,6 +4,7 @@ import { LayoutDashboard, Package, Boxes, ShoppingBag, Settings, Users, LogOut, 
 import { supabase } from '../lib/supabase.js'
 import { useAuth } from '../lib/hooks.js'
 import logoLight from '@brand-assets/main/logo-light.webp'
+import { isOps } from '../lib/constants.js'
 import vMark from '@brand-assets/main/v-mark.webp'
 
 const NAV = [
@@ -12,15 +13,15 @@ const NAV = [
   { to: '/notifications', label: 'Notifications', icon: Bell, badge: 'unread' },
   { group: 'Content' },
   { to: '/posts',      label: 'Blog',       icon: Newspaper, badge: 'posts_in_review' },
-  { to: '/events',     label: 'Events',     icon: CalendarDays },
+  { to: '/events',     label: 'Events',     icon: CalendarDays, ops: true },
   { to: '/automation', label: 'Automation', icon: Sparkles },
-  { group: 'Shop' },
-  { to: '/orders',     label: 'Orders',     icon: ShoppingBag },
-  { to: '/products',   label: 'Products',   icon: Package },
-  { to: '/inventory',  label: 'Stock',      icon: Boxes },
-  { group: 'Admin' },
-  { to: '/analytics',  label: 'Analytics',  icon: BarChart3 },
-  { to: '/settings',   label: 'Settings',   icon: Settings },
+  { group: 'Shop', ops: true },
+  { to: '/orders',     label: 'Orders',     icon: ShoppingBag, ops: true },
+  { to: '/products',   label: 'Products',   icon: Package, ops: true },
+  { to: '/inventory',  label: 'Stock',      icon: Boxes, ops: true },
+  { group: 'Admin', ops: true },
+  { to: '/analytics',  label: 'Analytics',  icon: BarChart3, ops: true },
+  { to: '/settings',   label: 'Settings',   icon: Settings, ops: true },
   { to: '/staff',      label: 'Staff',      icon: Users, owner: true },
 ]
 
@@ -63,7 +64,7 @@ export default function Shell() {
       <aside className={`rail${open ? ' open' : ''}`}>
         <div className="rail-brand"><img src={logoLight} alt="Viverst" /><small>Admin</small><img className="rail-mark" src={vMark} alt="" aria-hidden="true" /></div>
         <nav aria-label="Main">
-          {NAV.filter((n) => !n.owner || staff?.role === 'owner').map((n) => n.group
+          {NAV.filter((n) => (!n.owner || staff?.role === 'owner') && (!n.ops || isOps(staff?.role))).map((n) => n.group
             ? <span key={n.group} className="rail-group">{n.group}</span>
             : <NavLink key={n.to} to={n.to} end={n.end}><n.icon aria-hidden="true" />{n.label}{n.badge && counts[n.badge] > 0 && <span className="badge" aria-label={`${counts[n.badge]} waiting`}>{counts[n.badge]}</span>}</NavLink>
           )}

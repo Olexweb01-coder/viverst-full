@@ -3,8 +3,8 @@ import { supabase } from '../lib/supabase.js'
 import { day } from '../lib/format.js'
 import { useAuth, useFlash } from '../lib/hooks.js'
 import { PageHead, Note, Field } from '../components/ui.jsx'
+import { ROLES } from '../lib/constants.js'
 
-const ROLES = [['owner', 'Owner — everything, including staff and payment keys'], ['manager', 'Manager — orders, stock, products, settings'], ['editor', 'Editor — orders, stock, products']]
 
 export default function Staff() {
   const { staff: me } = useAuth()

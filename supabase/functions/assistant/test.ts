@@ -35,6 +35,8 @@ check("two actions returned, both valid", (r as { actions: unknown[] }).actions.
 check("system prompt carries the company profile", sysPrompt.includes("VIVERST GLOBAL LIMITED") && sysPrompt.includes("Grow more, waste less"));
 const r3 = await runAssistant(sb as never, [{ role: "user", content: "What is the price of maize now? search for it" }], { groq: "g", tavily: "t" });
 check("search round-trip: model asked to search, got results, answered with citation", r3.ok && (r3 as { answer: string }).answer.includes("[1]") && (r3 as { sources: unknown[] }).sources.length === 1, JSON.stringify(r3).slice(0, 100));
+const wb = await buildBrief(sb as never, true);
+check("writer brief has posts but no orders or stock", wb.includes("Cassava prices") && !wb.includes("VA-1001") && !wb.includes("on hand"));
 const r2 = await runAssistant(sb as never, [{ role: "user", content: "hi" }], {});
 check("no keys → clear message", r2.ok === false && /No AI provider key/.test((r2 as { error: string }).error));
 console.log(`\n${pass} passed, ${fail} failed`); if (fail) Deno.exit(1);

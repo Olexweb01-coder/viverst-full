@@ -21,7 +21,6 @@ export default function Checkout({ shopName, settings }) {
   const paystackOn = !!settings?.payments?.paystack?.enabled
   const transferOn = settings?.payments?.transfer?.enabled !== false
   const fee = Number(settings?.delivery?.flat_fee_kobo) || 0
-  const hasSample = items.some((i) => String(i.id).startsWith('seed-'))
   const pay = paystackOn ? payChoice : 'transfer'   // card can only be chosen while Paystack is on
 
   const set = (k) => (e) => setF((o) => ({ ...o, [k]: e.target.value }))
@@ -80,7 +79,6 @@ export default function Checkout({ shopName, settings }) {
       <div className="container">
         <Link to="/cart" className="product-back"><ArrowLeft size={14} aria-hidden="true" /> Back to cart</Link>
         <h1>Checkout</h1>
-        {hasSample && <p className="shop-error">The sample products are for display only. Real products will be available to order very soon.</p>}
         <form className="checkout" onSubmit={submit}>
           <div className="checkout-form">
             <fieldset><legend>Your details</legend>
@@ -113,7 +111,7 @@ export default function Checkout({ shopName, settings }) {
             <div className="cart-sum-row"><span>Items</span><span>{money(subtotal)}</span></div>
             <div className="cart-sum-row"><span>Delivery</span><span>{fee ? money(fee) : 'Confirmed by phone'}</span></div>
             <div className="cart-sum-row cart-sum-total"><span>Total</span><span>{money(subtotal + fee)}</span></div>
-            <button type="submit" className="btn btn--primary btn--block" disabled={busy || hasSample}><Lock size={15} aria-hidden="true" /> {busy ? 'Placing order…' : 'Place order'}</button>
+            <button type="submit" className="btn btn--primary btn--block" disabled={busy}><Lock size={15} aria-hidden="true" /> {busy ? 'Placing order…' : 'Place order'}</button>
             <p className="small muted">Prices are confirmed by our system when you place the order. We call before delivery.</p>
           </aside>
         </form>
