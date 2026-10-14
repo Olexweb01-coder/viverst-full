@@ -91,7 +91,8 @@ if (document.querySelector('.hosting-notice')) problems.push('hosting notice did
 console.log('\n PRODUCTS LIST')
 go('/products'); await waitFor(() => h1() === 'Products' && document.querySelectorAll('.filters button').length === 3, 'products page with filters')
 await waitFor(() => document.querySelectorAll('tbody tr').length === 2, 'two product rows')
-console.log(`  ${document.querySelectorAll('tbody tr').length} product rows`)
+console.log(`  ${document.querySelectorAll('tbody tr').length} product rows; stock-photo stand-in shown for the product without photos: ${document.querySelector('.thumb-stock') ? 'yes' : 'NO'}`)
+if (!document.querySelector('.thumb-stock')) problems.push('stock photo stand-in missing in admin list')
 const hidden = [...document.querySelectorAll('.filters button')].find((b) => b.textContent === 'Hidden')
 hidden.click(); await sleep(60)
 const rowsAfter = document.querySelectorAll('tbody tr').length
@@ -101,7 +102,7 @@ console.log(`  row click → ${h1()}`)
 
 console.log('\n PRODUCT FORM')
 go('/products/new'); await waitFor(() => h1() === 'New product', 'new product page')
-const setVal = (el, v) => { const d = Object.getOwnPropertyDescriptor(el.__proto__, 'value'); d.set.call(el, v); el.dispatchEvent(new window.Event('input', { bubbles: true })) }
+const setVal = (el, v) => { const d = Object.getOwnPropertyDescriptor(el.__proto__, 'value'); d.set.call(el, v); el.dispatchEvent(new window.Event('input', { bubbles: true })); el.dispatchEvent(new window.Event('change', { bubbles: true })) }
 const inputs = [...document.querySelectorAll('input.input, .input-prefix input')]
 const name = inputs[0]; setVal(name, 'Red Palm Oil 5 L'); await sleep(30)
 const slug = inputs[1]
@@ -112,12 +113,16 @@ console.log(`  submit with no price → ${document.querySelector('.note-error')?
 if (state.writes.length) problems.push('form saved without a price')
 const unit = inputs.find((i) => i.required && i !== name); setVal(unit, '5 L keg')
 const price = document.querySelector('.input-prefix input'); setVal(price, '18500'); await sleep(30)
+const opening = [...document.querySelectorAll('input.input')].find((i) => i.closest('label')?.textContent.startsWith('Opening stock')); setVal(opening, '20'); await sleep(20)
 document.querySelector('form').requestSubmit(); await sleep(150)
 const w = state.writes.find((x) => x.table === 'products' && x.op === 'insert')
 console.log(`  submit valid → insert ${w ? 'sent' : 'MISSING'}; price_kobo=${w?.row.price_kobo}`)
 if (!w || w.row.price_kobo !== 1850000) problems.push('product insert missing or wrong price')
 await waitFor(() => window.location.pathname === '/products/new-id', 'redirect to the created product')
 console.log(`  after create → ${window.location.pathname}`)
+const om = state.writes.find((w) => w.table === 'inventory_movements')
+console.log(`  opening stock 20 → movement ${om ? `delta=${om.row.delta}, reason=${om.row.reason}, note=${om.row.note}` : 'MISSING'}`)
+if (!om || om.row.delta !== 20) problems.push('opening stock not recorded')
 
 console.log('\n ORDERS')
 go('/orders?open=o1'); await waitFor(() => document.querySelector('.drawer .order-items'), 'order drawer with items')
@@ -162,6 +167,18 @@ const saveBtns = [...document.querySelectorAll('.panel-head .btn')]; saveBtns[1]
 const up = state.writes.find((w) => w.table === 'settings')
 console.log(`  save delivery → upsert ${up ? `${up.row.key} flat_fee_kobo=${up.row.value.flat_fee_kobo}` : 'MISSING'}`)
 if (!up || up.row.value.flat_fee_kobo !== 150000) problems.push('delivery save wrong')
+const deliveryPanel = [...document.querySelectorAll('section.panel')].find((p) => p.querySelector('h2')?.textContent === 'Delivery')
+;[...deliveryPanel.querySelectorAll('.filters button')][1].click(); await waitFor(() => [...deliveryPanel.querySelectorAll('button')].some((b) => b.textContent === 'Add an area'), 'zones editor')
+const homeFee = [...deliveryPanel.querySelectorAll('input')].find((i) => i.closest('label')?.textContent.startsWith('Fee anywhere')); setVal(homeFee, '2500')
+;[...deliveryPanel.querySelectorAll('button')].find((b) => b.textContent === 'Add an area').click(); await sleep(30)
+setVal(deliveryPanel.querySelector('input[aria-label="Area 1 name"]'), 'Lekki'); setVal(deliveryPanel.querySelector('input[aria-label="Area 1 fee"]'), '3500')
+const outFee = [...deliveryPanel.querySelectorAll('input')].find((i) => i.closest('label')?.textContent.startsWith('Fee for other states')); setVal(outFee, '8000')
+;[...deliveryPanel.querySelectorAll('button')].find((b) => b.textContent === 'Add a state').click(); await sleep(30)
+setVal(deliveryPanel.querySelector('select[aria-label="State 1"]'), 'Ogun'); setVal(deliveryPanel.querySelector('input[aria-label="State 1 fee"]'), '5000'); await sleep(20)
+state.writes.length = 0; deliveryPanel.querySelector('.panel-head .btn').click(); await sleep(100)
+const zw = state.writes.find((w) => w.table === 'settings')?.row.value
+console.log(`  delivery by location → saved mode=${zw?.mode}, home ${zw?.home_state} ₦${zw?.home_default_kobo / 100}, areas ${JSON.stringify(zw?.areas)}, outside ₦${zw?.outside_default_kobo / 100}, states ${JSON.stringify(zw?.state_fees)}`)
+if (zw?.mode !== 'zones' || zw?.areas?.[0]?.fee_kobo !== 350000 || zw?.state_fees?.Ogun !== 500000 || zw?.outside_default_kobo !== 800000) problems.push('delivery zones saved wrong')
 const pk = [...document.querySelectorAll('input.input')].find((i) => i.placeholder === 'pk_test_…'); const sk = document.querySelector('input[type=password]')
 setVal(pk, 'pk_test_abc'); setVal(sk, 'wrong'); sk.closest('form').requestSubmit(); await sleep(60)
 console.log(`  bad secret key → ${document.querySelector('.note-error')?.textContent.slice(0, 40) ?? 'NO ERROR'}`)

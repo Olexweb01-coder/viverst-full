@@ -3,10 +3,11 @@ import { ArrowRight, Trash2, Minus, Plus } from 'lucide-react'
 import { Seo } from '@viverst/ui'
 import { money } from '../lib/format.js'
 import { useCart } from '../lib/cartContext.js'
+import { zoned } from '../lib/delivery.js'
 
 export default function Cart({ shopName, delivery }) {
   const { items, subtotal, setQty, remove } = useCart()
-  const fee = Number(delivery?.flat_fee_kobo) || 0
+  const fee = zoned(delivery) ? 0 : Number(delivery?.flat_fee_kobo) || 0
   return (
     <section className="section shop-page">
       <Seo title={`Cart | ${shopName}`} description="Your cart." />
@@ -36,7 +37,7 @@ export default function Cart({ shopName, delivery }) {
             <aside className="cart-summary">
               <h2>Summary</h2>
               <div className="cart-sum-row"><span>Items</span><span>{money(subtotal)}</span></div>
-              <div className="cart-sum-row"><span>Delivery</span><span>{fee ? money(fee) : 'Confirmed by phone'}</span></div>
+              <div className="cart-sum-row"><span>Delivery</span><span>{zoned(delivery) ? 'Worked out at checkout' : fee ? money(fee) : 'Confirmed by phone'}</span></div>
               <div className="cart-sum-row cart-sum-total"><span>Total</span><span>{money(subtotal + fee)}</span></div>
               {delivery?.note && <p className="small muted">{delivery.note}</p>}
               <Link to="/checkout" className="btn btn--primary btn--block">Checkout <ArrowRight size={16} aria-hidden="true" /></Link>

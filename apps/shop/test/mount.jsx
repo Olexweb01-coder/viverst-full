@@ -115,6 +115,34 @@ console.log(`  order as signed-in customer → address upsert ${state.writes.som
 if (!state.writes.some((w) => w.table === 'addresses')) problems.push('address not saved for signed-in customer')
 ra.unmount(); state.user = null
 
+console.log('\n DELIVERY ZONES')
+state.zones = true; window.localStorage.removeItem('viverst-shop:cart')
+const rz = createRoot(document.getElementById('root')); rz.render(<App />)
+go('/products/yellow-maize'); await waitFor(() => document.querySelector('.product-buy'), 'product'); [...document.querySelectorAll('.product-buy .btn')][0].click(); await sleep(40)
+go('/cart'); await waitFor(() => document.querySelector('.cart-item'), 'cart')
+console.log(`  cart → delivery "${[...document.querySelectorAll('.cart-sum-row')][1].textContent}"`)
+go('/checkout'); await waitFor(() => document.querySelector('.checkout') && [...document.querySelectorAll('.checkout-form select')].length === 2, 'area picker for Lagos')
+const total = () => document.querySelector('.cart-sum-total span:last-child').textContent
+const dRow = () => [...document.querySelectorAll('.cart-sum-row')].find((r) => r.textContent.startsWith('Delivery')).textContent
+console.log(`  Lagos, no area yet → "${dRow()}", total ${total()}`)
+const areaSel = [...document.querySelectorAll('.checkout-form select')][1]
+setVal(areaSel, 'Lekki'); await sleep(30); console.log(`  Lekki → "${dRow()}", total ${total()}`)
+if (!total().includes('48,500')) problems.push('Lekki total wrong')
+setVal(areaSel, '__other'); await sleep(30); console.log(`  somewhere else in Lagos → "${dRow()}", total ${total()}`)
+if (!total().includes('47,500')) problems.push('Lagos default total wrong')
+const stateSel = [...document.querySelectorAll('.checkout-form select')][0]
+setVal(stateSel, 'Ogun'); await sleep(30); console.log(`  Ogun → "${dRow()}", total ${total()}, area picker ${[...document.querySelectorAll('.checkout-form select')].length === 1 ? 'hidden' : 'STILL SHOWN'}`)
+if (!total().includes('50,000')) problems.push('Ogun total wrong')
+setVal(stateSel, 'Kano'); await sleep(30); console.log(`  Kano → "${dRow()}", total ${total()}`)
+if (!total().includes('53,000')) problems.push('Kano total wrong')
+setVal(stateSel, 'Lagos'); await sleep(30); setVal([...document.querySelectorAll('.checkout-form select')][1], 'Ikeja'); await sleep(30)
+const inz = [...document.querySelectorAll('.checkout-form input.input')]; const blz = (t) => inz.find((i) => i.closest('label')?.textContent.startsWith(t))
+setVal(blz('Full name'), 'Z'); setVal(blz('Phone'), '1'); setVal(blz('Email'), 'z@x.com'); setVal(blz('Street'), 'x'); setVal(blz('Town'), 'Allen')
+state.rpcs.length = 0; document.querySelector('.checkout').requestSubmit(); await waitFor(() => state.rpcs.length, 'order sent')
+console.log(`  order → address sent { state: ${state.rpcs[0]?.args.p_address.state}, area: ${state.rpcs[0]?.args.p_address.area} } — fee left to the server`)
+if (state.rpcs[0]?.args.p_address.area !== 'Ikeja') problems.push('area not sent with the order')
+await sleep(100); rz.unmount(); state.zones = false; window.localStorage.removeItem('viverst-shop:cart')
+
 console.log('\n EMPTY ADMIN → PLACEHOLDERS')
 state.empty = true; resetCatalog()
 const r2 = createRoot(document.getElementById('root')); r2.render(<App />)

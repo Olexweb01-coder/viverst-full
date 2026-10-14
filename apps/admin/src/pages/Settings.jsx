@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase.js'
 import { fromKobo, toKobo } from '../lib/format.js'
 import { useAuth, useFlash } from '../lib/hooks.js'
 import { PageHead, Note, Field, Group } from '../components/ui.jsx'
+import { STATES } from '../lib/constants.js'
 
 /* Non-secret settings live in the settings table (one JSON row per area).
    Secret keys go through set_secret() and can never be read back here. */
@@ -29,7 +30,15 @@ export default function Settings() {
       const map = Object.fromEntries(data.map((r) => [r.key, r.value]))
       setS({
         shop: { name: '', currency: 'NGN', ...map.shop },
-        delivery: { flat_fee: fromKobo(map.delivery?.flat_fee_kobo ?? 0), note: map.delivery?.note ?? '' },
+        delivery: {
+          mode: map.delivery?.mode === 'zones' ? 'zones' : 'flat',
+          flat_fee: fromKobo(map.delivery?.flat_fee_kobo ?? 0), note: map.delivery?.note ?? '',
+          home_state: map.delivery?.home_state || 'Lagos',
+          home_default: fromKobo(map.delivery?.home_default_kobo ?? 0),
+          areas: (map.delivery?.areas || []).map((a) => ({ name: a.name, fee: fromKobo(a.fee_kobo) })),
+          outside_default: fromKobo(map.delivery?.outside_default_kobo ?? 0),
+          state_fees: Object.entries(map.delivery?.state_fees || {}).map(([state, k]) => ({ state, fee: fromKobo(k) })),
+        },
         payments: { transfer: { enabled: true, bank_name: '', account_name: '', account_number: '', instructions: '', ...map.payments?.transfer }, paystack: { enabled: false, public_key: '', ...map.payments?.paystack } },
         contact: { email: '', phone: '', whatsapp: '', ...map.contact },
         integrations: { registrations_script_url: '', ...map.integrations },
@@ -44,13 +53,25 @@ export default function Settings() {
     return () => { alive = false }
   }, [])
 
+  const setD = (patch) => setS((o) => ({ ...o, delivery: { ...o.delivery, ...patch } }))
   const set = (area, key) => (e) => setS((o) => ({ ...o, [area]: { ...o[area], [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value } }))
   const setT = (key) => (e) => setS((o) => ({ ...o, payments: { ...o.payments, transfer: { ...o.payments.transfer, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value } } }))
 
   async function saveArea(area) {
     setBusy(true); setError('')
     let value = s[area]
-    if (area === 'delivery') value = { flat_fee_kobo: toKobo(s.delivery.flat_fee), note: s.delivery.note }
+    if (area === 'delivery') {
+      const d = s.delivery
+      const areas = d.areas.filter((a) => a.name.trim()).map((a) => ({ name: a.name.trim(), fee_kobo: toKobo(a.fee) }))
+      const names = areas.map((a) => a.name.toLowerCase())
+      if (new Set(names).size !== names.length) { setError('Two areas have the same name. Give each area a different name.'); setBusy(false); return }
+      value = {
+        mode: d.mode, note: d.note, flat_fee_kobo: toKobo(d.flat_fee),
+        home_state: d.home_state, home_default_kobo: toKobo(d.home_default), areas,
+        outside_default_kobo: toKobo(d.outside_default),
+        state_fees: Object.fromEntries(d.state_fees.filter((x) => x.state && x.state !== d.home_state).map((x) => [x.state, toKobo(x.fee)])),
+      }
+    }
     if (area === 'payments') value = { transfer: s.payments.transfer, paystack: { enabled: paystackReady && !!publicKey, public_key: publicKey.trim() } }
     const { error } = await supabase.from('settings').upsert({ key: area, value }, { onConflict: 'key' })
     setBusy(false)
@@ -99,12 +120,54 @@ export default function Settings() {
         <section className="panel">
           <div className="panel-head"><h2>Delivery</h2><button type="button" className="btn btn-sm" onClick={() => saveArea('delivery')}>Save</button></div>
           <div className="panel-body form">
-            <div className="form-row">
-              <Field label="Flat delivery fee" hint="Added to every order. Leave at 0 to agree delivery by phone after the order.">
-                <div className="input-prefix"><span>₦</span><input inputMode="decimal" value={s.delivery.flat_fee} onChange={set('delivery', 'flat_fee')} /></div>
-              </Field>
-              <Field label="Delivery note" hint="Shown at checkout under the fee."><input className="input" value={s.delivery.note} onChange={set('delivery', 'note')} /></Field>
+            <div className="filters" role="group" aria-label="How delivery is priced" style={{ marginBottom: 0 }}>
+              <button type="button" className={s.delivery.mode === 'flat' ? 'active' : ''} onClick={() => setD({ mode: 'flat' })}>One fee for everywhere</button>
+              <button type="button" className={s.delivery.mode === 'zones' ? 'active' : ''} onClick={() => setD({ mode: 'zones' })}>By location</button>
             </div>
+            {s.delivery.mode === 'flat' ? (
+              <Field label="Delivery fee" hint="Added to every order. Leave at 0 to agree delivery by phone after the order.">
+                <div className="input-prefix"><span>₦</span><input inputMode="decimal" value={s.delivery.flat_fee} onChange={(e) => setD({ flat_fee: e.target.value })} /></div>
+              </Field>
+            ) : (
+              <>
+                <h3 className="small" style={{ margin: '4px 0 0' }}>Inside your home state</h3>
+                <div className="form-row">
+                  <Field label="Home state"><select className="select" value={s.delivery.home_state} onChange={(e) => setD({ home_state: e.target.value })}>{STATES.map((x) => <option key={x}>{x}</option>)}</select></Field>
+                  <Field label="Fee anywhere in the state" hint="Used when the customer’s area isn’t in the list below.">
+                    <div className="input-prefix"><span>₦</span><input inputMode="decimal" value={s.delivery.home_default} onChange={(e) => setD({ home_default: e.target.value })} /></div>
+                  </Field>
+                </div>
+                <Group label="Areas with their own fee" hint={`Optional. Customers in ${s.delivery.home_state} choose their area at checkout.`}>
+                  <div className="zone-rows">
+                    {s.delivery.areas.map((a, i) => (
+                      <div key={i} className="zone-row">
+                        <input className="input" aria-label={`Area ${i + 1} name`} placeholder="e.g. Ikeja" value={a.name} onChange={(e) => setD({ areas: s.delivery.areas.map((x, j) => j === i ? { ...x, name: e.target.value } : x) })} />
+                        <div className="input-prefix"><span>₦</span><input inputMode="decimal" aria-label={`Area ${i + 1} fee`} value={a.fee} onChange={(e) => setD({ areas: s.delivery.areas.map((x, j) => j === i ? { ...x, fee: e.target.value } : x) })} /></div>
+                        <button type="button" className="btn btn-quiet btn-sm" aria-label={`Remove area ${a.name || i + 1}`} onClick={() => setD({ areas: s.delivery.areas.filter((_, j) => j !== i) })}>Remove</button>
+                      </div>))}
+                    <div><button type="button" className="btn btn-sm" onClick={() => setD({ areas: [...s.delivery.areas, { name: '', fee: '' }] })}>Add an area</button></div>
+                  </div>
+                </Group>
+                <h3 className="small" style={{ margin: '8px 0 0' }}>Outside {s.delivery.home_state}</h3>
+                <Field label="Fee for other states" hint="Used for any state not listed below.">
+                  <div className="input-prefix"><span>₦</span><input inputMode="decimal" value={s.delivery.outside_default} onChange={(e) => setD({ outside_default: e.target.value })} /></div>
+                </Field>
+                <Group label="States with their own fee" hint="Optional, e.g. a nearby state that costs less, or a far one that costs more.">
+                  <div className="zone-rows">
+                    {s.delivery.state_fees.map((x, i) => (
+                      <div key={i} className="zone-row">
+                        <select className="select" aria-label={`State ${i + 1}`} value={x.state} onChange={(e) => setD({ state_fees: s.delivery.state_fees.map((y, j) => j === i ? { ...y, state: e.target.value } : y) })}>
+                          <option value="">Choose a state</option>{STATES.filter((st) => st !== s.delivery.home_state).map((st) => <option key={st}>{st}</option>)}
+                        </select>
+                        <div className="input-prefix"><span>₦</span><input inputMode="decimal" aria-label={`State ${i + 1} fee`} value={x.fee} onChange={(e) => setD({ state_fees: s.delivery.state_fees.map((y, j) => j === i ? { ...y, fee: e.target.value } : y) })} /></div>
+                        <button type="button" className="btn btn-quiet btn-sm" aria-label={`Remove ${x.state || 'state'}`} onClick={() => setD({ state_fees: s.delivery.state_fees.filter((_, j) => j !== i) })}>Remove</button>
+                      </div>))}
+                    <div><button type="button" className="btn btn-sm" onClick={() => setD({ state_fees: [...s.delivery.state_fees, { state: '', fee: '' }] })}>Add a state</button></div>
+                  </div>
+                </Group>
+              </>
+            )}
+            <Field label="Delivery note" hint="Shown at checkout under the fee."><input className="input" value={s.delivery.note} onChange={(e) => setD({ note: e.target.value })} /></Field>
           </div>
         </section>
 

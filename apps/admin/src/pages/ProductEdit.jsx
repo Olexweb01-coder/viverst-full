@@ -4,10 +4,12 @@ import { ArrowLeft, ImagePlus, X } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { fromKobo, toKobo, slugify } from '../lib/format.js'
 import { imageUrl, uploadImage, removeImage } from '../lib/images.js'
+import { stockPhoto } from '../lib/stockPhotos.js'
+import { useAuth } from '../lib/hooks.js'
 import { PageHead, Note, Field, Group } from '../components/ui.jsx'
 import { useFlash } from '../lib/hooks.js'
 
-const BLANK = { name: '', slug: '', category_id: '', summary: '', description: '', unit: '', price: '', compare_at: '', images: [], active: false, featured: false, sort: 0 }
+const BLANK = { opening: '', name: '', slug: '', category_id: '', summary: '', description: '', unit: '', price: '', compare_at: '', images: [], active: false, featured: false, sort: 0 }
 
 /* keyed by id so moving from one product to another (or to “new”) always
    starts from a clean form instead of reusing the previous one's state */
@@ -18,6 +20,7 @@ export default function ProductEdit() {
 
 function Editor({ id }) {
   const isNew = !id
+  const { staff } = useAuth()
   const nav = useNavigate()
   const [form, setForm] = useState(BLANK)
   const [cats, setCats] = useState([])
@@ -102,8 +105,15 @@ function Editor({ id }) {
     const { data, error } = await q
     setBusy(false)
     if (error) { setError(error.code === '23505' ? 'Another product already uses that web address (slug). Change it.' : error.message); return }
-    if (isNew) nav(`/products/${data.id}`, { replace: true })
-    setFlash('Saved.')
+    if (isNew) {
+      const qty = parseInt(form.opening, 10)
+      if (qty > 0) {
+        const { error: mErr } = await supabase.from('inventory_movements').insert({ product_id: data.id, delta: qty, reason: 'received', note: 'opening stock', created_by: staff?.user_id })
+        if (mErr) { setError(`Product created, but the opening stock wasn’t recorded (${mErr.message}). Add it under Stock.`); nav(`/products/${data.id}`, { replace: true }); return }
+      }
+      nav(`/products/${data.id}`, { replace: true })
+    }
+    setFlash(isNew && parseInt(form.opening, 10) > 0 ? `Saved, with ${parseInt(form.opening, 10)} in stock.` : 'Saved.')
   }
 
   async function remove() {
@@ -169,6 +179,9 @@ function Editor({ id }) {
         </Field>
 
         <Group label="Photos" hint="First photo is the main one. JPG, PNG or WebP, up to 4 MB each.">
+          {form.images.length === 0 && stockPhoto(form.slug) && (
+            <div className="stock-note"><img src={stockPhoto(form.slug)} alt="" /><span><strong>The shop is showing a stock photo for this product.</strong> Upload your own and it replaces it straight away.</span></div>
+          )}
           <div className="images">
             {form.images.map((p) => (
               <figure key={p}><img src={imageUrl(p)} alt="" />
@@ -177,6 +190,11 @@ function Editor({ id }) {
           </div>
         </Group>
 
+        {isNew && (
+          <Field label="Opening stock" hint="How many you have right now. Leave empty for none — the shop then shows it as sold out until you add stock.">
+            <input className="input" type="number" min="0" inputMode="numeric" value={form.opening} onChange={set('opening')} />
+          </Field>
+        )}
         <div className="form-row">
           <label className="check"><input type="checkbox" checked={form.active} onChange={set('active')} />Show in the shop</label>
           <label className="check"><input type="checkbox" checked={form.featured} onChange={set('featured')} />Feature on the shop’s front page</label>

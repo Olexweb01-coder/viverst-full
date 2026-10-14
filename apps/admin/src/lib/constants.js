@@ -8,3 +8,4 @@ export const ROLES = [
 ]
 export const OPS_ROLES = ['owner', 'manager', 'editor']
 export const isOps = (role) => OPS_ROLES.includes(role)
+export const STATES = ['Lagos', 'Ogun', 'Oyo', 'Osun', 'Ondo', 'Ekiti', 'Kwara', 'Kogi', 'Edo', 'Delta', 'Rivers', 'Bayelsa', 'Akwa Ibom', 'Cross River', 'Abia', 'Imo', 'Anambra', 'Enugu', 'Ebonyi', 'Benue', 'Nasarawa', 'Plateau', 'FCT', 'Niger', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Sokoto', 'Zamfara', 'Jigawa', 'Bauchi', 'Gombe', 'Yobe', 'Borno', 'Adamawa', 'Taraba']

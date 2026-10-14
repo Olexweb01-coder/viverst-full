@@ -8,7 +8,7 @@ const DATA = {
   product_categories: [{ id: 'c1', name: 'Grains', slug: 'grains', sort: 0 }],
   products: [
     { id: 'p1', slug: 'yellow-maize', name: 'Yellow maize', unit: '50 kg bag', price_kobo: 4500000, compare_at_kobo: null, images: ['products/a.jpg'], active: true, featured: false, sort: 0, category_id: 'c1', summary: 'Dried and graded', description: '', product_categories: { name: 'Grains' }, inventory: { on_hand: 7 } },
-    { id: 'p2', slug: 'hidden', name: 'Hidden one', unit: 'bag', price_kobo: 100, compare_at_kobo: null, images: [], active: false, featured: false, sort: 1, category_id: null, summary: '', description: '', product_categories: null, inventory: { on_hand: 0 } },
+    { id: 'p2', slug: 'soybeans', name: 'Hidden one', unit: 'bag', price_kobo: 100, compare_at_kobo: null, images: [], active: false, featured: false, sort: 1, category_id: null, summary: '', description: '', product_categories: null, inventory: { on_hand: 0 } },
   ],
   inventory: [{ product_id: 'p1', on_hand: 2, low_stock_at: 5, products: { name: 'Yellow maize', active: true } }],
   orders: [{ id: 'o1', number: 'VA-1001', name: 'Ada', email: 'ada@x.com', phone: '0801', status: 'awaiting_payment', payment_method: 'transfer', total_kobo: 13500000, created_at: new Date().toISOString() }],

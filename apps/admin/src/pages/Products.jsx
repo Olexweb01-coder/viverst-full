@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { money } from '../lib/format.js'
 import { imageUrl } from '../lib/images.js'
+import { stockPhoto } from '../lib/stockPhotos.js'
 import { PageHead, Note, Empty, Chip } from '../components/ui.jsx'
 
 export default function Products() {
@@ -42,7 +43,9 @@ export default function Products() {
             <thead><tr><th></th><th>Product</th><th>Category</th><th className="num">Price</th><th className="num">Stock</th><th>Shown</th></tr></thead>
             <tbody>{shown.map((p) => (
               <tr key={p.id} className="row-link" data-status={p.active ? undefined : 'inactive'} onClick={() => nav(`/products/${p.id}`)}>
-                <td style={{ width: 60 }}>{p.images?.[0] ? <img className="thumb" src={imageUrl(p.images[0])} alt="" /> : <div className="thumb" />}</td>
+                <td style={{ width: 60 }}>{p.images?.[0] ? <img className="thumb" src={imageUrl(p.images[0])} alt="" />
+                  : stockPhoto(p.slug) ? <span className="thumb-stock" title="Stock photo — shown in the shop until you upload your own"><img className="thumb" src={stockPhoto(p.slug)} alt="" /><span>Stock</span></span>
+                  : <div className="thumb" />}</td>
                 <td><strong>{p.name}</strong><div className="muted small">{p.unit}</div></td>
                 <td className="muted">{p.product_categories?.name || '—'}</td>
                 <td className="num">{money(p.price_kobo)}</td>

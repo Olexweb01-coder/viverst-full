@@ -157,7 +157,7 @@ function OrderPanel({ id, onClose, onChanged }) {
             <p>{o.name}<br /><a href={`tel:${o.phone}`}>{o.phone}</a> · <a href={`mailto:${o.email}`}>{o.email}</a></p>
 
             <h3>Deliver to</h3>
-            <p>{a.name && a.name !== o.name ? <>{a.name}<br /></> : null}{a.line1}{a.line2 ? <>, {a.line2}</> : null}<br />{a.city}, {a.state}{a.phone && a.phone !== o.phone ? <><br />{a.phone}</> : null}</p>
+            <p>{a.name && a.name !== o.name ? <>{a.name}<br /></> : null}{a.line1}{a.line2 ? <>, {a.line2}</> : null}<br />{a.city}{a.area ? ` (${a.area})` : ''}, {a.state}{a.phone && a.phone !== o.phone ? <><br />{a.phone}</> : null}</p>
 
             {o.customer_note && <><h3>Customer’s note</h3><p className="muted">{o.customer_note}</p></>}
 

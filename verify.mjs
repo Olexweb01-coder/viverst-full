@@ -192,6 +192,25 @@ ok('scrolling behaviour itself is left alone, so pull-to-refresh still works',
 ok('the body covers the viewport, so the canvas never flashes before the app renders',
    /body \{[^}]*min-height:\s*100svh/s.test(base))
 
+/* An unclosed comment silently disables every rule after it until the next
+   comment closes. It happened once in the admin and turned all filter bars
+   into plain grey buttons; no test noticed because jsdom ignores styling. */
+{
+  const { execSync } = await import('node:child_process')
+  const cssFiles = execSync('git ls-files "*.css"', { encoding: 'utf8' }).split('\n').filter(Boolean)
+  const bad = cssFiles.filter((f) => {
+    const t = read(f); let i = 0; let open = false
+    while (i < t.length) {
+      if (!open && t.startsWith('/*', i)) { open = true; i += 2; continue }
+      if (open && t.startsWith('*/', i)) { open = false; i += 2; continue }
+      if (open && t.startsWith('/*', i)) return true   // a comment opened inside another: the first was never closed
+      i++
+    }
+    return open
+  })
+  ok('every stylesheet closes its comments', bad.length === 0, bad.join(', '))
+}
+
 /* ── report ── */
 const failed = checks.filter((c) => !c.pass)
 for (const c of checks) console.log(` ${c.pass ? '✓' : '✗'} ${c.name}${c.detail ? '  → ' + c.detail : ''}`)

@@ -1,12 +1,12 @@
 /* Stand-in for @supabase/supabase-js for the headless shop test. */
-export const state = { rpcs: [], invokes: [], paystack: false, user: null, writes: [], empty: typeof window !== 'undefined' && /[?&]seed=1/.test(window.location.search) }
+export const state = { rpcs: [], invokes: [], paystack: false, user: null, writes: [], zones: typeof window !== 'undefined' && /[?&]zones=1/.test(window.location.search), empty: typeof window !== 'undefined' && /[?&]seed=1/.test(window.location.search) }
 const PRODUCTS = [
   { id: 'p1', slug: 'yellow-maize', name: 'Yellow maize', unit: '50 kg bag', price_kobo: 4500000, compare_at_kobo: 5000000, summary: 'Dried and graded', description: 'Stores well.\n\nMills cleanly.', images: ['products/a.webp', 'products/b.webp'], featured: true, sort: 0, product_categories: { slug: 'grain', name: 'Grains' }, stock: { in_stock: true, available: 7 } },
   { id: 'p2', slug: 'red-palm-oil', name: 'Red palm oil', unit: '25 L keg', price_kobo: 5500000, compare_at_kobo: null, summary: '', description: '', images: [], featured: false, sort: 1, product_categories: { slug: 'processed', name: 'Processed' }, stock: { in_stock: false, available: 0 } },
 ]
 const SETTINGS = [
   { key: 'shop', value: { name: 'Viverst Agro Shop' } },
-  { key: 'delivery', value: { flat_fee_kobo: 150000, note: 'Lagos only for now.' } },
+  { key: 'delivery', get value() { return state.zones ? { mode: 'zones', home_state: 'Lagos', home_default_kobo: 250000, areas: [{ name: 'Ikeja', fee_kobo: 200000 }, { name: 'Lekki', fee_kobo: 350000 }], outside_default_kobo: 800000, state_fees: { Ogun: 500000 }, note: 'We call to confirm.' } : { flat_fee_kobo: 150000, note: 'Lagos only for now.' } } },
   { key: 'payments', get value() { return { transfer: { enabled: true, bank_name: 'GTBank', account_name: 'Viverst Agro', account_number: '0123456789', instructions: 'Pay and send the reference.' }, paystack: { enabled: state.paystack, public_key: 'pk_test_x' } } } },
   { key: 'contact', value: { email: 'agro@viverst.com', whatsapp: '2348000000000' } },
 ]
