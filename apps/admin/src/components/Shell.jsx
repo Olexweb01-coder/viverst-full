@@ -1,6 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { LayoutDashboard, Package, Boxes, ShoppingBag, Settings, Users, LogOut, Newspaper, CalendarDays, Sparkles, MessageSquare, Bell, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, Package, Boxes, ShoppingBag, Settings, Users, LogOut, Newspaper, CalendarDays, Sparkles, MessageSquare, Bell, BarChart3, Menu, X } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { useAuth } from '../lib/hooks.js'
 import logoLight from '@brand-assets/main/logo-light.webp'
@@ -42,9 +42,25 @@ function useCounts() {
 export default function Shell() {
   const { staff, signOut } = useAuth()
   const counts = useCounts()
+  const { pathname } = useLocation()
+  const [openPath, setOpenPath] = useState(null)   // drawer is open only on the route it was opened on
+  const open = openPath === pathname
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => { if (e.key === 'Escape') setOpenPath(null) }
+    window.addEventListener('keydown', onKey); document.body.style.overflow = 'hidden'
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
+  }, [open])
+  const unread = counts.unread || 0
   return (
     <div className="shell">
-      <aside className="rail">
+      <header className="topbar">
+        <button type="button" className="topbar-btn" onClick={() => setOpenPath(open ? null : pathname)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open}>{open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</button>
+        <img src={logoLight} alt="Viverst" className="topbar-logo" />
+        <NavLink to="/notifications" className="topbar-btn" aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}><Bell aria-hidden="true" />{unread > 0 && <span className="badge">{unread}</span>}</NavLink>
+      </header>
+      {open && <div className="rail-backdrop" onClick={() => setOpenPath(null)} aria-hidden="true" />}
+      <aside className={`rail${open ? ' open' : ''}`}>
         <div className="rail-brand"><img src={logoLight} alt="Viverst" /><small>Admin</small><img className="rail-mark" src={vMark} alt="" aria-hidden="true" /></div>
         <nav aria-label="Main">
           {NAV.filter((n) => !n.owner || staff?.role === 'owner').map((n) => n.group

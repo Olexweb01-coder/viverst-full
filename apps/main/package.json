@@ -8,7 +8,6 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "oxlint",
-    "build:singlefile": "vite build --mode singlefile",
     "test": "vite build --ssr test/mount.jsx --outDir test-dist --logLevel warn && node test/run.mjs"
   },
   "dependencies": {
@@ -24,7 +23,6 @@
     "@vitejs/plugin-react": "^5.0.2",
     "jsdom": "^27.0.0",
     "oxlint": "^1.14.0",
-    "vite": "^7.1.4",
-    "vite-plugin-singlefile": "^2.3.0"
+    "vite": "^7.1.4"
   }
 }

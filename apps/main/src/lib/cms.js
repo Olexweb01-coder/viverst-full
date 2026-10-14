@@ -35,7 +35,11 @@ async function allEvents() {
 }
 function merge(seed, admin) {
   const bySlug = new Map(seed.map((x) => [x.slug, x]))
-  for (const x of admin) bySlug.set(x.slug, x)
+  for (const x of admin) {
+    const s = bySlug.get(x.slug)
+    // an admin record wins, but keeps the seed's picture when it has none of its own
+    bySlug.set(x.slug, s ? { ...x, image: x.image ?? s.image, imageAlt: x.imageAlt ?? s.imageAlt, featured: x.featured || s.featured } : x)
+  }
   return [...bySlug.values()]
 }
 

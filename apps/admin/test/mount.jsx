@@ -73,6 +73,15 @@ for (const [path, expect] of ROUTES) {
   console.log(`  ${path.padEnd(16)} ${h1().slice(0, 40)}`)
 }
 
+console.log('\n PHONE MENU')
+go('/'); await waitFor(() => document.querySelector('.topbar-btn'), 'topbar')
+document.querySelector('.topbar-btn').click(); await sleep(40)
+console.log(`  menu button → rail ${document.querySelector('.rail').classList.contains('open') ? 'open' : 'NOT open'}, backdrop ${document.querySelector('.rail-backdrop') ? 'shown' : 'MISSING'}`)
+if (!document.querySelector('.rail').classList.contains('open')) problems.push('phone menu did not open')
+;[...document.querySelectorAll('.rail nav a')].find((a) => a.textContent.includes('Orders')).click(); await waitFor(() => h1() === 'Orders', 'navigate from drawer')
+console.log(`  tap "Orders" → ${h1()}, rail ${document.querySelector('.rail').classList.contains('open') ? 'STILL OPEN' : 'closed'}`)
+if (document.querySelector('.rail').classList.contains('open')) problems.push('drawer did not close on navigation')
+
 console.log('\n HOSTING NOTICE')
 go('/'); await waitFor(() => h1().startsWith('Good') && document.querySelector('.hosting-notice'), 'notice on Today')
 document.querySelector('.hosting-notice button').click(); await sleep(40)
