@@ -5,6 +5,19 @@
 -- run when there are orders to confirm. Safe to re-run.
 -- ============================================================================
 alter table public.orders add column if not exists customer_emailed_at timestamptz;
+
+-- order_detail was created with o.*, which Postgres expands once: rebuild it so
+-- it includes the new column (the email function reads it from this view)
+drop view if exists public.order_detail;
+create view public.order_detail as
+  select o.*, coalesce(jsonb_agg(jsonb_build_object(
+      'id', i.id, 'product_id', i.product_id, 'name', i.name, 'unit', i.unit,
+      'unit_price_kobo', i.unit_price_kobo, 'qty', i.qty, 'line_kobo', i.line_kobo) order by i.id)
+      filter (where i.id is not null), '[]'::jsonb) as items
+  from public.orders o left join public.order_items i on i.order_id = o.id
+  group by o.id;
+alter view public.order_detail set (security_invoker = true);
+grant select on public.order_detail to authenticated;
 update public.settings set value = value || '{"url":"https://shopagro.viverst.com"}'::jsonb where key = 'shop' and not (value ? 'url');
 
 create or replace function public.notify_email_tick() returns void
