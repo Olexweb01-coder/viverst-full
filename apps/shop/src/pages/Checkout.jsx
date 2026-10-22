@@ -4,6 +4,7 @@ import { ArrowLeft, Building2, CreditCard, Lock } from 'lucide-react'
 import { Seo } from '@viverst/ui'
 import { supabase } from '../lib/supabase.js'
 import { money } from '../lib/format.js'
+import { paystackCharge } from '../lib/paystack.js'
 import { useCart } from '../lib/cartContext.js'
 import { redirectTo } from '../lib/redirect.js'
 import { deliveryFee, zoned } from '../lib/delivery.js'
@@ -28,6 +29,9 @@ export default function Checkout({ shopName, settings }) {
   // card can only be chosen while Paystack is on; with bank transfer switched
   // off, Paystack is the only option, so it is the one used
   const pay = paystackOn ? (transferOn ? payChoice : 'paystack') : 'transfer'
+  // Paystack charges: once per payment, on the whole order; the server works
+  // out the same figure again and that is what is charged
+  const charges = pay === 'paystack' && !needArea ? paystackCharge(subtotal + fee) : 0
 
   const set = (k) => (e) => setF((o) => ({ ...o, [k]: e.target.value }))
   // signed in: fill what we already know, once
@@ -57,7 +61,7 @@ export default function Checkout({ shopName, settings }) {
     })
     setBusy(false)
     if (error) { setError(friendly(error.message)); return }
-    const summary = { ...data, email: f.email.trim(), pay, items, subtotal, fee }
+    const summary = { ...data, email: f.email.trim(), pay, items, subtotal, fee, charges: data?.fee_kobo ?? 0 }
     if (user) {   // remember the address for next time (best effort)
       supabase.from('addresses').upsert({ customer_id: user.id, label: 'Home', name: f.name.trim(), phone: f.phone.trim(), line1: f.line1.trim(), line2: f.line2.trim(), city: f.city.trim(), state: f.state, is_default: true }, { onConflict: 'customer_id,label' }).then(() => {})
       supabase.from('customers').update({ name: f.name.trim(), phone: f.phone.trim() }).eq('user_id', user.id).then(() => {})
@@ -123,7 +127,9 @@ export default function Checkout({ shopName, settings }) {
             <ul className="checkout-items">{items.map((i) => <li key={i.id}><span>{i.qty} × {i.name}<small>{i.unit}</small></span><span>{money(i.qty * i.price_kobo)}</span></li>)}</ul>
             <div className="cart-sum-row"><span>Items</span><span>{money(subtotal)}</span></div>
             <div className="cart-sum-row"><span>Delivery{zoned(d) ? ` to ${homeAreas.length && f.area && f.area !== '__other' ? f.area : f.state}` : ''}</span><span>{needArea ? 'Choose your area' : fee ? money(fee) : 'Confirmed by phone'}</span></div>
-            <div className="cart-sum-row cart-sum-total"><span>Total</span><span>{money(subtotal + fee)}</span></div>
+            {charges > 0 && <div className="cart-sum-row"><span>Paystack charges</span><span>{money(charges)}</span></div>}
+            <div className="cart-sum-row cart-sum-total"><span>Total</span><span>{money(subtotal + fee + charges)}</span></div>
+            {pay === 'paystack' && <p className="checkout-warn" role="note">Please pay the full amount shown, including Paystack charges. If anything less is received, we can’t guarantee your order.</p>}
             {d?.note && <p className="small muted">{d.note}</p>}
             <button type="submit" className="btn btn--primary btn--block" disabled={busy}><Lock size={15} aria-hidden="true" /> {busy ? 'Placing order…' : 'Place order'}</button>
             <p className="small muted">Prices are confirmed by our system when you place the order. We call before delivery.</p>

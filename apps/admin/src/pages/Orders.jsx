@@ -149,6 +149,7 @@ function OrderPanel({ id, onClose, onChanged }) {
               <tfoot>
                 <tr><td colSpan="2">Items</td><td className="num">{money(o.subtotal_kobo)}</td></tr>
                 <tr><td colSpan="2">Delivery</td><td className="num">{money(o.delivery_kobo)}</td></tr>
+                {o.fee_kobo > 0 && <tr><td colSpan="2">Paystack charges <span className="muted small">(paid to Paystack)</span></td><td className="num">{money(o.fee_kobo)}</td></tr>}
                 <tr><td colSpan="2"><strong>Total</strong></td><td className="num"><strong>{money(o.total_kobo)}</strong></td></tr>
               </tfoot>
             </table>

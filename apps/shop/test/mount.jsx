@@ -196,6 +196,11 @@ console.log('\n FOOD PACKAGE')
   const opts = [...document.querySelectorAll('.pay-opt')]
   console.log(`  Paystack only → ${opts.length} payment option: "${opts[0]?.querySelector('strong')?.textContent}", ${opts[0]?.classList.contains('active') ? 'already selected' : 'NOT selected'}`)
   if (opts.length !== 1 || !opts[0].classList.contains('active') || !opts[0].querySelector('input[value="paystack"]')?.checked) problems.push('with transfer off, Paystack should be the only, selected option')
+  const rows4 = () => Object.fromEntries([...document.querySelectorAll('.checkout-summary .cart-sum-row')].map((r) => [r.children[0].textContent, r.children[1].textContent]))
+  console.log(`  Paystack charges → ${JSON.stringify(rows4())} · warning: "${document.querySelector('.checkout-warn')?.textContent.slice(0, 48)}…"`)
+  // once per payment, on items + delivery: ₦45,000 + ₦1,500 = ₦46,500 → ₦810, the smallest that leaves ₦46,500 after Paystack's cut
+  if (rows4()['Paystack charges'] !== '₦810' || rows4()['Total'] !== '₦47,310') problems.push(`Paystack charges on ₦46,500 should be ₦810 (total ₦47,310), got ${JSON.stringify(rows4())}`)
+  if (!document.querySelector('.checkout-warn')?.textContent.includes('Please pay the full amount shown, including Paystack charges')) problems.push('no full-payment warning with Paystack')
   const in4 = [...document.querySelectorAll('.checkout-form input.input')]; const bl4 = (t) => in4.find((i) => i.closest('label')?.textContent.startsWith(t))
   setVal(bl4('Full name'), 'Ada'); setVal(bl4('Phone'), '1'); setVal(bl4('Email'), 'a@x.com'); setVal(bl4('Street'), 'x'); setVal(bl4('Town'), 'y')
   let sentTo = ''; window.__viverstRedirect = (u) => { sentTo = u }
@@ -203,7 +208,20 @@ console.log('\n FOOD PACKAGE')
   document.querySelector('.checkout').requestSubmit(); await waitFor(() => sentTo, 'off to Paystack')
   console.log(`  place order → place_order(${state.rpcs[0]?.args.p_payment_method}) → ${sentTo.slice(0, 32)}…`)
   if (state.rpcs[0]?.args.p_payment_method !== 'paystack' || !sentTo.startsWith('https://checkout.paystack.com')) problems.push('Paystack-only checkout did not pay through Paystack')
+
   rf4.unmount(); state.paystack = false; state.transferOff = false; window.localStorage.removeItem('viverst-shop:cart')
+  // bank transfer back on and chosen: no Paystack charges, no warning
+  state.paystack = true
+  const rf5 = createRoot(document.getElementById('root')); rf5.render(<App />)
+  go('/products/yellow-maize'); await waitFor(() => document.querySelector('.product-buy'), 'product'); [...document.querySelectorAll('.product-buy .btn')][0].click(); await sleep(40)
+  go('/checkout'); await waitFor(() => document.querySelectorAll('.pay-opt').length === 2, 'both payment options')
+  document.querySelector('input[value="transfer"]').click(); await sleep(60)
+  const tRows = Object.fromEntries([...document.querySelectorAll('.checkout-summary .cart-sum-row')].map((r) => [r.children[0].textContent, r.children[1].textContent]))
+  console.log(`  bank transfer → ${JSON.stringify(tRows)}, warning ${document.querySelector('.checkout-warn') ? 'SHOWN' : 'not shown'}`)
+  if ('Paystack charges' in tRows || tRows['Total'] !== '₦46,500' || document.querySelector('.checkout-warn')) problems.push('bank transfer should have no Paystack charges or warning')
+  document.querySelector('input[value="paystack"]').click(); await sleep(60)
+  if (!document.querySelector('.checkout-warn')) problems.push('switching to Paystack should show the charges and warning')
+  rf5.unmount(); state.paystack = false; window.localStorage.removeItem('viverst-shop:cart')
 }
 
 console.log('\n DELIVERY ZONES')

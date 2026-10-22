@@ -274,3 +274,6 @@ body { font-variation-settings: "wdth" 100, "opsz" 14; }
 /* clear the sticky header when "Choose a package" jumps here; it is two lines tall on phones */
 #fp-packages { scroll-margin-top: 130px; }
 @media (max-width: 800px) { #fp-packages { scroll-margin-top: 170px; } }
+/* checkout: pay the full amount, Paystack charges included */
+.checkout-warn { margin: 4px 0 2px; padding: 10px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.45; font-weight: 600;
+  color: #6b4700; background: color-mix(in srgb, var(--accent) 22%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent); }

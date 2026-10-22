@@ -379,6 +379,29 @@ ok('every site shows the same phone number, +234 906 034 2734',
      /disabled=\{!p\.inStock\}/.test(read('apps/shop/src/components/ProductCard.jsx')) && /\{p\.inStock \? \(/.test(read('apps/shop/src/pages/Product.jsx')))
 }
 
+/* Paystack charges paid by the customer (migration 021): once per payment */
+{
+  const f21 = 'supabase/migrations/021_paystack_charges.sql'
+  const s21 = fs.existsSync(f21) ? read(f21) : ''
+  const { paystackCharge } = await import('./apps/shop/src/lib/paystack.js')
+  const table = [[4999900, 86300], [7499900, 124400], [12499900, 200000]].map(([net, want]) => paystackCharge(net) === want)
+  ok('Paystack charges: Merry ₦863, Jolly ₦1,244, Berekete ₦2,000 (capped)', table.every(Boolean), table.join(', '))
+  ok('Paystack charges: 1.5% + ₦100, waived under ₦2,500, capped at ₦2,000, in shop and database alike',
+     /least\(ceil\(p_gross \* 15 \/ 1000\.0\)::bigint \+ case when p_gross >= 250000 then 10000 else 0 end, 200000\)/.test(s21)
+     && read('apps/shop/src/lib/paystack.js').includes('Math.min(Math.ceil((gross * 15) / 1000) + (gross >= 250000 ? 10000 : 0), 200000)'))
+  const fn = (s) => (s.match(/create or replace function public\.place_order\([\s\S]*?\nend \$\$;/) || [''])[0]
+  ok('place_order adds the charge once, on the whole order, for Paystack only',
+     /if p_payment_method = 'paystack' then v_fee := public\.paystack_charge\(v_subtotal \+ v_delivery\); end if;/.test(fn(s21))
+     && fn(s21).includes('v_subtotal, v_delivery, v_fee, v_subtotal + v_delivery + v_fee,'))
+  ok('analytics and today’s takings count what the shop keeps, not the charges',
+     (s21.match(/total_kobo - fee_kobo/g) || []).length === 2 && read('apps/admin/src/pages/Dashboard.jsx').includes("Number(o.total_kobo) - Number(o.fee_kobo || 0)"))
+  ok('checkout shows the charges and the full-payment warning with Paystack',
+     read('apps/shop/src/pages/Checkout.jsx').includes("const charges = pay === 'paystack' && !needArea ? paystackCharge(subtotal + fee) : 0")
+     && read('apps/shop/src/pages/Checkout.jsx').includes('Please pay the full amount shown, including Paystack charges.'))
+  ok('the order email and the admin order show the charges',
+     read('supabase/functions/notify-email/index.ts').includes('Paystack charges') && read('apps/admin/src/pages/Orders.jsx').includes('Paystack charges') && /drop view if exists public\.order_detail;/.test(s21))
+}
+
 /* WhatsApp in every footer, and on each shop product */
 for (const [app, file] of [['main', 'apps/main/src/components/Footer.jsx'], ['agro', 'apps/agro/src/components/Footer.jsx'], ['studio', 'apps/studio/src/components/Footer.jsx'], ['shop', 'apps/shop/src/components/Footer.jsx']]) {
   const c = read(file)

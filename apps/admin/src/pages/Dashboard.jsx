@@ -29,7 +29,7 @@ export default function Dashboard() {
       }
       const [awaiting, today, low, recent, content] = await Promise.all([
         supabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'awaiting_payment'),
-        supabase.from('orders').select('total_kobo').gte('created_at', todayStart()).not('status', 'in', '("cancelled","refunded")'),
+        supabase.from('orders').select('*').gte('created_at', todayStart()).not('status', 'in', '("cancelled","refunded")'),
         supabase.from('inventory').select('product_id, on_hand, low_stock_at, products!inner(name, active)').eq('products.active', true),
         supabase.from('orders').select('id, number, name, status, total_kobo, created_at').order('created_at', { ascending: false }).limit(8),
         supabase.rpc('content_counts'),
@@ -41,7 +41,8 @@ export default function Dashboard() {
       setData({
         awaiting: awaiting.count || 0,
         todayCount: today.data.length,
-        todayKobo: today.data.reduce((s, o) => s + Number(o.total_kobo), 0),
+        // what the shop keeps: the total less any Paystack charges
+        todayKobo: today.data.reduce((s, o) => s + Number(o.total_kobo) - Number(o.fee_kobo || 0), 0),
         low: lowRows, recent: recent.data, content: content.data || {},
       })
     })()
