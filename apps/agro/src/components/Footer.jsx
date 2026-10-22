@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Mail, Phone, MapPin, ArrowUpRight } from 'lucide-react'
-import { Reveal, Float, SocialLinks } from '@viverst/ui'
-import { BUSINESS, NAV_LINKS, FOCUS_AREAS, SOCIALS } from '../data/agro.js'
+import { Reveal, Float, SocialLinks, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
+import { BUSINESS, NAV_LINKS, FOCUS_AREAS, SOCIALS, WHATSAPP } from '../data/agro.js'
 import wordmark from '@brand-assets/agro/wordmark-light.webp'
 import './Footer.css'
 
@@ -25,6 +25,10 @@ export default function Footer() {
             </a>
             <a className="footer-contact" href={`tel:${BUSINESS.phone.replace(/\s/g, '')}`}>
               <Phone size={15} aria-hidden="true" /> {BUSINESS.phone}
+            </a>
+            <a className="footer-contact" target="_blank" rel="noopener noreferrer"
+               href={whatsappUrl(WHATSAPP, whatsappMessage({ business: BUSINESS.name, site: BUSINESS.site }))}>
+              <SocialIcon name="whatsapp" size={15} /> Chat on WhatsApp
             </a>
             <span className="footer-contact footer-contact--plain">
               <MapPin size={15} aria-hidden="true" /> {BUSINESS.city}, {BUSINESS.country}

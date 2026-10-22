@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Minus, Plus, ShoppingBag } from 'lucide-react'
-import { Seo } from '@viverst/ui'
+import { Seo, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
 import { getProduct } from '../lib/catalog.js'
 import { money } from '../lib/format.js'
 import { useCart } from '../lib/cartContext.js'
+import { SHOP } from '../lib/config.js'
 
-export default function Product({ shopName }) {
+export default function Product({ shopName, contact }) {
   const { slug } = useParams()
-  return <ProductView key={slug} slug={slug} shopName={shopName} />
+  return <ProductView key={slug} slug={slug} shopName={shopName} contact={contact} />
 }
 
-function ProductView({ slug, shopName }) {
+function ProductView({ slug, shopName, contact }) {
   const { add } = useCart()
   const [p, setP] = useState(undefined)
   const [qty, setQty] = useState(1)
@@ -55,6 +56,10 @@ function ProductView({ slug, shopName }) {
             </div>
           ) : <p className="product-out">Sold out for now. Check back soon or <a href="mailto:agro@viverst.com">ask us when it’s in</a>.</p>}
           {p.available < 10 && p.inStock && <p className="product-low">Only {p.available} left.</p>}
+          <a className="btn product-ask" target="_blank" rel="noopener noreferrer"
+             href={whatsappUrl(contact?.whatsapp || SHOP.whatsapp, whatsappMessage({ business: shopName, site: SHOP.url, say: `I would like to ask about ${p.name} (${p.unit}, ${money(p.price_kobo)}).` }))}>
+            <SocialIcon name="whatsapp" size={16} /> Ask about this product on WhatsApp
+          </a>
           {paras.length > 0 && <div className="product-desc">{paras.map((t, i) => <p key={i}>{t}</p>)}</div>}
         </div>
       </div>

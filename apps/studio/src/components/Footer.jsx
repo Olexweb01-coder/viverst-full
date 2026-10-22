@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Icon, SocialLinks } from '@viverst/ui'
-import { BUSINESS, NAV_LINKS, FOCUS_AREAS, SOCIALS } from '../data/studio.js'
+import { Icon, SocialLinks, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
+import { BUSINESS, NAV_LINKS, FOCUS_AREAS, SOCIALS, WHATSAPP } from '../data/studio.js'
 
 import icon from '@brand-assets/studio/icon.webp'
 import wordmarkLight from '@brand-assets/studio/wordmark-light.webp'
@@ -22,6 +22,10 @@ export default function Footer() {
             </a>
             <a className="foot-contact" href={`tel:${BUSINESS.phone.replace(/\s/g, '')}`}>
               <Icon name="phone" size={15} /> {BUSINESS.phone}
+            </a>
+            <a className="foot-contact" target="_blank" rel="noopener noreferrer"
+               href={whatsappUrl(WHATSAPP, whatsappMessage({ business: BUSINESS.name, site: BUSINESS.site }))}>
+              <SocialIcon name="whatsapp" size={15} /> Chat on WhatsApp
             </a>
             <span className="foot-contact">
               <Icon name="pin" size={15} /> {BUSINESS.city}, {BUSINESS.country}

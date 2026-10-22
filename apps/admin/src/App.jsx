@@ -10,6 +10,7 @@ import ProductEdit from './pages/ProductEdit.jsx'
 import Inventory from './pages/Inventory.jsx'
 import Orders from './pages/Orders.jsx'
 import Settings from './pages/Settings.jsx'
+import FoodPackage from './pages/FoodPackage.jsx'
 import Staff from './pages/Staff.jsx'
 import Events, { EventEdit } from './pages/Events.jsx'
 import Posts, { PostEdit } from './pages/Posts.jsx'
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="products/new" element={<Ops><ProductEdit  /></Ops>} />
             <Route path="products/:id" element={<Ops><ProductEdit  /></Ops>} />
             <Route path="inventory" element={<Ops><Inventory  /></Ops>} />
+            <Route path="food-package" element={<Ops><FoodPackage /></Ops>} />
             <Route path="posts" element={<Posts />} />
             <Route path="posts/new" element={<PostEdit />} />
             <Route path="posts/:id" element={<PostEdit />} />

@@ -296,6 +296,54 @@ ok('every site shows the same phone number, +234 906 034 2734',
      /\.product-back \{ display: flex; width: fit-content;/.test(shopCss))
 }
 
+/* ── food package: /foodpackage in the shop, edited in the admin ── */
+{
+  const mig = 'supabase/migrations/018_food_package.sql'
+  const sql = fs.existsSync(mig) ? read(mig) : ''
+  ok('migration 018 lets the shop read the food package',
+     /where key in \('payments','delivery','shop','contact','food_package'\)/.test(sql) && /on conflict \(key\) do nothing/.test(sql))
+  /* The December content lives in three places: the shop's fallback, the
+     admin's starting form and the migration. They must say the same thing. */
+  const literal = (file) => {
+    const src = read(file); const at = src.indexOf('FOOD_PACKAGE_DEFAULT = {')
+    if (at < 0) return null
+    const body = src.slice(src.indexOf('{', at), src.indexOf('\n}\n', at) + 2)
+    try { return new Function(`return (${body})`)() } catch { return null }
+  }
+  const fromShop = literal('apps/shop/src/lib/foodPackage.js')
+  const fromAdmin = literal('apps/admin/src/pages/FoodPackage.jsx')
+  let fromSql = null
+  try { fromSql = JSON.parse(sql.slice(sql.indexOf("('food_package', '") + 18, sql.indexOf("'::jsonb)"))) } catch { /* reported below */ }
+  const same = fromShop && fromAdmin && fromSql && JSON.stringify(fromShop) === JSON.stringify(fromAdmin) && JSON.stringify(fromShop) === JSON.stringify(fromSql)
+  ok('food package: shop, admin and migration hold the same December content', !!same)
+  ok('food package: the three packages and prices match the flyer',
+     JSON.stringify(fromShop?.packages?.map((p) => [p.name, p.price_kobo])) === JSON.stringify([['Merry Package', 4999900], ['Jolly Package', 7499900], ['Berekete Package', 12499900]]))
+  /* the flyer says "create of eggs" and "INSTALL MENTAL PAYMENT"; the page must not */
+  ok('food package: the flyer typos are corrected on the page',
+     !/create of eggs|install ?mental/i.test(read('apps/shop/src/lib/foodPackage.js') + read('apps/admin/src/pages/FoodPackage.jsx') + sql))
+  const flyerFile = 'packages/brand/assets/agro/img/food-package-december.webp'
+  ok('food package: the December flyer is a light web image', fs.existsSync(flyerFile) && fs.statSync(flyerFile).size < 200 * 1024)
+  ok('shop: /foodpackage is a page, with a homepage card that can be switched off',
+     read('apps/shop/src/App.jsx').includes('path="/foodpackage"') && /\{fp\.home_card && \(/.test(read('apps/shop/src/pages/Home.jsx')))
+  ok('shop: Pay online only for a linked, real, in-stock product',
+     /p\.slug === slug && !p\.sample && p\.inStock/.test(read('apps/shop/src/pages/FoodPackage.jsx')))
+  ok('admin: Food package page in the shop menu, for owners and managers',
+     read('apps/admin/src/App.jsx').includes('path="food-package" element={<Ops><FoodPackage /></Ops>}')
+     && read('apps/admin/src/components/Shell.jsx').includes("to: '/food-package'")
+     && read('apps/admin/src/pages/FoodPackage.jsx').includes("staff?.role === 'owner' || staff?.role === 'manager'"))
+  const shopVercel = JSON.parse(read('apps/shop/vercel.json'))
+  ok('sa.viverst.com forwards to the same page on shopagro.viverst.com',
+     shopVercel.redirects?.some((r) => r.has?.[0]?.value === 'sa.viverst.com' && r.destination === 'https://shopagro.viverst.com/:path*' && r.permanent === true))
+}
+/* WhatsApp in every footer, and on each shop product */
+for (const [app, file] of [['main', 'apps/main/src/components/Footer.jsx'], ['agro', 'apps/agro/src/components/Footer.jsx'], ['studio', 'apps/studio/src/components/Footer.jsx'], ['shop', 'apps/shop/src/components/Footer.jsx']]) {
+  const c = read(file)
+  ok(`${app}: footer has a WhatsApp chat that names the branch, after the phone`,
+     c.includes('whatsappMessage({ business:') && c.indexOf('tel:') > -1 && c.indexOf('whatsappUrl(') > c.indexOf('tel:'))
+}
+ok('shop: every product can be asked about on WhatsApp',
+   /I would like to ask about \$\{p\.name\} \(\$\{p\.unit\}, \$\{money\(p\.price_kobo\)\}\)/.test(read('apps/shop/src/pages/Product.jsx')))
+
 /* An unclosed comment silently disables every rule after it until the next
    comment closes. It happened once in the admin and turned all filter bars
    into plain grey buttons; no test noticed because jsdom ignores styling. */

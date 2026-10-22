@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
-import { SocialLinks } from '@viverst/ui'
+import { SocialLinks, whatsappUrl, whatsappMessage } from '@viverst/ui'
 import wordmark from '@brand-assets/agro/wordmark-light.webp'
 import { SHOP, SOCIALS } from '../lib/config.js'
 
-export default function Footer({ contact }) {
+export default function Footer({ contact, shopName }) {
   // the number set in the admin, when there is one; otherwise the standing one
   const phone = contact?.phone || SHOP.phone
   return (
@@ -16,7 +16,8 @@ export default function Footer({ contact }) {
           <a href={SHOP.parentUrl}>agro.viverst.com</a>
           {contact?.email && <a href={`mailto:${contact.email}`}>{contact.email}</a>}
           <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{phone}</a>
-          {contact?.whatsapp && <a href={`https://wa.me/${contact.whatsapp}`}>WhatsApp</a>}
+          <a href={whatsappUrl(contact?.whatsapp || SHOP.whatsapp, whatsappMessage({ business: shopName || SHOP.name, site: SHOP.url }))}
+             target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
         </div>
         <p className="shop-footer-small">© {new Date().getFullYear()} {SHOP.group}. {SHOP.city}, {SHOP.country}.</p>
       </div>

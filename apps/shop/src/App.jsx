@@ -15,6 +15,7 @@ import Checkout from './pages/Checkout.jsx'
 import OrderPlaced from './pages/OrderPlaced.jsx'
 import NotFound from './pages/NotFound.jsx'
 import Account from './pages/Account.jsx'
+import FoodPackage from './pages/FoodPackage.jsx'
 
 function Frame() {
   const { pathname } = useLocation()
@@ -26,9 +27,10 @@ function Frame() {
       <Header />
       <main id="main" data-path={pathname}>
         <Routes>
-          <Route path="/" element={<Home shopName={shopName} contact={settings.contact} />} />
+          <Route path="/" element={<Home shopName={shopName} contact={settings.contact} foodPackage={settings.food_package} />} />
+          <Route path="/foodpackage" element={<FoodPackage shopName={shopName} settings={settings} />} />
           <Route path="/products" element={<Products shopName={shopName} />} />
-          <Route path="/products/:slug" element={<Product shopName={shopName} />} />
+          <Route path="/products/:slug" element={<Product shopName={shopName} contact={settings.contact} />} />
           <Route path="/cart" element={<Cart shopName={shopName} delivery={settings.delivery} />} />
           <Route path="/checkout" element={<Checkout shopName={shopName} settings={settings} />} />
           <Route path="/order/:number" element={<OrderPlaced shopName={shopName} settings={settings} />} />
@@ -36,7 +38,7 @@ function Frame() {
           <Route path="*" element={<NotFound shopName={shopName} />} />
         </Routes>
       </main>
-      <Footer contact={settings.contact} />
+      <Footer contact={settings.contact} shopName={settings.shop?.name} />
     </>
   )
 }

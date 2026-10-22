@@ -26,7 +26,7 @@ function audit(route) {
 const root = createRoot(document.getElementById('root')); root.render(<App />)
 
 console.log('\n ROUTES')
-for (const [path, expect] of [['/', 'Good produce'], ['/products', 'Everything we sell'], ['/products/yellow-maize', 'Yellow maize'], ['/products/nope', 'don’t have that one'], ['/cart', 'Your cart'], ['/checkout', 'empty'], ['/account', 'Sign in'], ['/no-such', 'Nothing on that shelf']]) {
+for (const [path, expect] of [['/', 'Good produce'], ['/products', 'Everything we sell'], ['/products/yellow-maize', 'Yellow maize'], ['/products/nope', 'don’t have that one'], ['/cart', 'Your cart'], ['/checkout', 'empty'], ['/account', 'Sign in'], ['/foodpackage', 'December Food Package'], ['/no-such', 'Nothing on that shelf']]) {
   go(path); await waitFor(() => h1().includes(expect), `${path} → "${expect}"`); await sleep(120); audit(path)
   console.log(`  ${path.padEnd(24)} ${h1().slice(0, 44)}`)
 }
@@ -115,6 +115,64 @@ document.querySelector('.checkout').requestSubmit(); await waitFor(() => h1().in
 console.log(`  order as signed-in customer → address upsert ${state.writes.some((w) => w.table === 'addresses' && w.op === 'upsert') ? 'saved' : 'MISSING'}`)
 if (!state.writes.some((w) => w.table === 'addresses')) problems.push('address not saved for signed-in customer')
 ra.unmount(); state.user = null
+
+console.log('\n FOOD PACKAGE')
+{
+  const txt = (a) => (a ? new URL(a.href).searchParams.get('text') || '' : '')
+  const rf = createRoot(document.getElementById('root')); rf.render(<App />)
+  go('/'); await waitFor(() => document.querySelector('.fp-promo'), 'food package card on the homepage')
+  const promo = document.querySelector('.fp-promo')
+  console.log(`  homepage card → ${promo?.getAttribute('href')} · "${promo?.querySelector('.fp-promo-title')?.textContent}" · "${promo?.querySelector('.fp-promo-text')?.textContent}"`)
+  if (promo?.getAttribute('href') !== '/foodpackage') problems.push('food package card does not lead to /foodpackage')
+  if (!promo?.textContent.includes('3 packages from ₦49,999')) problems.push('food package card should say 3 packages from ₦49,999')
+  promo?.click(); await waitFor(() => h1() === 'December Food Package', 'the card opens the page')
+  const cards = [...document.querySelectorAll('.fp-card')]
+  console.log(`  page → ${cards.map((c) => `${c.querySelector('h3')?.textContent} ${c.querySelector('.fp-price')?.textContent} (${c.querySelectorAll('.fp-items li').length} items)`).join(' · ')}`)
+  const want = [['Merry Package', '₦49,999'], ['Jolly Package', '₦74,999'], ['Berekete Package', '₦124,999']]
+  if (cards.length !== 3) problems.push(`expected 3 packages, found ${cards.length}`)
+  want.forEach(([n, pr], i) => {
+    const c = cards[i]
+    if (c?.querySelector('h3')?.textContent !== n || c?.querySelector('.fp-price')?.textContent !== pr || c?.querySelectorAll('.fp-items li').length !== 4) problems.push(`package ${i + 1} should be ${n} at ${pr} with 4 items`)
+    const a = c?.querySelector('a[href^="https://wa.me/"]')
+    if (!a?.href.startsWith('https://wa.me/2348000000000?text=')) problems.push(`${n}: booking link goes to ${a?.href}`)
+    else if (!txt(a).includes(`book the ${n} (${pr}) from the December Food Package`) || !txt(a).includes('instalments')) problems.push(`${n}: booking message is "${txt(a)}"`)
+    if (a && (a.target !== '_blank' || !/noopener/.test(a.rel))) problems.push(`${n}: booking link must open a new tab with rel="noopener"`)
+  })
+  console.log(`  booking message → "${txt(cards[1]?.querySelector('a[href^="https://wa.me/"]')).replace(/\n+/g, ' / ')}"`)
+  if (/create of eggs/i.test(document.body.textContent)) problems.push('the flyer typo "create of eggs" is on the page')
+  if (!document.querySelector('.fp-instalment')?.textContent.includes('Instalment payment available')) problems.push('instalment note missing')
+  if (!document.querySelector('.fp-season')?.textContent.includes('This offer is for December')) problems.push('season note missing')
+  if (document.querySelector('.fp-actions button')) problems.push('Pay online shown while checkout is off')
+  if (!document.querySelector('.fp-flyer img')?.getAttribute('src')?.includes('food-package-december')) problems.push('the December flyer is not the page image')
+  audit('/foodpackage (default)')
+
+  go('/products/yellow-maize'); await waitFor(() => document.querySelector('.product-ask'), 'ask on WhatsApp on the product page')
+  const ask = document.querySelector('.product-ask')
+  console.log(`  product page → "${ask?.textContent.trim()}" → "${txt(ask).replace(/\n+/g, ' / ')}"`)
+  if (!ask?.href.startsWith('https://wa.me/2348000000000?text=') || !txt(ask).includes('I would like to ask about Yellow maize (50 kg bag, ₦45,000).') || !txt(ask).includes('(shopagro.viverst.com)')) problems.push('product WhatsApp message wrong')
+  const fwa = [...document.querySelectorAll('.shop-footer a')].find((a) => a.textContent === 'Chat on WhatsApp')
+  console.log(`  footer → "${txt(fwa).replace(/\n+/g, ' / ')}"`)
+  if (!fwa?.href.startsWith('https://wa.me/2348000000000?text=') || !txt(fwa).startsWith('Hello Viverst Agro Shop, I am contacting you from your website (shopagro.viverst.com).')) problems.push('footer WhatsApp link wrong')
+  rf.unmount()
+
+  // edited in the admin: a new season, homepage card off, checkout on
+  state.foodPackage = { title: 'Easter Food Package', short: 'EFP', home_card: false, checkout: true, instalment: false, season_note: '',
+    packages: [{ name: 'Small Box', price_kobo: 4500000, product_slug: 'yellow-maize', items: ['Rice'] }, { name: 'Big Box', price_kobo: 9000000, product_slug: 'red-palm-oil', items: ['Oil'] }, { name: '', price_kobo: 100, items: [] }] }
+  window.localStorage.removeItem('viverst-shop:cart')
+  const rf2 = createRoot(document.getElementById('root')); rf2.render(<App />)
+  go('/'); await waitFor(() => document.querySelectorAll('.cat-tile').length === 4, 'homepage'); await sleep(250)
+  if (document.querySelector('.fp-promo')) problems.push('homepage card shown while switched off')
+  go('/foodpackage'); await waitFor(() => h1() === 'Easter Food Package' && document.querySelector('.fp-actions button'), 'the edited package with Pay online')
+  const pays = [...document.querySelectorAll('.fp-card')].map((c) => !!c.querySelector('.fp-actions button'))
+  console.log(`  edited in the admin → "${h1()}", ${pays.length} packages (nameless one dropped), Pay online: ${pays.join(', ')}`)
+  if (pays.join() !== 'true,false') problems.push(`Pay online should show for the in-stock linked package only, got ${pays}`)
+  if (document.querySelector('.fp-instalment') || document.querySelector('.fp-season')) problems.push('instalment or season note shown while switched off')
+  document.querySelector('.fp-actions button')?.click()
+  await waitFor(() => h1().includes('Your cart') && document.querySelector('.cart-item'), 'cart holding the package product')
+  console.log(`  Pay online → cart holds ${document.querySelector('.cart-item')?.textContent.includes('Yellow maize') ? '"Yellow maize", the linked product' : 'the wrong item'}`)
+  if (!document.querySelector('.cart-item')?.textContent.includes('Yellow maize')) problems.push('Pay online did not put the linked product in the cart')
+  rf2.unmount(); state.foodPackage = undefined; window.localStorage.removeItem('viverst-shop:cart')
+}
 
 console.log('\n DELIVERY ZONES')
 state.zones = true; window.localStorage.removeItem('viverst-shop:cart')

@@ -9,6 +9,8 @@ const SETTINGS = [
   { key: 'delivery', get value() { return state.zones ? { mode: 'zones', home_state: 'Lagos', home_default_kobo: 250000, areas: [{ name: 'Ikeja', fee_kobo: 200000 }, { name: 'Lekki', fee_kobo: 350000 }], outside_default_kobo: 800000, state_fees: { Ogun: 500000 }, note: 'We call to confirm.' } : { flat_fee_kobo: 150000, note: 'Lagos only for now.' } } },
   { key: 'payments', get value() { return { transfer: { enabled: true, bank_name: 'GTBank', account_name: 'Viverst Agro', account_number: '0123456789', instructions: 'Pay and send the reference.' }, paystack: { enabled: state.paystack, public_key: 'pk_test_x' } } } },
   { key: 'contact', value: { email: 'agro@viverst.com', whatsapp: '2348000000000' } },
+  // undefined until a test sets it: the shop then shows its built-in December package
+  { key: 'food_package', get value() { return state.foodPackage } },
 ]
 function builder(table) {
   const f = []; let single = false

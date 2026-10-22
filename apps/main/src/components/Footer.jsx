@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { Float, SocialLinks } from '@viverst/ui'
+import { Float, SocialLinks, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin } from 'lucide-react'
-import { COMPANY, NAV_LINKS, SOCIALS } from '../data/site.js'
+import { COMPANY, NAV_LINKS, SOCIALS, WHATSAPP } from '../data/site.js'
 import logoLight from '@brand-assets/main/logo-light.webp'
 import './Footer.css'
 
@@ -24,6 +24,10 @@ export default function Footer() {
             </a>
             <a className="footer-contact" href={`tel:${COMPANY.phone.replace(/\s/g, '')}`}>
               <Phone size={15} aria-hidden="true" /> {COMPANY.phone}
+            </a>
+            <a className="footer-contact" target="_blank" rel="noopener noreferrer"
+               href={whatsappUrl(WHATSAPP, whatsappMessage({ business: COMPANY.legalName, site: COMPANY.domain }))}>
+              <SocialIcon name="whatsapp" size={15} /> Chat on WhatsApp
             </a>
             <span className="footer-contact footer-contact--plain">
               <MapPin size={15} aria-hidden="true" /> {COMPANY.city}, {COMPANY.country}

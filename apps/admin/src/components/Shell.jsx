@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { LayoutDashboard, Package, Boxes, ShoppingBag, Settings, Users, LogOut, Newspaper, CalendarDays, Sparkles, MessageSquare, Bell, BarChart3, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Package, Boxes, ShoppingBag, Settings, Users, LogOut, Newspaper, CalendarDays, Sparkles, MessageSquare, Bell, BarChart3, Menu, X, Gift } from 'lucide-react'
 import { supabase } from '../lib/supabase.js'
 import { useAuth } from '../lib/hooks.js'
 import logoLight from '@brand-assets/main/logo-light.webp'
@@ -19,6 +19,7 @@ const NAV = [
   { to: '/orders',     label: 'Orders',     icon: ShoppingBag, ops: true },
   { to: '/products',   label: 'Products',   icon: Package, ops: true },
   { to: '/inventory',  label: 'Stock',      icon: Boxes, ops: true },
+  { to: '/food-package', label: 'Food package', icon: Gift, ops: true },
   { group: 'Admin', ops: true },
   { to: '/analytics',  label: 'Analytics',  icon: BarChart3, ops: true },
   { to: '/settings',   label: 'Settings',   icon: Settings, ops: true },

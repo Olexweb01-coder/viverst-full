@@ -23,6 +23,7 @@ const ROUTES = [
   ['/events/e1', 'Reimagining Agriculture'],
   ['/analytics', 'Analytics'],
   ['/settings', 'Settings'],
+  ['/food-package', 'Food package'],
   ['/staff', 'Staff'],
   ['/no-such-page', 'Good'],
 ]
@@ -320,15 +321,63 @@ const added = rpcCalls.filter((c) => c.name === 'add_staff').pop()
 console.log(`  add → add_staff(${added?.args.p_email}, ${added?.args.p_role})`)
 if (added?.args.p_email !== 'new@x.com') problems.push('add_staff not called correctly')
 
+console.log('\n FOOD PACKAGE')
+{
+  go('/food-package'); await waitFor(() => h1() === 'Food package' && document.querySelectorAll('section.panel').length === 4, 'four food package panels')
+  const panel = (t) => [...document.querySelectorAll('section.panel')].find((p) => p.querySelector('h2')?.textContent === t)
+  const prices = () => [...document.querySelectorAll('input[inputmode="decimal"]')]
+  // a save disables the form until it has also checked the shop can see the row
+  const ready = (label) => waitFor(() => !document.querySelector('.page fieldset')?.disabled, label)
+  const title = [...document.querySelectorAll('input.input')].find((i) => i.value === 'December Food Package')
+  console.log(`  loaded, nothing saved yet → the flyer: "${title?.value}", prices ${prices().map((i) => i.value).join(', ')}`)
+  if (!title || prices().map((i) => i.value).join() !== '49999.00,74999.00,124999.00') problems.push('food package does not start from the flyer')
+  if (!document.querySelector('.images img')?.getAttribute('src')?.includes('food-package-december')) problems.push('admin does not preview the December flyer')
+
+  setVal(prices()[1], '79999'); await sleep(30)
+  state.writes.length = 0; panel('Packages').querySelector('.panel-head .btn').click()
+  await waitFor(() => state.writes.some((w) => w.table === 'settings'), 'food package saved')
+  const fw = state.writes.find((w) => w.table === 'settings')?.row
+  console.log(`  change Jolly to ₦79,999 and save → ${fw?.key}: ${fw?.value.packages.map((p) => `${p.name} ₦${p.price_kobo / 100}`).join(', ')}`)
+  if (fw?.key !== 'food_package' || fw.value.packages[1].price_kobo !== 7999900 || fw.value.packages[0].items.length !== 4 || fw.value.home_card !== true || fw.value.checkout !== false) problems.push('food package saved wrong')
+  await waitFor(() => document.body.textContent.includes('018_food_package.sql'), 'reminder to run migration 018')
+  console.log('  the shop cannot read it yet → admin says to run 018_food_package.sql')
+  await ready('form ready after save')
+
+  const file = new window.File(['x'], 'easter.png', { type: 'image/png' })
+  const fileIn = panel('Image').querySelector('input[type=file]')
+  Object.defineProperty(fileIn, 'files', { value: [file], configurable: true }); fileIn.dispatchEvent(new window.Event('change', { bubbles: true }))
+  await waitFor(() => panel('Image').querySelector('.images img')?.getAttribute('src')?.startsWith('https://cdn.test/food-package/'), 'uploaded image previewed')
+  state.writes.length = 0; panel('Image').querySelector('.panel-head .btn').click(); await waitFor(() => state.writes.some((w) => w.table === 'settings'), 'image saved')
+  await ready('form ready after image save')
+  const img = state.writes.find((w) => w.table === 'settings')?.row.value.image
+  console.log(`  replace the image → uploaded to ${state.uploads.at(-1)}, saved as ${img}`)
+  if (!img?.startsWith('food-package/') || img !== state.uploads.at(-1)) problems.push('replacement image not saved')
+
+  const checkout = [...document.querySelectorAll('label.check')].find((l) => l.textContent.includes('pay online')).querySelector('input')
+  checkout.click(); await sleep(30)
+  state.writes.length = 0; panel('Booking').querySelector('.panel-head .btn').click(); await sleep(120)
+  const refused = document.querySelector('.note-error')?.textContent || ''
+  console.log(`  checkout on, nothing linked → refused: "${refused.slice(0, 70)}…"`)
+  if (state.writes.length || !refused.includes('no package is linked')) problems.push('checkout with no linked product was not refused')
+  const sel = panel('Packages').querySelector('select'); setVal(sel, 'yellow-maize'); await sleep(30)
+  state.writes.length = 0; panel('Booking').querySelector('.panel-head .btn').click(); await waitFor(() => state.writes.some((w) => w.table === 'settings'), 'saved with link'); await ready('form ready after linked save')
+  const lw = state.writes.find((w) => w.table === 'settings')?.row.value
+  console.log(`  link Merry to Yellow maize → checkout=${lw?.checkout}, Merry product=${lw?.packages[0].product_slug}`)
+  if (lw?.checkout !== true || lw?.packages[0].product_slug !== 'yellow-maize') problems.push('linked product not saved')
+  if (![...document.querySelectorAll('.note-info')].some((n) => n.textContent.includes('costs ₦45,000'))) problems.push('no warning that the linked product price differs')
+  audit('/food-package')
+}
+
 console.log('\n WRITER ROLE')
 state.role = 'writer'
 root.unmount(); const rw = createRoot(document.getElementById('root')); rw.render(<App />); go('/')
 await waitFor(() => h1().startsWith('Good') && document.querySelectorAll('.rail nav a').length === 5 && document.querySelectorAll('.figure').length === 1, 'writer menu', 8000)
 console.log(`  menu → ${[...document.querySelectorAll('.rail nav a')].map((a) => a.textContent.replace(/\d+$/, '')).join(' · ')}; figures ${document.querySelectorAll('.figure').length} (content only)`)
-if ([...document.querySelectorAll('.rail nav a')].some((a) => /Orders|Products|Stock|Events|Settings|Staff|Analytics/.test(a.textContent))) problems.push('writer menu shows ops items')
+if ([...document.querySelectorAll('.rail nav a')].some((a) => /Orders|Products|Stock|Food package|Events|Settings|Staff|Analytics/.test(a.textContent))) problems.push('writer menu shows ops items')
 go('/orders'); await waitFor(() => h1() === 'Blog', 'orders bounced to blog')
 console.log(`  /orders as writer → "${h1()}" (${window.location.pathname})`)
 go('/settings'); await waitFor(() => h1() === 'Blog', 'settings bounced'); console.log(`  /settings as writer → ${window.location.pathname}`)
+go('/food-package'); await waitFor(() => h1() === 'Blog', 'food package bounced'); console.log(`  /food-package as writer → ${window.location.pathname}`)
 go('/posts/new'); await waitFor(() => h1() === 'Write a post', 'writer can write'); console.log(`  /posts/new as writer → "${h1()}"`)
 rw.unmount(); state.role = 'owner'
 

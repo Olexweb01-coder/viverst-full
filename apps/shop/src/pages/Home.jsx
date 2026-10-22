@@ -4,11 +4,14 @@ import { ArrowRight, PhoneCall, Truck, ShoppingBag, ShieldCheck, Scale, CreditCa
 import { Seo, Reveal } from '@viverst/ui'
 import { getProducts } from '../lib/catalog.js'
 import { CATEGORY_TILES } from '../lib/seed.js'
+import { foodPackage, fromPrice, FOOD_PACKAGE_PATH } from '../lib/foodPackage.js'
+import { money } from '../lib/format.js'
 import ProductCard from '../components/ProductCard.jsx'
 import hero from '@brand-assets/agro/img/chain-market.webp'
 import bulk from '@brand-assets/agro/img/farm-from-above.webp'
 
-export default function Home({ shopName, contact }) {
+export default function Home({ shopName, contact, foodPackage: savedPackage }) {
+  const fp = foodPackage(savedPackage)
   const [products, setProducts] = useState(null)
   useEffect(() => { getProducts().then(setProducts) }, [])
   const featured = (products || []).filter((p) => p.featured).slice(0, 4)
@@ -30,6 +33,24 @@ export default function Home({ shopName, contact }) {
           </Reveal>
         </div>
       </section>
+
+      {fp.home_card && (
+        <section className="section section--tight fp-promo-wrap">
+          <div className="container">
+            <Reveal>
+              <Link to={FOOD_PACKAGE_PATH} className="fp-promo">
+                <img src={fp.image} alt="" width="1200" height="1200" loading="lazy" decoding="async" />
+                <span className="fp-promo-body">
+                  <span className="eyebrow">Now booking · {fp.short}</span>
+                  <strong className="fp-promo-title">{fp.title}</strong>
+                  <span className="fp-promo-text">{fp.packages.length} packages from {money(fromPrice(fp))}.{fp.instalment ? ' Instalment payment available.' : ''}</span>
+                  <span className="btn btn--primary fp-promo-go">See the packages <ArrowRight size={16} aria-hidden="true" /></span>
+                </span>
+              </Link>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       <section className="section section--tight">
         <div className="container">
