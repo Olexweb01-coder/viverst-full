@@ -2,7 +2,7 @@ import {
   Compass, ShieldCheck, Layers, Network, Building2, TrendingUp, Lightbulb, Zap,
   Crown, Award, Users, Shuffle, Anchor, Puzzle, Heart, Cpu, Factory, Package,
   Truck, Gem, PenTool, Printer, Box, Target, Type, Eye, Sparkles,
-  Sprout, Link2, Wrench, Leaf, Gauge, Mail, MapPin, Send, Check,
+  Sprout, Link2, Wrench, Leaf, Gauge, Mail, Phone, MapPin, Send, Check,
   ArrowRight, ArrowUpRight, ArrowLeft, Menu, X, Briefcase, Handshake,
 } from 'lucide-react'
 
@@ -18,7 +18,7 @@ const ICONS = {
   truck: Truck, gem: Gem, pen: PenTool, printer: Printer, box: Box,
   target: Target, type: Type, eye: Eye, sparkles: Sparkles,
   sprout: Sprout, link: Link2, wrench: Wrench, leaf: Leaf, gauge: Gauge,
-  mail: Mail, pin: MapPin, send: Send, check: Check, briefcase: Briefcase,
+  mail: Mail, phone: Phone, pin: MapPin, send: Send, check: Check, briefcase: Briefcase,
   handshake: Handshake, arrowRight: ArrowRight, arrowUpRight: ArrowUpRight,
   arrowLeft: ArrowLeft, menu: Menu, close: X,
 }

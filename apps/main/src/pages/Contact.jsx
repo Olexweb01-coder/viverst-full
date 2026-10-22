@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Tilt, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mail, MapPin, Send, Check, Building2 } from 'lucide-react'
+import { Mail, Phone, MapPin, Send, Check, Building2 } from 'lucide-react'
 
 import Seo from '../components/Seo.jsx'
 import Reveal from '../components/Reveal.jsx'
@@ -65,6 +65,14 @@ export default function Contact() {
               <span className="contact-icon"><Mail size={18} aria-hidden="true" /></span>
               <span className="contact-label">Email</span>
               <span className="contact-value">{COMPANY.email}</span>
+            </a>
+            </Tilt>
+
+            <Tilt as="div" className="contact-card contact-card--link" max={5}>
+            <a className="contact-card-a" href={`tel:${COMPANY.phone.replace(/\s/g, '')}`}>
+              <span className="contact-icon"><Phone size={18} aria-hidden="true" /></span>
+              <span className="contact-label">Phone</span>
+              <span className="contact-value">{COMPANY.phone}</span>
             </a>
             </Tilt>
 

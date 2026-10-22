@@ -18,7 +18,7 @@ export const COMPANY = {
   country: "Nigeria",
   email: "info@viverst.com",
   hrEmail: "hr@viverst.com",
-  phone: "+234 000 000 0000",
+  phone: "+234 906 034 2734",
   domain: "https://www.viverst.com",
 };
 

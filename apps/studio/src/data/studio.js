@@ -14,6 +14,7 @@ export const BUSINESS = {
   siblingUrl: 'https://agro.viverst.com',
   site: 'https://studio.viverst.com',
   email: 'studio@viverst.com',
+  phone: '+234 906 034 2734',
   city: 'Lagos',
   country: 'Nigeria',
   industry: 'Brand, design and visual communication',

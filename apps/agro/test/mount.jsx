@@ -12,7 +12,6 @@ const ROUTES = [
   ['/', 'Transforming agriculture'],
   ['/about', 'Viverst Agro works across'],
   ['/solutions', 'Seven areas'],
-  ['/products', 'What we grow'],
   ['/contact', 'where you are losing money'],
   ['/not-a-real-page', 'Nothing growing here'],
 ]
@@ -101,7 +100,7 @@ const run = async () => {
     const wa = `https://wa.me/${WHATSAPP.replace(/\D/g, '')}?text=`
     for (const a of host.querySelectorAll('a[href^="http"]')) {
       const h = a.getAttribute('href')
-      if (!/^https:\/\/(www|agro|studio)\.viverst\.com/.test(h) && !allowed.has(h) && !h.startsWith(wa)) {
+      if (!/^https:\/\/(www|agro|studio|shopagro)\.viverst\.com/.test(h) && !allowed.has(h) && !h.startsWith(wa)) {
         problems.push(`${path}: unexpected external link "${h}"`)
       }
     }

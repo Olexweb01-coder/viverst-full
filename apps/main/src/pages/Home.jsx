@@ -88,11 +88,6 @@ export default function Home() {
             <Magnetic><Link className="btn btn--onGlass" to="/contact">Contact us</Link></Magnetic>
           </motion.div>
         </div>
-
-        <motion.div className="scroll-cue" aria-hidden="true"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 0.8 }}>
-          <span className="scroll-cue-rail"><span className="scroll-cue-dot" /></span>
-        </motion.div>
       </section>
 
       {/* ─────────────── WHAT WE DO ─────────────── */}

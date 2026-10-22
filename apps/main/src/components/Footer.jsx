@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Float, SocialLinks } from '@viverst/ui'
 import { motion } from 'framer-motion'
-import { Mail, MapPin } from 'lucide-react'
+import { Mail, Phone, MapPin } from 'lucide-react'
 import { COMPANY, NAV_LINKS, SOCIALS } from '../data/site.js'
 import logoLight from '@brand-assets/main/logo-light.webp'
 import './Footer.css'
@@ -21,6 +21,9 @@ export default function Footer() {
             
             <a className="footer-contact" href={`mailto:${COMPANY.email}`}>
               <Mail size={15} aria-hidden="true" /> {COMPANY.email}
+            </a>
+            <a className="footer-contact" href={`tel:${COMPANY.phone.replace(/\s/g, '')}`}>
+              <Phone size={15} aria-hidden="true" /> {COMPANY.phone}
             </a>
             <span className="footer-contact footer-contact--plain">
               <MapPin size={15} aria-hidden="true" /> {COMPANY.city}, {COMPANY.country}

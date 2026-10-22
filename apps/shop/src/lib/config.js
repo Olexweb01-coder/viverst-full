@@ -5,7 +5,7 @@ export const SHOP = {
   name: 'Viverst Agro Shop',
   parent: 'Viverst Agro', parentUrl: 'https://agro.viverst.com',
   group: 'Viverst Global Limited', groupUrl: 'https://www.viverst.com',
-  email: 'agro@viverst.com', city: 'Lagos', country: 'Nigeria',
+  email: 'agro@viverst.com', phone: '+234 906 034 2734', city: 'Lagos', country: 'Nigeria',
 }
 /* The shop is Viverst Agro's, so it links to Agro's profiles. */
 export const SOCIALS = [

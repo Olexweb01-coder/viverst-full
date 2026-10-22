@@ -24,6 +24,20 @@ body { font-variation-settings: "wdth" 100, "opsz" 14; }
 .cart-link { margin-left: auto; position: relative; display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
 .cart-count { position: absolute; top: -2px; right: -2px; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--alert); color: #fff; font-size: 11.5px; font-weight: 700; display: grid; place-items: center; }
 @media (max-width: 640px) { .shop-nav-ext { display: none !important; } .shop-brand img { height: 30px; } }
+/* Below about 800px the logo, badge, links and icons cannot share one line:
+   the logo area was squeezed and the Shop badge ran into "Home". The links
+   take a second line instead; everything stays, nothing overlaps. */
+@media (max-width: 800px) {
+  .shop-header-inner { flex-wrap: wrap; column-gap: 10px; row-gap: 0; padding-top: 8px; }
+  .shop-brand { flex-shrink: 0; }
+  .shop-nav { order: 3; width: 100%; margin-left: -12px; padding-bottom: 6px; }
+}
+/* on phones the logo scales with the screen so it, the badge and both 44px
+   icons always fit the top line, down to a 320px screen */
+@media (max-width: 640px) {
+  .shop-header-inner { column-gap: 8px; }
+  .shop-brand img { height: clamp(18px, 5.6vw, 30px); }
+}
 
 /* ── hero ─────────────────────────────────────────── */
 .shop-hero { position: relative; min-height: min(78vh, 680px); display: flex; align-items: flex-end; overflow: hidden; background: var(--ink); color: #fff; }
@@ -111,7 +125,8 @@ body { font-variation-settings: "wdth" 100, "opsz" 14; }
 .product-thumbs button.active { border-color: var(--ink); }
 .product-thumbs img { width: 100%; height: 100%; object-fit: cover; }
 .product-info h1 { margin: 6px 0 8px; }
-.product-back { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: color-mix(in srgb, var(--ink) 70%, transparent); text-decoration: none; margin-bottom: 14px; }
+/* its own line above the category label; inline, the two ran together */
+.product-back { display: flex; width: fit-content; align-items: center; gap: 4px; font-size: 14px; color: color-mix(in srgb, var(--ink) 70%, transparent); text-decoration: none; margin-bottom: 14px; }
 .product-unit { color: color-mix(in srgb, var(--ink) 70%, transparent); }
 .product-price { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; display: flex; gap: 12px; align-items: baseline; margin: 10px 0 14px; }
 .product-price s { font-size: 16px; font-weight: 400; color: color-mix(in srgb, var(--ink) 55%, transparent); }

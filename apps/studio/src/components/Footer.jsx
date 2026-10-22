@@ -20,6 +20,9 @@ export default function Footer() {
             <a className="foot-contact" href={`mailto:${BUSINESS.email}`}>
               <Icon name="mail" size={15} /> {BUSINESS.email}
             </a>
+            <a className="foot-contact" href={`tel:${BUSINESS.phone.replace(/\s/g, '')}`}>
+              <Icon name="phone" size={15} /> {BUSINESS.phone}
+            </a>
             <span className="foot-contact">
               <Icon name="pin" size={15} /> {BUSINESS.city}, {BUSINESS.country}
             </span>

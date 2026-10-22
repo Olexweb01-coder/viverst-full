@@ -245,6 +245,57 @@ ok('the body covers the viewport, so the canvas never flashes before the app ren
      && read('apps/studio/src/pages/Contact.jsx').includes('mailto:'))
 }
 
+/* ── found in a visual sweep of every page, laptop and phone ── */
+/* A rail with a falling dot, built for the old light hero. On the photographic
+   hero the rail vanished and only the blue dot showed, sliding on its own. */
+ok('main: no stray scroll-cue dot on the homepage hero',
+   !/scroll-cue/.test(read('apps/main/src/pages/Home.jsx')) && !/scroll-cue/.test(read('apps/main/src/pages/Home.css')))
+/* Over the dark hero the menu icon turns white; the button kept its white
+   surface, so on phones the menu showed as a blank white circle. */
+ok('main: the phone menu button is visible over the dark hero',
+   /\.nav--onDark \.nav-toggle \{[^}]*background:/.test(read('apps/main/src/components/Navbar.css')))
+/* Agro's own Products page duplicated the shop, so it was retired: the menu's
+   "Shop" and a homepage card go to the shop, and the old address forwards
+   there permanently so no link or search result lands on a missing page. */
+{
+  const agroVercel = JSON.parse(read('apps/agro/vercel.json'))
+  const fwd = (src) => agroVercel.redirects?.find((r) => r.source === src)
+  ok('agro: /products forwards permanently to the shop',
+     fwd('/products')?.destination === 'https://shopagro.viverst.com/products' && fwd('/products')?.permanent === true
+     && fwd('/products/:path*')?.destination === 'https://shopagro.viverst.com/products/:path*')
+  ok('agro: the Products page is gone and nothing links to it',
+     !fs.existsSync('apps/agro/src/pages/Products.jsx') && !fs.existsSync('apps/agro/src/lib/adminProducts.js')
+     && !/["']\/products["']/.test(read('apps/agro/src/App.jsx') + read('apps/agro/src/data/agro.js') + read('apps/agro/src/pages/Home.jsx'))
+     && !read('apps/agro/public/sitemap.xml').includes('/products'))
+  ok('agro: the menu and a homepage card lead to the shop',
+     /\{ href: 'https:\/\/shopagro\.viverst\.com', label: 'Shop' \}/.test(read('apps/agro/src/data/agro.js'))
+     && /href: BUSINESS\.shopUrl/.test(read('apps/agro/src/pages/Home.jsx')))
+}
+
+/* The phone number sits after the email in every footer and on each contact page. */
+for (const [app, files] of Object.entries({
+  main: ['apps/main/src/components/Footer.jsx', 'apps/main/src/pages/Contact.jsx'],
+  agro: ['apps/agro/src/components/Footer.jsx', 'apps/agro/src/pages/Contact.jsx'],
+  studio: ['apps/studio/src/components/Footer.jsx', 'apps/studio/src/pages/Contact.jsx'],
+  shop: ['apps/shop/src/components/Footer.jsx'],
+})) {
+  ok(`${app}: phone number follows the email in the footer${files[1] ? ' and on the contact page' : ''}`,
+     files.every((f) => { const c = read(f); const e = c.indexOf('mailto:'), t = c.indexOf('tel:'); return e > -1 && t > e }))
+}
+ok('every site shows the same phone number, +234 906 034 2734',
+   ['apps/main/src/data/site.js', 'apps/agro/src/data/agro.js', 'apps/studio/src/data/studio.js', 'apps/shop/src/lib/config.js']
+     .every((f) => /phone: ["']\+234 906 034 2734["']/.test(read(f))))
+/* Below ~800px the shop header could not fit on one line: the Shop badge ran
+   into "Home" and the account and cart buttons were squeezed into ovals. */
+{
+  const shopCss = read('apps/shop/src/index.css')
+  ok('shop: on phones and small tablets the header links take their own line',
+     /@media \(max-width: 800px\) \{[^@]*\.shop-nav \{ order: 3; width: 100%/.test(shopCss)
+     && /\.shop-brand \{ flex-shrink: 0; \}/.test(shopCss))
+  ok('shop: "All products" sits on its own line above the category',
+     /\.product-back \{ display: flex; width: fit-content;/.test(shopCss))
+}
+
 /* An unclosed comment silently disables every rule after it until the next
    comment closes. It happened once in the admin and turned all filter bars
    into plain grey buttons; no test noticed because jsdom ignores styling. */

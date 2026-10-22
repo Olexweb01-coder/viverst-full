@@ -40,15 +40,8 @@ import doorContact from '@brand-assets/agro/img/door-contact.webp'
    product-palm-oil.webp Wikimedia Commons https://commons.wikimedia.org/wiki/File:RED_OIL_(Manja).jpg
    product-chilli.webp   Wikimedia Commons https://commons.wikimedia.org/wiki/File:Heap_of_Dried_Chili_Peppers_02.jpg
    product-seed.webp     Wikimedia Commons https://commons.wikimedia.org/wiki/File:Maize_seed_in_big_tray.jpg */
-import productMaize from '@brand-assets/agro/img/product-maize.webp'
-import productSoybeans from '@brand-assets/agro/img/product-soybeans.webp'
-import productRice from '@brand-assets/agro/img/product-rice.webp'
-import productCassava from '@brand-assets/agro/img/product-cassava.webp'
-import productPalmOil from '@brand-assets/agro/img/product-palm-oil.webp'
-import productChilli from '@brand-assets/agro/img/product-chilli.webp'
-import productSeed from '@brand-assets/agro/img/product-seed.webp'
 
-export const IMG = { farmland, irrigation, orchard, harvest, store, silos, soil, sevenAreas, farmFromAbove, doorGroup, doorContact }
+export const IMG = { farmland, irrigation, orchard, harvest, store, silos, soil, sevenAreas, farmFromAbove, doorGroup, doorContact, chainMarket }
 
 export const BUSINESS = {
   name: 'Viverst Agro',
@@ -58,6 +51,8 @@ export const BUSINESS = {
   siblingUrl: 'https://studio.viverst.com',
   site: 'https://agro.viverst.com',
   email: 'agro@viverst.com',
+  phone: '+234 906 034 2734',
+  shopUrl: 'https://shopagro.viverst.com',
   city: 'Lagos',
   country: 'Nigeria',
   industry: 'Agriculture and agribusiness',
@@ -174,65 +169,11 @@ export const SHOWCASE = [
   { key: 'greenhouse', img: greenhouse },
 ]
 
-/**
- * Products. These are SAMPLE listings, not stock — every record carries
- * `sample: true`, and the Products page shows a notice while any of them do.
- * Delete the flag, or the record, as real products come on. The admin backend
- * fills this same shape.
- *
- *   category  one of PRODUCT_CATEGORIES below
- *   form      how it is supplied
- *   minOrder  the smallest order taken
- */
-export const PRODUCT_CATEGORIES = [
-  { key: 'grain',     label: 'Grains and legumes' },
-  { key: 'processed', label: 'Processed' },
-  { key: 'fresh',     label: 'Fresh produce' },
-  { key: 'inputs',    label: 'Farm inputs' },
-]
-
-export const PRODUCTS = [
-  { slug: 'yellow-maize', sample: true, category: 'grain', img: productMaize,
-    name: 'Yellow maize',
-    form: 'Dried, cleaned and graded · 50 kg bags',
-    minOrder: '5 tonnes',
-    body: 'Moisture held at 13% or below, so it stores without spoiling and mills without clogging.' },
-  { slug: 'soybeans', sample: true, category: 'grain', img: productSoybeans,
-    name: 'Soybeans',
-    form: 'Cleaned, sorted · 50 kg bags',
-    minOrder: '5 tonnes',
-    body: 'Graded for feed mills and oil pressers. Sample sent before any order is confirmed.' },
-  { slug: 'parboiled-rice', sample: true, category: 'processed', img: productRice,
-    name: 'Parboiled rice',
-    form: 'Destoned, polished · 25 kg and 50 kg bags',
-    minOrder: '2 tonnes',
-    body: 'Long grain, stone-free, packed on the line rather than repacked later. Own-label bags on request.' },
-  { slug: 'cassava-flour', sample: true, category: 'processed', img: productCassava,
-    name: 'Cassava flour',
-    form: 'Fine milled, low moisture · 25 kg bags',
-    minOrder: '2 tonnes',
-    body: 'Milled within two days of harvest to keep the colour white and the taste clean.' },
-  { slug: 'palm-oil', sample: true, category: 'processed', img: productPalmOil,
-    name: 'Red palm oil',
-    form: 'Filtered · 25 litre jerrycans',
-    minOrder: '500 litres',
-    body: 'Pressed and settled, with the water and sediment taken out before it is filled.' },
-  { slug: 'dried-pepper', sample: true, category: 'fresh', img: productChilli,
-    name: 'Dried chilli pepper',
-    form: 'Sun-dried, stemmed · 20 kg sacks',
-    minOrder: '1 tonne',
-    body: 'Dried on raised racks rather than the ground, so the batch arrives without grit.' },
-  { slug: 'improved-seed', sample: true, category: 'inputs', img: productSeed,
-    name: 'Improved maize seed',
-    form: 'Certified, treated · 10 kg bags',
-    minOrder: '20 bags',
-    body: 'Varieties chosen for the rainfall and soil of the area, with the germination rate on the bag.' },
-]
-
 export const NAV_LINKS = [
   { to: '/', label: 'Home' },
   { to: '/about', label: 'About' },
   { to: '/solutions', label: 'What we do' },
-  { to: '/products', label: 'Products' },
+  // the products live in the shop; this entry leaves the site, so it is an href, not a route
+  { href: 'https://shopagro.viverst.com', label: 'Shop' },
   { to: '/contact', label: 'Contact' },
 ]

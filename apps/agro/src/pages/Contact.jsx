@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Mail, MapPin, Send, Check, ArrowUpRight } from 'lucide-react'
+import { Mail, Phone, MapPin, Send, Check, ArrowUpRight } from 'lucide-react'
 import { Seo, Reveal, Float, Tilt, Icon, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
 import { BUSINESS, CHAIN, WHATSAPP } from '../data/agro.js'
 import './Pages.css'
@@ -59,6 +59,16 @@ export default function Contact() {
                   <span className="icon-plate"><Mail size={18} aria-hidden="true" /></span>
                   <span className="contact-label">Email</span>
                   <span className="contact-value">{BUSINESS.email}</span>
+                </a>
+              </Tilt>
+            </Float>
+
+            <Float delay={0.2} distance={-6} duration={7.8}>
+              <Tilt max={4}>
+                <a className="contact-card" href={`tel:${BUSINESS.phone.replace(/\s/g, '')}`}>
+                  <span className="icon-plate"><Phone size={18} aria-hidden="true" /></span>
+                  <span className="contact-label">Phone</span>
+                  <span className="contact-value">{BUSINESS.phone}</span>
                 </a>
               </Tilt>
             </Float>

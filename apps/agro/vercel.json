@@ -1,6 +1,8 @@
 {
   "redirects": [
-    { "source": "/careers", "destination": "https://www.viverst.com/careers", "permanent": true }
+    { "source": "/careers", "destination": "https://www.viverst.com/careers", "permanent": true },
+    { "source": "/products", "destination": "https://shopagro.viverst.com/products", "permanent": true },
+    { "source": "/products/:path*", "destination": "https://shopagro.viverst.com/products/:path*", "permanent": true }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

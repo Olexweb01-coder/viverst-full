@@ -16,6 +16,10 @@ const DOORS = [
   { to: '/about', img: IMG.doorGroup, icon: 'leaf',
     kicker: 'Who we are', title: 'Part of a bigger group',
     body: 'Backed by Viverst Global Limited, with the standards that come with it.' },
+  // the shop is its own site, so this door is an href and opens there
+  { href: BUSINESS.shopUrl, img: IMG.chainMarket, icon: 'package',
+    kicker: 'Buy from us', title: 'Shop online',
+    body: 'Grains, flour, oil and farm inputs, delivered.' },
   { to: '/contact', img: IMG.doorContact, icon: 'handshake',
     kicker: 'Work with us', title: 'Tell us the problem',
     body: 'Supply, processing, packaging or partnership.' },
@@ -75,29 +79,38 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <div className="doors">
-            {DOORS.map((d, i) => (
-              <Reveal key={d.to} delay={i * 0.08}>
+            {DOORS.map((d, i) => {
+              const inner = (
+                <>
+                  <span className={`door-media${d.fit === 'contain' ? ' door-media--contain' : ''}`}>
+                    <img src={d.img} alt="" width="1120" height="788" loading="lazy" decoding="async" />
+                  </span>
+                  <span className="door-body">
+                    <span className="door-kicker">
+                      <Icon name={d.icon} size={14} /> {d.kicker}
+                    </span>
+                    <span className="door-title">{d.title}</span>
+                    <span className="door-text">{d.body}</span>
+                    <span className="door-go">
+                      {d.href
+                        ? <>Visit the shop <ArrowUpRight size={15} aria-hidden="true" /></>
+                        : <>Open <ArrowRight size={15} aria-hidden="true" /></>}
+                    </span>
+                  </span>
+                </>
+              )
+              return (
+              <Reveal key={d.to || d.href} delay={i * 0.08}>
                 <Float delay={i * 0.8} duration={7.6 + i * 0.7} distance={-8}>
                   <Tilt max={4}>
-                    <Link to={d.to} className="door">
-                      <span className={`door-media${d.fit === 'contain' ? ' door-media--contain' : ''}`}>
-                        <img src={d.img} alt="" width="1120" height="788" loading="lazy" decoding="async" />
-                      </span>
-                      <span className="door-body">
-                        <span className="door-kicker">
-                          <Icon name={d.icon} size={14} /> {d.kicker}
-                        </span>
-                        <span className="door-title">{d.title}</span>
-                        <span className="door-text">{d.body}</span>
-                        <span className="door-go">
-                          Open <ArrowRight size={15} aria-hidden="true" />
-                        </span>
-                      </span>
-                    </Link>
+                    {d.href
+                      ? <a href={d.href} className="door">{inner}</a>
+                      : <Link to={d.to} className="door">{inner}</Link>}
                   </Tilt>
                 </Float>
               </Reveal>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Mail, MapPin, ArrowUpRight } from 'lucide-react'
+import { Mail, Phone, MapPin, ArrowUpRight } from 'lucide-react'
 import { Reveal, Float, SocialLinks } from '@viverst/ui'
 import { BUSINESS, NAV_LINKS, FOCUS_AREAS, SOCIALS } from '../data/agro.js'
 import wordmark from '@brand-assets/agro/wordmark-light.webp'
@@ -23,6 +23,9 @@ export default function Footer() {
             <a className="footer-contact" href={`mailto:${BUSINESS.email}`}>
               <Mail size={15} aria-hidden="true" /> {BUSINESS.email}
             </a>
+            <a className="footer-contact" href={`tel:${BUSINESS.phone.replace(/\s/g, '')}`}>
+              <Phone size={15} aria-hidden="true" /> {BUSINESS.phone}
+            </a>
             <span className="footer-contact footer-contact--plain">
               <MapPin size={15} aria-hidden="true" /> {BUSINESS.city}, {BUSINESS.country}
             </span>
@@ -32,9 +35,9 @@ export default function Footer() {
           <div className="footer-cols">
             <div className="footer-col">
               <h2>Company</h2>
-              {NAV_LINKS.map((l) => (
-                <Link key={l.to} to={l.to} className="footer-link">{l.label}</Link>
-              ))}
+              {NAV_LINKS.map((l) => l.href
+                ? <a key={l.href} href={l.href} className="footer-link">{l.label}</a>
+                : <Link key={l.to} to={l.to} className="footer-link">{l.label}</Link>)}
             </div>
 
             <div className="footer-col">

@@ -25,8 +25,10 @@ export default function NotFound() {
 
         <Reveal className="notfound-links" delay={0.16}>
           {NAV_LINKS.map((l, i) => (
-            <Float key={l.to} delay={i * 0.4} duration={6.5 + i * 0.5} distance={-5}>
-              <Link className="notfound-chip" to={l.to}>{l.label}</Link>
+            <Float key={l.to || l.href} delay={i * 0.4} duration={6.5 + i * 0.5} distance={-5}>
+              {l.href
+                ? <a className="notfound-chip" href={l.href}>{l.label}</a>
+                : <Link className="notfound-chip" to={l.to}>{l.label}</Link>}
             </Float>
           ))}
         </Reveal>

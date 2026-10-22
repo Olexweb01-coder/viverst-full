@@ -100,26 +100,6 @@
   .hero-frame:first-child { opacity: 1; }
 }
 
-/* a rail with a dot that keeps falling — signals there is more below */
-.scroll-cue { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 3; }
-.scroll-cue-rail {
-  display: block; width: 1px; height: 46px;
-  background: linear-gradient(180deg, rgba(6, 6, 93, 0.22), transparent);
-  position: relative;
-}
-.scroll-cue-dot {
-  position: absolute; left: 50%; top: 0;
-  width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%;
-  background: var(--ink-headline);
-  animation: cue-fall 2.6s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-}
-@keyframes cue-fall {
-  0%   { transform: translateY(0); opacity: 0; }
-  20%  { opacity: 1; }
-  80%  { opacity: 1; }
-  100% { transform: translateY(41px); opacity: 0; }
-}
-
 /* ─────────────── SECTION HEADS ─────────────── */
 .section-title { max-width: 20ch; margin-bottom: 32px; }
 .section-title--center { max-width: 24ch; margin-inline: auto; text-align: center; margin-bottom: 24px; }

@@ -49,7 +49,9 @@ export default function Navbar() {
         </Link>
 
         <nav className="nav-links" aria-label="Main">
-          {NAV_LINKS.map((l) => (
+          {NAV_LINKS.map((l) => l.href ? (
+            <a key={l.href} href={l.href} className="nav-link">{l.label}</a>
+          ) : (
             <NavLink key={l.to} to={l.to} end={l.to === '/'}
                      className={({ isActive }) => `nav-link ${isActive ? 'is-active' : ''}`}>
               {l.label}
@@ -76,7 +78,11 @@ export default function Navbar() {
       {open && (
         <div id="agro-drawer" className="nav-drawer">
           <div className="nav-drawer-inner container">
-            {NAV_LINKS.map((l, i) => (
+            {NAV_LINKS.map((l, i) => l.href ? (
+              <a key={l.href} href={l.href} onClick={close} style={{ '--i': i }} className="nav-drawer-link">
+                {l.label}
+              </a>
+            ) : (
               <NavLink key={l.to} to={l.to} end={l.to === '/'} onClick={close}
                        style={{ '--i': i }}
                        className={({ isActive }) => `nav-drawer-link ${isActive ? 'is-active' : ''}`}>

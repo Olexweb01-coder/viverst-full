@@ -58,6 +58,9 @@ export default function Contact() {
             <a className="foot-contact is-light" href={`mailto:${BUSINESS.email}`}>
               <Icon name="mail" size={15} /> {BUSINESS.email}
             </a>
+            <a className="foot-contact is-light" href={`tel:${BUSINESS.phone.replace(/\s/g, '')}`}>
+              <Icon name="phone" size={15} /> {BUSINESS.phone}
+            </a>
             <a className="foot-contact is-light" href={waHello} target="_blank" rel="noopener noreferrer"
                aria-label="Chat with us on WhatsApp (opens in a new tab)">
               <SocialIcon name="whatsapp" size={15} /> Chat with us on WhatsApp
