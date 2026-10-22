@@ -308,3 +308,8 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md)
 }
 .field select:focus { outline: none; background: var(--surface); border-color: var(--ink-headline); box-shadow: 0 0 0 4px rgba(4, 100, 222, 0.12); }
 @media (max-width: 900px) { .careers-grid { grid-template-columns: 1fr; } }
+
+/* WhatsApp: the second way to send the same form */
+.contact-wa { width: 100%; justify-content: center; margin-top: 10px; gap: 9px; }
+.contact-wa:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.contact-wa svg, .contact-wa:hover svg { transform: none; }

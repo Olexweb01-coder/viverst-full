@@ -1,13 +1,31 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Seo, Icon } from '@viverst/ui'
-import { BUSINESS, CONTACT_TOPICS } from '../data/studio.js'
+import { Seo, Icon, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
+import { BUSINESS, CONTACT_TOPICS, WHATSAPP } from '../data/studio.js'
 
 export default function Contact() {
   const [topic, setTopic] = useState('')
   const [form, setForm] = useState({ name: '', email: '', note: '' })
+  const [sent, setSent] = useState(false)
   const ready = topic && form.name.trim() && form.email.includes('@') && form.note.trim()
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
+
+  // WhatsApp replies come back to the visitor's own number, so email is optional there
+  const waReady = topic && form.name.trim() && form.note.trim()
+  const waBrief = { business: BUSINESS.name, site: BUSINESS.site }
+  const waForm = whatsappUrl(WHATSAPP, whatsappMessage({ ...waBrief, name: form.name, email: form.email, topic, message: form.note }))
+  const waHello = whatsappUrl(WHATSAPP, whatsappMessage(waBrief))
+
+  // No backend: this composes a pre-filled email in the visitor's mail app.
+  const submit = (e) => {
+    e.preventDefault()
+    if (!ready) return
+    const subject = encodeURIComponent(`${topic} — ${form.name.trim()}`)
+    const body = encodeURIComponent(`${form.note.trim()}\n\n—\n${form.name.trim()}\n${form.email.trim()}\nAbout: ${topic}`)
+    window.location.href = `mailto:${BUSINESS.email}?subject=${subject}&body=${body}`
+    setSent(true)
+    setTimeout(() => setSent(false), 5000)
+  }
 
   return (
     <>
@@ -40,6 +58,10 @@ export default function Contact() {
             <a className="foot-contact is-light" href={`mailto:${BUSINESS.email}`}>
               <Icon name="mail" size={15} /> {BUSINESS.email}
             </a>
+            <a className="foot-contact is-light" href={waHello} target="_blank" rel="noopener noreferrer"
+               aria-label="Chat with us on WhatsApp (opens in a new tab)">
+              <SocialIcon name="whatsapp" size={15} /> Chat with us on WhatsApp
+            </a>
             <span className="foot-contact is-light">
               <Icon name="pin" size={15} /> {BUSINESS.city}, {BUSINESS.country}
             </span>
@@ -48,7 +70,7 @@ export default function Contact() {
             </div>
           </div>
 
-          <form className="apply-form" onSubmit={(e) => e.preventDefault()}>
+          <form className="apply-form" onSubmit={submit}>
             <h2>Start a project</h2>
             <fieldset className="topics">
               <legend>What is it about?</legend>
@@ -76,9 +98,23 @@ export default function Contact() {
               <span>What are you building?</span>
               <textarea rows="4" value={form.note} onChange={set('note')} />
             </label>
-            <button className="btn btn-accent btn-lg apply-submit" type="submit" disabled={!ready}>
-              <span>Send</span>
-            </button>
+            <div className="contact-actions">
+              <button className="btn btn-accent btn-lg apply-submit" type="submit" disabled={!ready}>
+                <span>{sent ? 'Opening your mail app' : 'Send by email'}</span>
+              </button>
+              {waReady ? (
+                <a className="btn btn-line btn-lg contact-wa" href={waForm} target="_blank" rel="noopener noreferrer">
+                  <span><SocialIcon name="whatsapp" size={17} /> Send on WhatsApp</span>
+                </a>
+              ) : (
+                <button className="btn btn-line btn-lg contact-wa" type="button" disabled>
+                  <span><SocialIcon name="whatsapp" size={17} /> Send on WhatsApp</span>
+                </button>
+              )}
+            </div>
+            <p className="btn-note">
+              Email opens a pre-filled message in your mail app. WhatsApp opens a chat with your message ready to send.
+            </p>
           </form>
         </div>
       </section>

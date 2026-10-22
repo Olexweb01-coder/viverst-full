@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { Float } from '@viverst/ui'
+import { Float, SocialLinks } from '@viverst/ui'
 import { motion } from 'framer-motion'
 import { Mail, MapPin } from 'lucide-react'
-import { COMPANY, NAV_LINKS } from '../data/site.js'
+import { COMPANY, NAV_LINKS, SOCIALS } from '../data/site.js'
 import logoLight from '@brand-assets/main/logo-light.webp'
 import './Footer.css'
 
@@ -25,6 +25,7 @@ export default function Footer() {
             <span className="footer-contact footer-contact--plain">
               <MapPin size={15} aria-hidden="true" /> {COMPANY.city}, {COMPANY.country}
             </span>
+            <SocialLinks brand={COMPANY.legalName} links={SOCIALS} className="footer-social" />
           </div>
 
           <div className="footer-cols">

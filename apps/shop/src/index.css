@@ -181,6 +181,16 @@ body { font-variation-settings: "wdth" 100, "opsz" 14; }
 .shop-footer h3, .cat-tile-text strong { color: #fff; }
 .shop-footer-links { display: grid; gap: 8px; align-content: start; }
 .shop-footer-small { grid-column: 1 / -1; font-size: 13px; color: rgba(255,255,255,0.6); }
+/* Viverst Agro's social profiles: outline circles that fill with the brand yellow */
+.shop-social { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 0; padding: 0; list-style: none; }
+.shop-footer a.shop-social-link {
+  display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.32); color: #fff;
+  transition: color .25s ease, background-color .25s ease, border-color .25s ease, transform .4s var(--ease);
+}
+.shop-footer a.shop-social-link:hover { color: var(--on-accent); background: var(--accent); border-color: var(--accent); transform: translateY(-2px); }
+.shop-footer a.shop-social-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 50%; }
+@media (prefers-reduced-motion: reduce) { .shop-footer a.shop-social-link:hover { transform: none; } }
 @media (max-width: 640px) { .shop-footer-inner { grid-template-columns: 1fr; } }
 
 /* ── account ───────────────────────────────────────── */

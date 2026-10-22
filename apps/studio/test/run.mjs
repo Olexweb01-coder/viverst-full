@@ -66,7 +66,7 @@ const copy = [
   'window', 'document', 'navigator', 'location', 'history', 'HTMLElement', 'Element', 'Node',
   'Event', 'CustomEvent', 'MouseEvent', 'KeyboardEvent', 'PopStateEvent', 'PointerEvent',
   'getComputedStyle', 'requestAnimationFrame', 'cancelAnimationFrame', 'matchMedia',
-  'IntersectionObserver', 'ResizeObserver', 'SVGElement', 'DOMRect', 'CSS',
+  'IntersectionObserver', 'ResizeObserver', 'MutationObserver', 'SVGElement', 'DOMRect', 'CSS',
 ]
 for (const k of copy) {
   if (window[k] === undefined) continue

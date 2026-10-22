@@ -3,7 +3,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
-import { SHOWCASE } from '../src/data/agro.js'
+import { SHOWCASE, SOCIALS, WHATSAPP, BUSINESS } from '../src/data/agro.js'
 
 /* Each route states the heading it expects. A flat wait proves nothing: if the
    page has not swapped yet the walk measures the one it just left, and the
@@ -96,9 +96,12 @@ const run = async () => {
       }
     }
     // every outbound group link must point at a real subdomain, never a dead path
+    // the group's own sites, this site's social profiles, and its WhatsApp chat; nothing else
+    const allowed = new Set(SOCIALS.map((s) => s.url))
+    const wa = `https://wa.me/${WHATSAPP.replace(/\D/g, '')}?text=`
     for (const a of host.querySelectorAll('a[href^="http"]')) {
       const h = a.getAttribute('href')
-      if (!/^https:\/\/(www|agro|studio)\.viverst\.com/.test(h)) {
+      if (!/^https:\/\/(www|agro|studio)\.viverst\.com/.test(h) && !allowed.has(h) && !h.startsWith(wa)) {
         problems.push(`${path}: unexpected external link "${h}"`)
       }
     }
@@ -244,6 +247,45 @@ const run = async () => {
   await wait(300)
   if (document.querySelectorAll('.topic.is-on').length !== 1) problems.push('selecting a topic did not mark exactly one active')
   rows.push({ path: '(contact)', chars: topics, links: 0, h1: 'topic selection works' })
+
+  /* ---- footer: this site's own social profiles, exactly, on every page ---- */
+  {
+    const social = [...document.querySelectorAll('.footer-social-link')]
+    const hrefs = social.map((a) => a.getAttribute('href'))
+    if (hrefs.join(' ') !== SOCIALS.map((s) => s.url).join(' ')) problems.push(`footer social links are ${hrefs.join(', ') || 'missing'}`)
+    for (const a of social) {
+      if (a.target !== '_blank' || !/noopener/.test(a.rel) || !/noreferrer/.test(a.rel)) problems.push(`${a.href} must open in a new tab with rel="noopener noreferrer"`)
+      if (!a.getAttribute('aria-label')?.startsWith(BUSINESS.name + ' on ')) problems.push(`${a.href} has no spoken name`)
+    }
+    rows.push({ path: '(footer social)', chars: social.length, links: social.length, h1: social.map((a) => a.title).join(' · ') })
+  }
+
+  /* ---- contact: WhatsApp opens a chat that says where the visitor came from ---- */
+  {
+    const waBase = `https://wa.me/${WHATSAPP.replace(/\D/g, '')}?text=`
+    const text = (a) => new URL(a.href).searchParams.get('text') || ''
+    const hello = [...document.querySelectorAll('a[href^="https://wa.me/"]')].find((a) => !a.classList.contains('contact-wa'))
+    if (!hello?.href.startsWith(waBase)) problems.push(`WhatsApp contact link is ${hello?.href || 'missing'}`)
+    else if (!text(hello).includes('from your website (agro.viverst.com)')) problems.push(`WhatsApp greeting does not say it came from the website: ${text(hello)}`)
+    if (!document.querySelector('button.contact-wa:disabled')) problems.push('Send on WhatsApp should start disabled, before anything is typed')
+    const setVal = (el, v) => {
+      Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value').set.call(el, v)
+      el.dispatchEvent(new window.Event('input', { bubbles: true }))
+    }
+    setVal(document.querySelector('.apply-form input[type="text"]'), 'Ada Obi')
+    setVal(document.querySelector('.apply-form textarea'), 'Twenty bags of maize & a quote, delivered to Ikeja #1?')
+    await wait(300)
+    const send = document.querySelector('a.contact-wa')
+    const msg = send ? text(send) : ''
+    if (!send?.href.startsWith(waBase)) problems.push('Send on WhatsApp did not become a link once name and message were filled')
+    else {
+      for (const part of ['Hello ' + BUSINESS.name, 'from your website (agro.viverst.com)', 'Name: Ada Obi', 'About: ', 'What I need: Twenty bags of maize & a quote, delivered to Ikeja #1?']) {
+        if (!msg.includes(part)) problems.push(`WhatsApp message is missing "${part}"`)
+      }
+      if (send.target !== '_blank' || !/noopener/.test(send.rel)) problems.push('Send on WhatsApp must open in a new tab with rel="noopener"')
+    }
+    rows.push({ path: '(contact whatsapp)', chars: msg.length, links: send ? 1 : 0, h1: msg.split('\n')[0].slice(0, 46) })
+  }
 
   /* ---- structured data ---- */
   const ld = [...document.querySelectorAll('script[type="application/ld+json"]')]

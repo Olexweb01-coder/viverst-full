@@ -19,6 +19,16 @@ export const BUSINESS = {
   industry: 'Brand, design and visual communication',
 }
 
+/* Profile pages, not share links: share links are tied to the session that
+   created them and can stop working; these addresses do not change.
+   WHATSAPP is the full international number. */
+export const SOCIALS = [
+  { network: 'instagram', url: 'https://www.instagram.com/viverststudio/' },
+  { network: 'facebook', url: 'https://www.facebook.com/viverststudio/' },
+  { network: 'linkedin', url: 'https://www.linkedin.com/company/viverststudio/' },
+]
+export const WHATSAPP = '+2349060342734'
+
 /* The homepage headline, as one sentence and as the two lines it is set in. */
 export const PROMISE = 'We design with strategy. Not just style.'
 export const HEADLINE_LINES = [

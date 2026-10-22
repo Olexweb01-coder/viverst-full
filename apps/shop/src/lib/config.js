@@ -7,3 +7,9 @@ export const SHOP = {
   group: 'Viverst Global Limited', groupUrl: 'https://www.viverst.com',
   email: 'agro@viverst.com', city: 'Lagos', country: 'Nigeria',
 }
+/* The shop is Viverst Agro's, so it links to Agro's profiles. */
+export const SOCIALS = [
+  { network: 'instagram', url: 'https://www.instagram.com/viverstagro/' },
+  { network: 'facebook', url: 'https://www.facebook.com/viverstagro/' },
+  { network: 'linkedin', url: 'https://www.linkedin.com/company/viverstagro/' },
+]

@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Tilt } from '@viverst/ui'
+import { Tilt, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, MapPin, Send, Check, Building2 } from 'lucide-react'
 
 import Seo from '../components/Seo.jsx'
 import Reveal from '../components/Reveal.jsx'
 import WaveField from '../components/WaveField.jsx'
-import { COMPANY } from '../data/site.js'
+import { COMPANY, WHATSAPP } from '../data/site.js'
 import './Pages.css'
 
 const TOPICS = ['Partnership', 'Investment', 'Viverst Agro', 'Viverst Studio', 'Something else']
@@ -18,6 +18,11 @@ export default function Contact() {
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
   const valid = form.name.trim() && form.email.trim() && form.message.trim()
+  // WhatsApp replies come back to the visitor's own number, so email is optional there
+  const waReady = form.name.trim() && form.message.trim()
+  const waBrief = { business: COMPANY.legalName, site: COMPANY.domain }
+  const waForm = whatsappUrl(WHATSAPP, whatsappMessage({ ...waBrief, ...form }))
+  const waHello = whatsappUrl(WHATSAPP, whatsappMessage(waBrief))
 
   // No backend here: this composes a pre-filled email in the visitor's mail
   // client. Swap for a real endpoint (Formspree, Resend, etc.) when you have one.
@@ -60,6 +65,15 @@ export default function Contact() {
               <span className="contact-icon"><Mail size={18} aria-hidden="true" /></span>
               <span className="contact-label">Email</span>
               <span className="contact-value">{COMPANY.email}</span>
+            </a>
+            </Tilt>
+
+            <Tilt as="div" className="contact-card contact-card--link" max={5}>
+            <a className="contact-card-a" href={waHello} target="_blank" rel="noopener noreferrer"
+               aria-label="Chat with us on WhatsApp (opens in a new tab)">
+              <span className="contact-icon"><SocialIcon name="whatsapp" size={18} /></span>
+              <span className="contact-label">WhatsApp</span>
+              <span className="contact-value">Chat with us</span>
             </a>
             </Tilt>
 
@@ -134,7 +148,19 @@ export default function Contact() {
                 </AnimatePresence>
               </button>
 
-              <p className="form-note">Opens a pre-filled message in your email app.</p>
+              {waReady ? (
+                <a className="btn btn--ghost contact-wa" href={waForm} target="_blank" rel="noopener noreferrer">
+                  <SocialIcon name="whatsapp" size={17} /> Send on WhatsApp
+                </a>
+              ) : (
+                <button className="btn btn--ghost contact-wa" type="button" disabled>
+                  <SocialIcon name="whatsapp" size={17} /> Send on WhatsApp
+                </button>
+              )}
+
+              <p className="form-note">
+                Email opens a pre-filled message in your mail app. WhatsApp opens a chat with your message ready to send.
+              </p>
             </form>
           </Reveal>
         </div>

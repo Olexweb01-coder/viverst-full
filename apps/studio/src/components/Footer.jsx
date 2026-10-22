@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Icon } from '@viverst/ui'
-import { BUSINESS, NAV_LINKS, FOCUS_AREAS } from '../data/studio.js'
+import { Icon, SocialLinks } from '@viverst/ui'
+import { BUSINESS, NAV_LINKS, FOCUS_AREAS, SOCIALS } from '../data/studio.js'
 
 import icon from '@brand-assets/studio/icon.webp'
 import wordmarkLight from '@brand-assets/studio/wordmark-light.webp'
@@ -23,6 +23,7 @@ export default function Footer() {
             <span className="foot-contact">
               <Icon name="pin" size={15} /> {BUSINESS.city}, {BUSINESS.country}
             </span>
+            <SocialLinks brand={BUSINESS.name} links={SOCIALS} className="foot-social" />
           </div>
 
           <div className="foot-col">

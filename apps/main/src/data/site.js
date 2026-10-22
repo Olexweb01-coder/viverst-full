@@ -22,6 +22,17 @@ export const COMPANY = {
   domain: "https://www.viverst.com",
 };
 
+/* ── Social profiles and WhatsApp ─────────────────────────────
+   Profile pages, not share links: share links are tied to the session that
+   created them and can stop working; these addresses do not change.
+   WHATSAPP is the full international number. */
+export const SOCIALS = [
+  { network: "facebook", url: "https://www.facebook.com/viverstglobal" },
+  { network: "instagram", url: "https://www.instagram.com/viverstglobal/" },
+  { network: "linkedin", url: "https://www.linkedin.com/company/viverstglobal/" },
+];
+export const WHATSAPP = "+2349060342734";
+
 /* ── Brand architecture ─────────────────────────────────────── */
 
 export const SUBSIDIARIES = [

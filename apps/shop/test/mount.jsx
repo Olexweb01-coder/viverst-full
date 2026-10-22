@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
 import { state } from './supabase-mock.js'
 import { resetCatalog } from '../src/lib/catalog.js'
+import { SOCIALS } from '../src/lib/config.js'
 
 const problems = []; const a11y = []
 const origError = console.error
@@ -148,6 +149,18 @@ state.empty = true; resetCatalog()
 const r2 = createRoot(document.getElementById('root')); r2.render(<App />)
 go('/products'); await waitFor(() => document.querySelectorAll('.pcard').length === 7, 'seven placeholder products')
 console.log(`  no products in admin → ${document.querySelectorAll('.pcard').length} placeholder cards with photos (${[...document.querySelectorAll('.pcard img')].filter((i) => i.getAttribute('src')).length} images)`)
+
+// the shop is Viverst Agro's, so its footer links to Agro's profiles, exactly
+{
+  const social = [...document.querySelectorAll('.shop-social-link')]
+  const hrefs = social.map((a) => a.getAttribute('href'))
+  if (hrefs.join(' ') !== SOCIALS.map((s) => s.url).join(' ')) problems.push(`footer social links are ${hrefs.join(', ') || 'missing'}`)
+  for (const a of social) {
+    if (a.target !== '_blank' || !/noopener/.test(a.rel) || !/noreferrer/.test(a.rel)) problems.push(`${a.href} must open in a new tab with rel="noopener noreferrer"`)
+    if (!a.getAttribute('aria-label')?.startsWith('Viverst Agro on ')) problems.push(`${a.href} has no spoken name`)
+  }
+  console.log(`  footer → ${social.map((a) => a.title).join(' · ')} (${social.length} profiles)`)
+}
 
 console.log(`\n ACCESSIBILITY: ${a11y.length} issue(s)`); for (const x of a11y) console.log('  ✗', x)
 console.log(`\n PROBLEMS: ${problems.length}`); for (const x of problems) console.log('  ✗', x)

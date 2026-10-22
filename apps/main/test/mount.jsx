@@ -3,7 +3,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from '../src/App.jsx'
-import { HERO_FRAMES, HERO_LINES, SUBSIDIARIES } from '../src/data/site.js'
+import { HERO_FRAMES, HERO_LINES, SUBSIDIARIES, SOCIALS, WHATSAPP, COMPANY } from '../src/data/site.js'
 import { normalizePhone } from '../src/lib/register.js'
 
 /* Each route states the heading it expects. A flat wait proves nothing: if the
@@ -386,6 +386,45 @@ const run = async () => {
   if (!submit || !submit.disabled) problems.push('submit should start disabled while the form is empty')
   if (topics) document.querySelectorAll('.topic')[2].click()
   await wait(80)
+
+  /* ---- footer: this site's own social profiles, exactly, on every page ---- */
+  {
+    const social = [...document.querySelectorAll('.footer-social-link')]
+    const hrefs = social.map((a) => a.getAttribute('href'))
+    if (hrefs.join(' ') !== SOCIALS.map((s) => s.url).join(' ')) problems.push(`footer social links are ${hrefs.join(', ') || 'missing'}`)
+    for (const a of social) {
+      if (a.target !== '_blank' || !/noopener/.test(a.rel) || !/noreferrer/.test(a.rel)) problems.push(`${a.href} must open in a new tab with rel="noopener noreferrer"`)
+      if (!a.getAttribute('aria-label')?.startsWith(COMPANY.legalName + ' on ')) problems.push(`${a.href} has no spoken name`)
+    }
+    results.push({ path: '(footer social)', chars: social.length, links: social.length, canvases: 0, h1: social.map((a) => a.title).join(' · ') })
+  }
+
+  /* ---- contact: WhatsApp opens a chat that says where the visitor came from ---- */
+  {
+    const waBase = `https://wa.me/${WHATSAPP.replace(/\D/g, '')}?text=`
+    const text = (a) => new URL(a.href).searchParams.get('text') || ''
+    const hello = [...document.querySelectorAll('a[href^="https://wa.me/"]')].find((a) => !a.classList.contains('contact-wa'))
+    if (!hello?.href.startsWith(waBase)) problems.push(`WhatsApp contact link is ${hello?.href || 'missing'}`)
+    else if (!text(hello).includes('from your website (viverst.com)')) problems.push(`WhatsApp greeting does not say it came from the website: ${text(hello)}`)
+    if (!document.querySelector('button.contact-wa:disabled')) problems.push('Send on WhatsApp should start disabled, before anything is typed')
+    const setVal = (el, v) => {
+      Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value').set.call(el, v)
+      el.dispatchEvent(new window.Event('input', { bubbles: true }))
+    }
+    setVal(document.querySelector('.contact-form input[type="text"]'), 'Ada Obi')
+    setVal(document.querySelector('.contact-form textarea'), 'Twenty bags of maize & a quote, delivered to Ikeja #1?')
+    await wait(300)
+    const send = document.querySelector('a.contact-wa')
+    const msg = send ? text(send) : ''
+    if (!send?.href.startsWith(waBase)) problems.push('Send on WhatsApp did not become a link once name and message were filled')
+    else {
+      for (const part of ['Hello ' + COMPANY.legalName, 'from your website (viverst.com)', 'Name: Ada Obi', 'About: ', 'What I need: Twenty bags of maize & a quote, delivered to Ikeja #1?']) {
+        if (!msg.includes(part)) problems.push(`WhatsApp message is missing "${part}"`)
+      }
+      if (send.target !== '_blank' || !/noopener/.test(send.rel)) problems.push('Send on WhatsApp must open in a new tab with rel="noopener"')
+    }
+    results.push({ path: '(contact whatsapp)', chars: msg.length, links: send ? 1 : 0, canvases: 0, h1: msg.split('\n')[0].slice(0, 46) })
+  }
 
   /* ---- scroll behaviour ---- */
   navigate('/about')

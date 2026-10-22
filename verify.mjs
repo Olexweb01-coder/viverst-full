@@ -135,6 +135,11 @@ ok('studio: the mark loop restarts rather than stopping',
 const reveals = read('apps/studio/src/components/Reveals.jsx')
 ok('studio: reveals measure position instead of observing intersection',
    reveals.includes('getBoundingClientRect') && !reveals.includes('new IntersectionObserver'))
+/* The inner pages load lazily, so on a direct visit their sections arrive after
+   the reveal script has looked. A list taken once was empty, and /contact,
+   /about, /services and /work showed blank bands to anyone arriving from a link. */
+ok('studio: sections that arrive after a direct visit are still revealed',
+   reveals.includes('new MutationObserver') && reveals.includes(':not([data-rv="on"])') && !/let pending = Array\.from/.test(reveals))
 
 /* ── studio: sample content must never pass itself off as delivered work ── */
 const studioData = read('apps/studio/src/data/studio.js')
@@ -191,6 +196,54 @@ ok('scrolling behaviour itself is left alone, so pull-to-refresh still works',
    load. Caught on a PageSpeed filmstrip, not by any test. */
 ok('the body covers the viewport, so the canvas never flashes before the app renders',
    /body \{[^}]*min-height:\s*100svh/s.test(base))
+
+/* ── social profiles: each site links to its OWN accounts. The three sets of
+      handles differ by one word, so a copy-paste between sites is easy to make
+      and hard to see. ── */
+{
+  const SOC = [
+    ['main', 'apps/main/src/data/site.js', 'viverstglobal', 'apps/main/src/components/Footer.jsx', 'apps/main/index.html'],
+    ['agro', 'apps/agro/src/data/agro.js', 'viverstagro', 'apps/agro/src/components/Footer.jsx', 'apps/agro/index.html'],
+    ['studio', 'apps/studio/src/data/studio.js', 'viverststudio', 'apps/studio/src/components/Footer.jsx', 'apps/studio/index.html'],
+    ['shop', 'apps/shop/src/lib/config.js', 'viverstagro', 'apps/shop/src/components/Footer.jsx', null],
+  ]
+  for (const [app, dataFile, handle, footer, html] of SOC) {
+    const block = read(dataFile).match(/export const SOCIALS = \[([\s\S]*?)\]/)?.[1] ?? ''
+    const urls = [...block.matchAll(/url:\s*["']([^"']+)["']/g)].map((m) => m[1])
+    const nets = [...block.matchAll(/network:\s*["']([^"']+)["']/g)].map((m) => m[1]).sort().join(',')
+    ok(`${app}: footer links to Instagram, Facebook and LinkedIn`, nets === 'facebook,instagram,linkedin', nets || 'no SOCIALS')
+    ok(`${app}: every social link is ${handle}'s own profile`,
+       urls.length === 3 && urls.every((u) => new RegExp(`^https://www\\.(instagram|facebook|linkedin)\\.com/(company/)?${handle}/?$`).test(u)),
+       urls.join(', '))
+    ok(`${app}: the footer renders those links`, /<SocialLinks[^>]*links=\{SOCIALS\}/.test(read(footer)))
+    if (html) {
+      const ld = read(html).match(/"sameAs":\s*\[([\s\S]*?)\]/)?.[1] ?? ''
+      ok(`${app}: structured data names the same profiles`, urls.length > 0 && urls.every((u) => ld.includes(`"${u}"`)))
+    }
+  }
+  const social = read('packages/ui/src/Social.jsx')
+  ok('social links open in a new tab that cannot reach back into the site',
+     social.includes('target="_blank"') && social.includes('rel="noopener noreferrer"'))
+}
+
+/* ── WhatsApp: one number, written in full international form, on every
+      contact page; the chat opens saying the visitor came from the website ── */
+{
+  const nums = ['apps/main/src/data/site.js', 'apps/agro/src/data/agro.js', 'apps/studio/src/data/studio.js']
+    .map((f) => read(f).match(/export const WHATSAPP = ["']([^"']+)["']/)?.[1])
+  ok('every site uses the same WhatsApp number, +2349060342734', nums.every((n) => n === '+2349060342734'), nums.join(', '))
+  for (const app of APPS) {
+    const page = read(`apps/${app}/src/pages/Contact.jsx`)
+    ok(`${app}: contact page offers WhatsApp with the visitor's message`,
+       page.includes('whatsappUrl(WHATSAPP') && page.includes('whatsappMessage(') && page.includes('contact-wa'))
+  }
+  ok('the WhatsApp message says it came from the website',
+     read('packages/ui/src/whatsapp.js').includes('I am contacting you from your website'))
+  /* The studio form once called preventDefault and nothing else: every
+     enquiry typed into it went nowhere. */
+  ok('studio: the contact form actually sends', /onSubmit=\{submit\}/.test(read('apps/studio/src/pages/Contact.jsx'))
+     && read('apps/studio/src/pages/Contact.jsx').includes('mailto:'))
+}
 
 /* An unclosed comment silently disables every rule after it until the next
    comment closes. It happened once in the admin and turned all filter bars

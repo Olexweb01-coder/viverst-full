@@ -516,6 +516,8 @@ h1, h2, h3 { letter-spacing: -.032em; line-height: 1.02; }
 }
 .topic.is-on { background: var(--ink); border-color: var(--ink); color: #fff; }
 .apply-submit { justify-self: start; }
+.contact-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.contact-wa > span { display: inline-flex; align-items: center; gap: 9px; }
 .form-note { margin: 0; font-size: .813rem; color: var(--muted); display: inline-flex; align-items: center; gap: 7px; }
 
 /* ─────────────── footer ─────────────── */
@@ -550,6 +552,16 @@ h1, h2, h3 { letter-spacing: -.032em; line-height: 1.02; }
 .foot-link:hover { color: var(--bg); transform: translateX(3px); }
 .foot-rule { block-size: 1px; background: rgb(233 236 239 / .15); margin-block: clamp(26px, 3.2vw, 38px) 16px; }
 .foot-bottom { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; font-size: .781rem; color: rgb(233 236 239 / .58); font-weight: 400; }
+/* social profiles: outline circles that fill orange, the studio's button colour.
+   Near-black on the orange, as the brand rules require; white fails there. */
+.foot-social { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 0; padding: 0; list-style: none; }
+.foot-social-link {
+  display: grid; place-items: center; inline-size: 42px; block-size: 42px; border-radius: 50%;
+  border: 1px solid rgb(233 236 239 / .3); color: var(--bg); text-decoration: none;
+  transition: color .3s var(--e), background-color .3s var(--e), border-color .3s var(--e), transform .3s var(--e);
+}
+.foot-social-link:hover { color: var(--on-accent); background: var(--accent); border-color: var(--accent); transform: translateY(-2px); }
+.foot-social-link:focus-visible { outline: 2px solid #c9a7ff; outline-offset: 3px; border-radius: 50%; }
 
 /* ─────────────── reduced motion ─────────────── */
 @media (prefers-reduced-motion: reduce) {

@@ -27,7 +27,7 @@ change meant for one site can reach the other two.
 
 ```bash
 npm run lint                      # oxlint across the workspace
-node verify.mjs                   # 57 regression checks
+node verify.mjs                   # 81 regression checks
 npm run test -w @viverst/main     # 13 routes, interactions, accessibility
 npm run test -w @viverst/agro     #  6 routes
 npm run test -w @viverst/studio   #  7 routes
@@ -48,7 +48,9 @@ npm run build:singlefile -w @viverst/studio
 
 - `packages/brand` — colours, fonts and every logo and image, per site
 - `packages/ui` — shared components, no motion library
-- `apps/*/src/data` — all copy for that site, in one file
+- `apps/*/src/data` — all copy for that site, in one file, including its
+  social profile links (`SOCIALS`) and WhatsApp number (`WHATSAPP`). The shop's
+  are in `apps/shop/src/lib/config.js`.
 
 ## Before changing anything
 
@@ -58,7 +60,7 @@ settled, and the bug behind every check in `verify.mjs`.
 Two things that catch people out:
 
 - `verify.mjs` reports the number of checks, not a pass rate. If it says
-  fewer than 57 total, you are running an older copy.
+  fewer than 81 total, you are running an older copy.
 - Studio's Work page and Agro's Products page carry sample records flagged
   `sample: true` in their data files, and show a notice on screen saying so.
   Remove the flag as real records ship; the notice disappears by itself.

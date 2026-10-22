@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Mail, MapPin, ArrowUpRight } from 'lucide-react'
-import { Reveal, Float } from '@viverst/ui'
-import { BUSINESS, NAV_LINKS, FOCUS_AREAS } from '../data/agro.js'
+import { Reveal, Float, SocialLinks } from '@viverst/ui'
+import { BUSINESS, NAV_LINKS, FOCUS_AREAS, SOCIALS } from '../data/agro.js'
 import wordmark from '@brand-assets/agro/wordmark-light.webp'
 import './Footer.css'
 
@@ -26,6 +26,7 @@ export default function Footer() {
             <span className="footer-contact footer-contact--plain">
               <MapPin size={15} aria-hidden="true" /> {BUSINESS.city}, {BUSINESS.country}
             </span>
+            <SocialLinks brand={BUSINESS.name} links={SOCIALS} className="footer-social" />
           </div>
 
           <div className="footer-cols">

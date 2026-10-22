@@ -63,6 +63,16 @@ export const BUSINESS = {
   industry: 'Agriculture and agribusiness',
 }
 
+/* Profile pages, not share links: share links are tied to the session that
+   created them and can stop working; these addresses do not change.
+   WHATSAPP is the full international number. */
+export const SOCIALS = [
+  { network: 'instagram', url: 'https://www.instagram.com/viverstagro/' },
+  { network: 'facebook', url: 'https://www.facebook.com/viverstagro/' },
+  { network: 'linkedin', url: 'https://www.linkedin.com/company/viverstagro/' },
+]
+export const WHATSAPP = '+2349060342734'
+
 export const PROMISE = 'Grow more, waste less, earn better.'
 
 /**

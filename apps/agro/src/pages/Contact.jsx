@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Mail, MapPin, Send, Check, ArrowUpRight } from 'lucide-react'
-import { Seo, Reveal, Float, Tilt, Icon } from '@viverst/ui'
-import { BUSINESS, CHAIN } from '../data/agro.js'
+import { Seo, Reveal, Float, Tilt, Icon, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
+import { BUSINESS, CHAIN, WHATSAPP } from '../data/agro.js'
 import './Pages.css'
 
 const TOPICS = ['Buying or supplying', 'Processing and packaging', 'Technology', 'Partnership', 'Something else']
@@ -11,6 +11,11 @@ export default function Contact() {
   const [sent, setSent] = useState(false)
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
   const valid = form.name.trim() && form.email.trim() && form.message.trim()
+  // WhatsApp replies come back to the visitor's own number, so email is optional there
+  const waReady = form.name.trim() && form.message.trim()
+  const waBrief = { business: BUSINESS.name, site: BUSINESS.site }
+  const waForm = whatsappUrl(WHATSAPP, whatsappMessage({ ...waBrief, ...form }))
+  const waHello = whatsappUrl(WHATSAPP, whatsappMessage(waBrief))
 
   const submit = (e) => {
     e.preventDefault()
@@ -54,6 +59,17 @@ export default function Contact() {
                   <span className="icon-plate"><Mail size={18} aria-hidden="true" /></span>
                   <span className="contact-label">Email</span>
                   <span className="contact-value">{BUSINESS.email}</span>
+                </a>
+              </Tilt>
+            </Float>
+
+            <Float delay={0.4} distance={-6} duration={8}>
+              <Tilt max={4}>
+                <a className="contact-card" href={waHello} target="_blank" rel="noopener noreferrer"
+                   aria-label="Chat with us on WhatsApp (opens in a new tab)">
+                  <span className="icon-plate"><SocialIcon name="whatsapp" size={18} /></span>
+                  <span className="contact-label">WhatsApp</span>
+                  <span className="contact-value">Chat with us</span>
                 </a>
               </Tilt>
             </Float>
@@ -121,7 +137,18 @@ export default function Contact() {
                   ? <><Check size={17} aria-hidden="true" /> Opening your mail app</>
                   : <>Send message <Send size={16} aria-hidden="true" /></>}
               </button>
-              <p className="form-note">Opens a pre-filled message in your email app.</p>
+              {waReady ? (
+                <a className="btn btn--ghost contact-wa" href={waForm} target="_blank" rel="noopener noreferrer">
+                  <SocialIcon name="whatsapp" size={17} /> Send on WhatsApp
+                </a>
+              ) : (
+                <button className="btn btn--ghost contact-wa" type="button" disabled>
+                  <SocialIcon name="whatsapp" size={17} /> Send on WhatsApp
+                </button>
+              )}
+              <p className="form-note">
+                Email opens a pre-filled message in your mail app. WhatsApp opens a chat with your message ready to send.
+              </p>
             </form>
           </Reveal>
         </div>
