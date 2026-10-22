@@ -266,3 +266,11 @@ body { font-variation-settings: "wdth" 100, "opsz" 14; }
   .fp-promo-body { padding: 4px 6px 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .fp-promo:hover { transform: none; } }
+/* buying a food package: Buy now, with instalments on WhatsApp beneath it */
+.fp-actions { flex-direction: column; }
+.fp-actions .btn { width: 100%; }
+.fp-instalment-link { font-size: 14px; white-space: normal; text-align: center; line-height: 1.3; }
+.fp-soldout { margin: 0; font-size: 14px; color: color-mix(in srgb, var(--ink) 72%, transparent); }
+/* clear the sticky header when "Choose a package" jumps here; it is two lines tall on phones */
+#fp-packages { scroll-margin-top: 130px; }
+@media (max-width: 800px) { #fp-packages { scroll-margin-top: 170px; } }

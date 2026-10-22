@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Check, Phone, ShoppingBag, Wallet } from 'lucide-react'
+import { ArrowDown, Check, Phone, ShoppingBag, Wallet } from 'lucide-react'
 import { Seo, Reveal, SocialIcon, whatsappUrl, whatsappMessage } from '@viverst/ui'
 import { getProducts } from '../lib/catalog.js'
 import { money } from '../lib/format.js'
@@ -8,9 +8,11 @@ import { useCart } from '../lib/cartContext.js'
 import { SHOP } from '../lib/config.js'
 import { foodPackage } from '../lib/foodPackage.js'
 
-/* Booking is by WhatsApp. Paying online is optional, switched on in the
-   admin, and offered only for a package linked to a real, in-stock product,
-   because the checkout charges the product's price. */
+/* A package linked to a real, in-stock shop product is bought online: Buy now
+   goes to the checkout, and the order is paid through Paystack and lands in
+   Orders. WhatsApp is then only for paying in instalments. A package that
+   cannot be bought online (checkout off, not linked, sold out) is booked on
+   WhatsApp instead, so the page never leads nowhere. */
 export default function FoodPackage({ shopName, settings = {} }) {
   const fp = foodPackage(settings.food_package)
   const { add } = useCart()
@@ -30,6 +32,8 @@ export default function FoodPackage({ shopName, settings = {} }) {
   const forSale = (slug) => fp.checkout && slug
     ? products.find((p) => p.slug === slug && !p.sample && p.inStock) || null
     : null
+  const soldOut = (slug) => fp.checkout && slug && products.some((p) => p.slug === slug && !p.sample && !p.inStock)
+  const anyForSale = fp.packages.some((p) => forSale(p.product_slug))
 
   return (
     <>
@@ -44,10 +48,14 @@ export default function FoodPackage({ shopName, settings = {} }) {
             <p className="lede">{fp.intro}</p>
             {fp.instalment && <p className="fp-instalment"><Wallet size={17} aria-hidden="true" /> {fp.instalment_note}</p>}
             <div className="fp-hero-cta">
-              <a className="btn btn--primary" href={book(`I would like to book from the ${fp.title}. Which package is right for me?`)}
-                 target="_blank" rel="noopener noreferrer">
-                <SocialIcon name="whatsapp" size={17} /> Book on WhatsApp
-              </a>
+              {anyForSale ? (
+                <a className="btn btn--primary" href="#fp-packages">Choose a package <ArrowDown size={16} aria-hidden="true" /></a>
+              ) : (
+                <a className="btn btn--primary" href={book(`I would like to book from the ${fp.title}. Which package is right for me?`)}
+                   target="_blank" rel="noopener noreferrer">
+                  <SocialIcon name="whatsapp" size={17} /> Book on WhatsApp
+                </a>
+              )}
               <a className="btn" href={`tel:${phone.replace(/[^\d+]/g, '')}`}><Phone size={16} aria-hidden="true" /> Call {phone}</a>
             </div>
             {fp.season_note && <p className="fp-season">{fp.season_note}</p>}
@@ -72,19 +80,30 @@ export default function FoodPackage({ shopName, settings = {} }) {
                   {p.items.length > 0 && (
                     <ul className="fp-items">{p.items.map((x) => <li key={x}><Check size={16} aria-hidden="true" /> {x}</li>)}</ul>
                   )}
-                  <div className="fp-actions">
-                    <a className="btn btn--primary" target="_blank" rel="noopener noreferrer"
-                       aria-label={`Book the ${p.name} on WhatsApp`}
-                       href={book(`I would like to book the ${p.name} (${money(price)}) from the ${fp.title}. ${fp.instalment ? 'Please tell me how to pay, including paying in instalments.' : 'Please tell me how to pay.'}`)}>
-                      <SocialIcon name="whatsapp" size={16} /> Book on WhatsApp
-                    </a>
-                    {product && (
-                      <button type="button" className="btn" aria-label={`Pay for the ${p.name} online`}
-                              onClick={() => { add(product, 1); navigate('/cart') }}>
-                        <ShoppingBag size={16} aria-hidden="true" /> Pay online
+                  {product ? (
+                    <div className="fp-actions">
+                      <button type="button" className="btn btn--primary" aria-label={`Buy the ${p.name} now`}
+                              onClick={() => { add(product, 1); navigate('/checkout') }}>
+                        <ShoppingBag size={16} aria-hidden="true" /> Buy now
                       </button>
-                    )}
-                  </div>
+                      {fp.instalment && (
+                        <a className="btn fp-instalment-link" target="_blank" rel="noopener noreferrer"
+                           aria-label={`Pay for the ${p.name} in instalments: chat on WhatsApp`}
+                           href={book(`I would like to buy the ${p.name} (${money(price)}) from the ${fp.title} and pay in instalments. Please tell me how it works.`)}>
+                          <SocialIcon name="whatsapp" size={16} /> Want to pay in instalments? Chat on WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="fp-actions">
+                      {soldOut(p.product_slug) && <p className="fp-soldout">Sold out online for now. Book on WhatsApp and we will tell you when it is back.</p>}
+                      <a className="btn btn--primary" target="_blank" rel="noopener noreferrer"
+                         aria-label={`Book the ${p.name} on WhatsApp`}
+                         href={book(`I would like to book the ${p.name} (${money(price)}) from the ${fp.title}. ${fp.instalment ? 'Please tell me how to pay, including paying in instalments.' : 'Please tell me how to pay.'}`)}>
+                        <SocialIcon name="whatsapp" size={16} /> Book on WhatsApp
+                      </a>
+                    </div>
+                  )}
                 </Reveal>
               )
             })}

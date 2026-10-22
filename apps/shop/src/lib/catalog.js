@@ -1,13 +1,16 @@
 import { supabase } from './supabase.js'
 import { IMAGE_BASE } from './config.js'
 import { SEED_PRODUCTS } from './seed.js'
+import flyer from '@brand-assets/agro/img/food-package-december.webp'
 
 export const imageUrl = (p) => !p ? null : p.startsWith('http') ? p : IMAGE_BASE + p
 
 const SELECT = 'id, slug, name, unit, price_kobo, compare_at_kobo, summary, description, images, featured, sort, product_categories(slug, name), stock(in_stock, available)'
 /* a product entered in the admin without photos borrows the stock photo of the
    same name from the starter set, so the shop never shows an empty tile */
-const seedImage = (slug) => SEED_PRODUCTS.find((p) => p.slug === slug)?.image || null
+// the food package products (migration 019) show the December flyer until a photo is uploaded
+const PACKAGE_PHOTOS = { 'merry-package': flyer, 'jolly-package': flyer, 'berekete-package': flyer }
+const seedImage = (slug) => SEED_PRODUCTS.find((p) => p.slug === slug)?.image || PACKAGE_PHOTOS[slug] || null
 const shape = (r) => {
   const own = (r.images || []).map(imageUrl)
   const fallback = own.length ? null : seedImage(r.slug)

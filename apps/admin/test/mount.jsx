@@ -353,7 +353,7 @@ console.log('\n FOOD PACKAGE')
   console.log(`  replace the image → uploaded to ${state.uploads.at(-1)}, saved as ${img}`)
   if (!img?.startsWith('food-package/') || img !== state.uploads.at(-1)) problems.push('replacement image not saved')
 
-  const checkout = [...document.querySelectorAll('label.check')].find((l) => l.textContent.includes('pay online')).querySelector('input')
+  const checkout = [...document.querySelectorAll('label.check')].find((l) => l.textContent.includes('buy online')).querySelector('input')
   checkout.click(); await sleep(30)
   state.writes.length = 0; panel('Booking').querySelector('.panel-head .btn').click(); await sleep(120)
   const refused = document.querySelector('.note-error')?.textContent || ''

@@ -335,6 +335,30 @@ ok('every site shows the same phone number, +234 906 034 2734',
   ok('sa.viverst.com forwards to the same page on shopagro.viverst.com',
      shopVercel.redirects?.some((r) => r.has?.[0]?.value === 'sa.viverst.com' && r.destination === 'https://shopagro.viverst.com/:path*' && r.permanent === true))
 }
+/* ── food packages bought online through Paystack (migration 019) ── */
+{
+  const f19 = 'supabase/migrations/019_food_package_products.sql'
+  const s19 = fs.existsSync(f19) ? read(f19) : ''
+  const fn = (s) => (s.match(/create or replace function public\.place_order\([\s\S]*?\nend \$\$;/) || [''])[0]
+  const guard = /  -- with bank transfer switched off in Settings, only Paystack is accepted\n[\s\S]*?raise exception 'bank transfer is not offered right now';\n  end if;\n/
+  ok('migration 019: the three packages are products with 50 in stock each, added once',
+     ['merry-package', 'jolly-package', 'berekete-package'].every((s) => s19.includes(`('${s}',`))
+     && /select id, 50, 'received', 'opening stock' from fresh/.test(s19) && /on conflict \(slug\) do nothing\s+returning id/.test(s19))
+  ok('migration 019: each package is linked to its product, without undoing a link made in the admin',
+     /when coalesce\(p->>'product_slug', ''\) <> '' then p/.test(s19) && /jsonb_build_object\('checkout', true\)/.test(s19))
+  ok('migration 019: place_order is 017’s, plus only the bank-transfer-off check',
+     guard.test(fn(s19)) && fn(s19).replace(guard, '') === fn(read('supabase/migrations/017_delivery_zones.sql')))
+  const co = read('apps/shop/src/pages/Checkout.jsx')
+  ok('checkout: with bank transfer off, Paystack is the payment used',
+     co.includes("const pay = paystackOn ? (transferOn ? payChoice : 'paystack') : 'transfer'") && /bank transfer is not offered/.test(co))
+  const fpPage = read('apps/shop/src/pages/FoodPackage.jsx')
+  ok('food package: Buy now goes to the checkout; WhatsApp is for instalments',
+     fpPage.includes("add(product, 1); navigate('/checkout')") && fpPage.includes('Want to pay in instalments? Chat on WhatsApp')
+     && fpPage.includes('and pay in instalments. Please tell me how it works.'))
+  ok('food package products show the December flyer until a photo is uploaded',
+     ['apps/shop/src/lib/catalog.js', 'apps/admin/src/lib/stockPhotos.js'].every((f) => /'merry-package': flyer, 'jolly-package': flyer, 'berekete-package': flyer/.test(read(f))))
+}
+
 /* WhatsApp in every footer, and on each shop product */
 for (const [app, file] of [['main', 'apps/main/src/components/Footer.jsx'], ['agro', 'apps/agro/src/components/Footer.jsx'], ['studio', 'apps/studio/src/components/Footer.jsx'], ['shop', 'apps/shop/src/components/Footer.jsx']]) {
   const c = read(file)

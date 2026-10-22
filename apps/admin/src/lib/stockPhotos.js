@@ -8,9 +8,12 @@ import cassava from '@brand-assets/agro/img/product-cassava.webp'
 import palm from '@brand-assets/agro/img/product-palm-oil.webp'
 import chilli from '@brand-assets/agro/img/product-chilli.webp'
 import seed from '@brand-assets/agro/img/product-seed.webp'
+import flyer from '@brand-assets/agro/img/food-package-december.webp'
 
 const BY_SLUG = {
   'yellow-maize': maize, soybeans, 'parboiled-rice': rice, 'cassava-flour': cassava,
   'red-palm-oil': palm, 'dried-chilli': chilli, 'improved-maize-seed': seed,
+  // the food package products (migration 019)
+  'merry-package': flyer, 'jolly-package': flyer, 'berekete-package': flyer,
 }
 export const stockPhoto = (slug) => BY_SLUG[slug] || null

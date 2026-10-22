@@ -162,16 +162,48 @@ console.log('\n FOOD PACKAGE')
   const rf2 = createRoot(document.getElementById('root')); rf2.render(<App />)
   go('/'); await waitFor(() => document.querySelectorAll('.cat-tile').length === 4, 'homepage'); await sleep(250)
   if (document.querySelector('.fp-promo')) problems.push('homepage card shown while switched off')
-  go('/foodpackage'); await waitFor(() => h1() === 'Easter Food Package' && document.querySelector('.fp-actions button'), 'the edited package with Pay online')
-  const pays = [...document.querySelectorAll('.fp-card')].map((c) => !!c.querySelector('.fp-actions button'))
-  console.log(`  edited in the admin → "${h1()}", ${pays.length} packages (nameless one dropped), Pay online: ${pays.join(', ')}`)
-  if (pays.join() !== 'true,false') problems.push(`Pay online should show for the in-stock linked package only, got ${pays}`)
-  if (document.querySelector('.fp-instalment') || document.querySelector('.fp-season')) problems.push('instalment or season note shown while switched off')
+  go('/foodpackage'); await waitFor(() => h1() === 'Easter Food Package' && document.querySelector('.fp-actions button'), 'the edited package with Buy now')
+  const buys = [...document.querySelectorAll('.fp-card')].map((c) => !!c.querySelector('.fp-actions button'))
+  console.log(`  edited in the admin → "${h1()}", ${buys.length} packages (nameless one dropped), Buy now: ${buys.join(', ')}`)
+  if (buys.join() !== 'true,false') problems.push(`Buy now should show for the in-stock linked package only, got ${buys}`)
+  const big = [...document.querySelectorAll('.fp-card')][1]
+  console.log(`  linked but sold out → "${big?.querySelector('.fp-soldout')?.textContent}" + ${big?.querySelector('a[href^="https://wa.me/"]')?.textContent.trim()}`)
+  if (!big?.querySelector('.fp-soldout') || !big?.querySelector('a[href^="https://wa.me/"]')) problems.push('a sold-out package should say so and offer WhatsApp booking')
+  if (document.querySelector('.fp-instalment') || document.querySelector('.fp-season') || document.querySelector('.fp-instalment-link')) problems.push('instalment or season note shown while switched off')
+  if (document.querySelector('.fp-hero-cta a')?.getAttribute('href') !== '#fp-packages') problems.push('with a package for sale, the top button should lead to the packages')
   document.querySelector('.fp-actions button')?.click()
-  await waitFor(() => h1().includes('Your cart') && document.querySelector('.cart-item'), 'cart holding the package product')
-  console.log(`  Pay online → cart holds ${document.querySelector('.cart-item')?.textContent.includes('Yellow maize') ? '"Yellow maize", the linked product' : 'the wrong item'}`)
-  if (!document.querySelector('.cart-item')?.textContent.includes('Yellow maize')) problems.push('Pay online did not put the linked product in the cart')
-  rf2.unmount(); state.foodPackage = undefined; window.localStorage.removeItem('viverst-shop:cart')
+  await waitFor(() => h1() === 'Checkout' && document.querySelector('.checkout'), 'Buy now goes straight to checkout')
+  console.log(`  Buy now → "${h1()}", holding ${document.querySelector('.checkout')?.textContent.includes('Yellow maize') ? '"Yellow maize", the linked product' : 'the wrong item'}`)
+  if (!document.querySelector('.checkout')?.textContent.includes('Yellow maize')) problems.push('Buy now did not check out the linked product')
+  rf2.unmount(); window.localStorage.removeItem('viverst-shop:cart')
+
+  // the December package for sale: Buy now, and instalments on WhatsApp
+  state.foodPackage = { checkout: true, packages: [{ name: 'Merry Package', price_kobo: 4500000, product_slug: 'yellow-maize', items: ['10 kg of rice'] }] }
+  const rf3 = createRoot(document.getElementById('root')); rf3.render(<App />)
+  go('/foodpackage'); await waitFor(() => document.querySelector('.fp-instalment-link'), 'instalment link beside Buy now')
+  const inst = document.querySelector('.fp-instalment-link')
+  console.log(`  for sale → "${document.querySelector('.fp-actions button')?.textContent.trim()}" + "${inst?.textContent.trim()}" → "${txt(inst).split('\n').pop()}"`)
+  if (!inst?.href.startsWith('https://wa.me/2348000000000?text=') || !txt(inst).includes('I would like to buy the Merry Package (₦45,000) from the December Food Package and pay in instalments.')) problems.push('instalment WhatsApp message wrong')
+  if (document.querySelector('.fp-card a[aria-label^="Book the"]')) problems.push('Book on WhatsApp shown although the package can be bought online')
+  audit('/foodpackage (for sale)')
+  rf3.unmount(); state.foodPackage = undefined; window.localStorage.removeItem('viverst-shop:cart')
+
+  // Paystack only: bank transfer switched off in Settings
+  state.paystack = true; state.transferOff = true
+  const rf4 = createRoot(document.getElementById('root')); rf4.render(<App />)
+  go('/products/yellow-maize'); await waitFor(() => document.querySelector('.product-buy'), 'product'); [...document.querySelectorAll('.product-buy .btn')][0].click(); await sleep(40)
+  go('/checkout'); await waitFor(() => document.querySelector('.checkout') && document.querySelector('.pay-opt.active'), 'checkout with Paystack chosen')
+  const opts = [...document.querySelectorAll('.pay-opt')]
+  console.log(`  Paystack only → ${opts.length} payment option: "${opts[0]?.querySelector('strong')?.textContent}", ${opts[0]?.classList.contains('active') ? 'already selected' : 'NOT selected'}`)
+  if (opts.length !== 1 || !opts[0].classList.contains('active') || !opts[0].querySelector('input[value="paystack"]')?.checked) problems.push('with transfer off, Paystack should be the only, selected option')
+  const in4 = [...document.querySelectorAll('.checkout-form input.input')]; const bl4 = (t) => in4.find((i) => i.closest('label')?.textContent.startsWith(t))
+  setVal(bl4('Full name'), 'Ada'); setVal(bl4('Phone'), '1'); setVal(bl4('Email'), 'a@x.com'); setVal(bl4('Street'), 'x'); setVal(bl4('Town'), 'y')
+  let sentTo = ''; window.__viverstRedirect = (u) => { sentTo = u }
+  state.rpcs.length = 0; state.invokes.length = 0
+  document.querySelector('.checkout').requestSubmit(); await waitFor(() => sentTo, 'off to Paystack')
+  console.log(`  place order → place_order(${state.rpcs[0]?.args.p_payment_method}) → ${sentTo.slice(0, 32)}…`)
+  if (state.rpcs[0]?.args.p_payment_method !== 'paystack' || !sentTo.startsWith('https://checkout.paystack.com')) problems.push('Paystack-only checkout did not pay through Paystack')
+  rf4.unmount(); state.paystack = false; state.transferOff = false; window.localStorage.removeItem('viverst-shop:cart')
 }
 
 console.log('\n DELIVERY ZONES')

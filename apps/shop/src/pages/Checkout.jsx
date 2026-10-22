@@ -25,7 +25,9 @@ export default function Checkout({ shopName, settings }) {
   const homeAreas = zoned(d) && f.state === d.home_state ? (d.areas || []) : []
   const needArea = homeAreas.length > 0 && !f.area
   const fee = needArea ? 0 : deliveryFee(d, f.state, f.area === '__other' ? '' : f.area)
-  const pay = paystackOn ? payChoice : 'transfer'   // card can only be chosen while Paystack is on
+  // card can only be chosen while Paystack is on; with bank transfer switched
+  // off, Paystack is the only option, so it is the one used
+  const pay = paystackOn ? (transferOn ? payChoice : 'paystack') : 'transfer'
 
   const set = (k) => (e) => setF((o) => ({ ...o, [k]: e.target.value }))
   // signed in: fill what we already know, once
@@ -136,6 +138,7 @@ function friendly(msg) {
   if (/out of stock/i.test(msg)) return 'One of the items just sold out. Remove it from the cart and try again.'
   if (/unavailable/i.test(msg)) return 'One of the items is no longer available. Remove it and try again.'
   if (/card payment is not enabled/i.test(msg)) return 'Card payment isn’t available yet. Please choose bank transfer.'
+  if (/bank transfer is not offered/i.test(msg)) return 'Bank transfer isn’t offered right now. Please pay by card, bank or USSD through Paystack.'
   if (/required|incomplete/i.test(msg)) return msg
   return `We couldn’t place the order (${msg}). Please try again or email us.`
 }

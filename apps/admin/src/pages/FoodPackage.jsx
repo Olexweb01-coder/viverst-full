@@ -181,9 +181,9 @@ export default function FoodPackage() {
         <section className="panel">
           <div className="panel-head"><h2>Booking</h2><button type="button" className="btn btn-sm" onClick={save}>Save</button></div>
           <div className="panel-body form">
-            <p className="muted">Every package has a Book on WhatsApp button. The message says which package, and comes to the WhatsApp number in Settings (or +234 906 034 2734 when that is empty).</p>
-            <label className="check"><input type="checkbox" checked={!!f.checkout} onChange={set('checkout')} />Also let customers pay online through the shop checkout</label>
-            <p className="muted">Shown only for packages linked to a shop product that is in stock.</p>
+            <label className="check"><input type="checkbox" checked={!!f.checkout} onChange={set('checkout')} />Let customers buy online through the shop checkout</label>
+            <p className="muted">On: a package linked to a shop product that is in stock shows Buy now, which goes to the checkout and Paystack, and the order arrives in Orders. Its WhatsApp button is then only for paying in instalments (shown while “Instalment payment available” is ticked).</p>
+            <p className="muted">A package that cannot be bought online (checkout off, not linked, or sold out) shows Book on WhatsApp instead. WhatsApp messages go to the number in Settings, or +234 906 034 2734 when that is empty.</p>
           </div>
         </section>
       </fieldset>
