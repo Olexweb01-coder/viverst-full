@@ -146,7 +146,7 @@ if (document.querySelector('.drawer')) problems.push('drawer did not close')
 
 console.log('\n STOCK')
 go('/inventory'); await waitFor(() => h1() === 'Stock' && document.querySelector('tbody tr'), 'stock rows')
-document.querySelector('tbody tr .btn').click(); await waitFor(() => document.querySelector('.drawer form'), 'stock drawer')
+;[...document.querySelectorAll('tbody tr .btn')].find((b) => b.textContent === 'Adjust').click(); await waitFor(() => document.querySelector('.drawer form'), 'stock drawer')
 const stockInputs = [...document.querySelectorAll('.drawer form input.input')]
 state.writes.length = 0
 setVal(stockInputs[0], '12'); setVal(stockInputs[1], 'invoice 44'); document.querySelector('.drawer form').requestSubmit(); await sleep(120)
@@ -158,6 +158,33 @@ setVal(stockInputs[0], '99'); document.querySelector('.drawer form').requestSubm
 console.log(`  damaged 99 (more than on hand) → ${document.querySelector('.drawer .note-error')?.textContent.slice(0, 50) ?? 'NO ERROR'}`)
 if (!document.querySelector('.drawer .note-error')) problems.push('negative stock was not blocked')
 document.querySelector('.drawer-head button').click(); await sleep(40)
+// out of stock: one product at a time, or all at once after a confirmation
+{
+  const sw = document.querySelector('.avail-switch')
+  console.log(`  In the shop → "${sw?.textContent}" (${sw?.getAttribute('aria-label')})`)
+  if (sw?.textContent !== 'Available') problems.push('Stock should show each product as Available to begin with')
+  state.writes.length = 0; sw?.click()
+  await waitFor(() => state.writes.some((w) => w.table === 'products'), 'switch saved')
+  const one = state.writes.find((w) => w.table === 'products')
+  console.log(`  tap it → products ${one?.op} ${JSON.stringify(one?.row)}`)
+  if (one?.op !== 'update' || one?.row?.out_of_stock !== true) problems.push('the switch did not mark the product out of stock')
+  await waitFor(() => document.querySelector('.note-ok')?.textContent.includes('stock count is kept'), 'switch message')
+
+  const bulk = [...document.querySelectorAll('.page .btn')].find((b) => b.textContent === 'Mark all out of stock')
+  if (!bulk) problems.push('no Mark all out of stock button')
+  bulk?.click(); await waitFor(() => document.querySelector('.stock-ask'), 'confirmation')
+  console.log(`  Mark all out of stock → asks: "${document.querySelector('.stock-ask p')?.textContent.slice(0, 64)}…"`)
+  state.writes.length = 0
+  ;[...document.querySelectorAll('.stock-ask .btn')].find((b) => b.textContent === 'Cancel').click(); await sleep(60)
+  if (state.writes.length || document.querySelector('.stock-ask')) problems.push('cancel still changed something')
+  ;[...document.querySelectorAll('.page .btn')].find((b) => b.textContent === 'Mark all out of stock')?.click(); await waitFor(() => document.querySelector('.stock-ask'), 'asked again')
+  ;[...document.querySelectorAll('.stock-ask .btn')].find((b) => b.textContent === 'Yes, mark all out of stock').click()
+  await waitFor(() => state.writes.some((w) => w.table === 'products'), 'all marked')
+  const all = state.writes.find((w) => w.table === 'products')
+  console.log(`  confirm → products ${all?.op} ${JSON.stringify(all?.row)}`)
+  if (all?.op !== 'update' || all?.row?.out_of_stock !== true) problems.push('Mark all out of stock saved the wrong thing')
+  if (!state.writes.every((w) => w.table === 'products')) problems.push('marking out of stock touched the stock counts')
+}
 
 console.log('\n SETTINGS')
 go('/settings'); await waitFor(() => h1() === 'Settings' && document.querySelectorAll('section.panel').length === 7, 'seven settings panels')

@@ -359,6 +359,26 @@ ok('every site shows the same phone number, +234 906 034 2734',
      ['apps/shop/src/lib/catalog.js', 'apps/admin/src/lib/stockPhotos.js'].every((f) => /'merry-package': flyer, 'jolly-package': flyer, 'berekete-package': flyer/.test(read(f))))
 }
 
+/* Out of stock switch (migration 020): shown as sold out, not orderable, count kept */
+{
+  const f20 = 'supabase/migrations/020_out_of_stock_switch.sql'
+  const s20 = fs.existsSync(f20) ? read(f20) : ''
+  const fn = (s) => (s.match(/create or replace function public\.place_order\([\s\S]*?\nend \$\$;/) || [''])[0]
+  const line = /    -- marked out of stock on the Stock page: shown in the shop, but not for sale\n    if v_product\.out_of_stock then raise exception 'one of the items is out of stock'; end if;\n/
+  ok('migration 020: products get an out-of-stock switch that the shop’s stock view obeys',
+     /add column if not exists out_of_stock boolean not null default false/.test(s20)
+     && /i\.on_hand > 0 and not p\.out_of_stock as in_stock/.test(s20) && /when p\.out_of_stock then 0/.test(s20))
+  ok('migration 020: place_order is 019’s, plus only the out-of-stock refusal',
+     line.test(fn(s20)) && fn(s20).replace(line, '') === fn(read('supabase/migrations/019_food_package_products.sql')))
+  const inv = read('apps/admin/src/pages/Inventory.jsx')
+  ok('admin: Stock marks products out of stock one at a time or all at once, without touching counts',
+     inv.includes("update({ out_of_stock: out }).in('id', ids)") && inv.includes('Yes, mark all out of stock') && inv.includes('Yes, mark all available')
+     && !/inventory_movements'\)\.insert\(\w+\.map/.test(inv))
+  ok('admin: Stock still works before migration 020 is run', /error && \/out_of_stock\/\.test\(error\.message\)/.test(inv))
+  ok('shop: a sold-out product cannot be added to the cart',
+     /disabled=\{!p\.inStock\}/.test(read('apps/shop/src/components/ProductCard.jsx')) && /\{p\.inStock \? \(/.test(read('apps/shop/src/pages/Product.jsx')))
+}
+
 /* WhatsApp in every footer, and on each shop product */
 for (const [app, file] of [['main', 'apps/main/src/components/Footer.jsx'], ['agro', 'apps/agro/src/components/Footer.jsx'], ['studio', 'apps/studio/src/components/Footer.jsx'], ['shop', 'apps/shop/src/components/Footer.jsx']]) {
   const c = read(file)

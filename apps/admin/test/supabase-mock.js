@@ -10,7 +10,7 @@ const DATA = {
     { id: 'p1', slug: 'yellow-maize', name: 'Yellow maize', unit: '50 kg bag', price_kobo: 4500000, compare_at_kobo: null, images: ['products/a.jpg'], active: true, featured: false, sort: 0, category_id: 'c1', summary: 'Dried and graded', description: '', product_categories: { name: 'Grains' }, inventory: { on_hand: 7 } },
     { id: 'p2', slug: 'soybeans', name: 'Hidden one', unit: 'bag', price_kobo: 100, compare_at_kobo: null, images: [], active: false, featured: false, sort: 1, category_id: null, summary: '', description: '', product_categories: null, inventory: { on_hand: 0 } },
   ],
-  inventory: [{ product_id: 'p1', on_hand: 2, low_stock_at: 5, products: { name: 'Yellow maize', active: true } }],
+  inventory: [{ product_id: 'p1', on_hand: 2, low_stock_at: 5, products: { name: 'Yellow maize', active: true, out_of_stock: false } }],
   orders: [{ id: 'o1', number: 'VA-1001', name: 'Ada', email: 'ada@x.com', phone: '0801', status: 'awaiting_payment', payment_method: 'transfer', total_kobo: 13500000, created_at: new Date().toISOString() }],
   order_detail: [{ id: 'o1', number: 'VA-1001', name: 'Ada', email: 'ada@x.com', phone: '0801', status: 'awaiting_payment', payment_method: 'transfer', payment_ref: null, paid_at: null,
     subtotal_kobo: 13500000, delivery_kobo: 0, total_kobo: 13500000, delivery_address: { line1: '1 Road', city: 'Lagos', state: 'Lagos' }, customer_note: 'call first', staff_note: '', created_at: new Date().toISOString(),

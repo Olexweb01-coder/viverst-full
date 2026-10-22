@@ -20,23 +20,69 @@ export default function Inventory() {
   const [error, setError] = useState('')
   const [open, setOpen] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [flash, setFlash] = useFlash()
+  const [ask, setAsk] = useState(null)      // null | true (mark all out) | false (mark all available)
+  const [busy, setBusy] = useState(false)
+  const [switchReady, setSwitchReady] = useState(true)
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase.from('inventory')
-      .select('product_id, on_hand, low_stock_at, updated_at, products!inner(name, unit, active)')
+    const q = (cols) => supabase.from('inventory')
+      .select(`product_id, on_hand, low_stock_at, updated_at, products!inner(${cols})`)
       .order('name', { referencedTable: 'products' })
+    let { data, error } = await q('name, unit, active, out_of_stock')
+    // before migration 020 the switch does not exist yet: show the counts, without it
+    if (error && /out_of_stock/.test(error.message)) {
+      setSwitchReady(false); ({ data, error } = await q('name, unit, active'))
+    }
     if (error) setError(error.message); else setRows(data)
   }, [])
+
+  /* The out-of-stock switch: the product stays in the shop, shown as sold out,
+     and cannot be ordered. Its stock count is kept, so switching it back puts
+     it on sale with the same number. One update: all of them, or none. */
+  async function markOut(ids, out) {
+    setBusy(true); setError('')
+    const { error } = await supabase.from('products').update({ out_of_stock: out }).in('id', ids)
+    setBusy(false); setAsk(null)
+    if (error) { setError(`Nothing was changed: ${error.message}`); return }
+    const n = ids.length === 1 ? '1 product' : `${ids.length} products`
+    setFlash(out ? `${n} marked out of stock. The shop shows ${ids.length === 1 ? 'it' : 'them'} as sold out; the stock count is kept.` : `${n} back on sale.`)
+    load()
+  }
+  const marked = (r) => !!r.products.out_of_stock
+  const toMarkOut = (rows || []).filter((r) => !marked(r)).map((r) => r.product_id)
+  const toMarkIn = (rows || []).filter(marked).map((r) => r.product_id)
   useEffect(() => { const t = setTimeout(load, 0); return () => clearTimeout(t) }, [load])
 
-  const level = (r) => r.on_hand === 0 ? 'out' : r.on_hand <= r.low_stock_at ? 'low' : 'ok'
+  const level = (r) => r.on_hand === 0 || marked(r) ? 'out' : r.on_hand <= r.low_stock_at ? 'low' : 'ok'
   const shown = (rows || []).filter((r) => filter === 'all' || level(r) === filter)
   const close = useCallback(() => setOpen(null), [])
 
   return (
     <div className="page">
-      <PageHead title="Stock" lede="What's on hand. Every change is recorded with a reason, so the count can always be explained." />
+      <PageHead title="Stock" lede="What's on hand. Every change is recorded with a reason, so the count can always be explained.">
+        {switchReady && ask === null && toMarkOut.length > 0 && <button type="button" className="btn btn-sm" onClick={() => setAsk(true)}>Mark all out of stock</button>}
+        {switchReady && ask === null && toMarkIn.length > 0 && <button type="button" className="btn btn-sm" onClick={() => setAsk(false)}>Mark all available</button>}
+      </PageHead>
       <Note kind="error">{error}</Note>
+      <Note kind="ok">{flash}</Note>
+      {!switchReady && <Note kind="info">To mark products out of stock, run supabase/migrations/020_out_of_stock_switch.sql once in Supabase → SQL Editor, then reload this page.</Note>}
+      {ask !== null && (
+        <div className="panel stock-ask" role="alertdialog" aria-labelledby="stock-ask-q">
+          <div className="panel-body">
+            {ask
+              ? <p id="stock-ask-q"><strong>Mark {toMarkOut.length} product{toMarkOut.length === 1 ? '' : 's'} out of stock?</strong> Customers will see {toMarkOut.length === 1 ? 'it' : 'them'} as sold out and can’t order {toMarkOut.length === 1 ? 'it' : 'them'}. Stock counts are kept.</p>
+              : <p id="stock-ask-q"><strong>Put {toMarkIn.length} product{toMarkIn.length === 1 ? '' : 's'} back on sale?</strong> Each one that has stock can be ordered again.</p>}
+            <div className="row-actions">
+              <button type="button" className="btn btn-sm btn-primary" disabled={busy}
+                      onClick={() => markOut(ask ? toMarkOut : toMarkIn, ask)}>
+                {busy ? 'Saving…' : ask ? 'Yes, mark all out of stock' : 'Yes, mark all available'}
+              </button>
+              <button type="button" className="btn btn-sm" onClick={() => setAsk(null)} disabled={busy}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
       {rows && rows.length === 0 ? (
         <div className="panel"><Empty title="No products yet" body="Add products first; each one gets a stock line automatically." /></div>
       ) : rows && (
@@ -46,12 +92,21 @@ export default function Inventory() {
               <button key={k} type="button" className={filter === k ? 'active' : ''} onClick={() => setFilter(k)}>{l}</button>))}
           </div>
           <div className="panel"><div className="table-wrap"><table>
-            <thead><tr><th>Product</th><th className="num">On hand</th><th className="num">Alert at</th><th>Last change</th><th></th></tr></thead>
+            <thead><tr><th>Product</th><th className="num">On hand</th><th className="num">Alert at</th>{switchReady && <th>In the shop</th>}<th>Last change</th><th></th></tr></thead>
             <tbody>{shown.map((r) => (
               <tr key={r.product_id} className="row-link" data-status={level(r) === 'ok' ? undefined : level(r)} onClick={() => setOpen(r)}>
-                <td><strong>{r.products.name}</strong><div className="muted small">{r.products.unit}{r.products.active ? '' : ' · hidden from shop'}</div></td>
+                <td><strong>{r.products.name}</strong><div className="muted small">{r.products.unit}{r.products.active ? '' : ' · hidden from shop'}{marked(r) ? ' · marked out of stock' : ''}</div></td>
                 <td className="num">{r.on_hand}</td>
                 <td className="num muted">{r.low_stock_at}</td>
+                {switchReady && (
+                  <td>
+                    <button type="button" className={`btn btn-sm avail-switch${marked(r) ? ' is-out' : ''}`} disabled={busy} aria-pressed={!marked(r)}
+                            aria-label={`${r.products.name}: ${marked(r) ? 'out of stock. Put back on sale' : 'available. Mark out of stock'}`}
+                            onClick={(e) => { e.stopPropagation(); markOut([r.product_id], !marked(r)) }}>
+                      {marked(r) ? 'Out of stock' : 'Available'}
+                    </button>
+                  </td>
+                )}
                 <td className="muted small">{when(r.updated_at)}</td>
                 <td><button type="button" className="btn btn-sm" onClick={(e) => { e.stopPropagation(); setOpen(r) }}>Adjust</button></td>
               </tr>))}</tbody>

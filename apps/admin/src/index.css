@@ -402,3 +402,11 @@ a.figure:hover { border-color: var(--brand); }
 .zone-rows { display: grid; gap: 8px; }
 .zone-row { display: grid; grid-template-columns: 1fr 160px auto; gap: 8px; align-items: center; }
 @media (max-width: 600px) { .zone-row { grid-template-columns: 1fr 120px auto; } }
+
+/* Stock: the per-product "In the shop" switch, and the confirm before marking all */
+.avail-switch { color: #0a6b3a; border-color: rgba(16, 140, 80, 0.4); background: rgba(16, 140, 80, 0.07); min-width: 112px; justify-content: center; }
+.avail-switch:hover { border-color: #0a6b3a; }
+.avail-switch.is-out { color: var(--alert); border-color: rgba(237, 1, 1, 0.4); background: rgba(237, 1, 1, 0.06); }
+.avail-switch.is-out:hover { border-color: var(--alert); }
+.stock-ask .row-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.stock-ask p { margin: 0; }
