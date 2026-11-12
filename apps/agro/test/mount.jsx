@@ -13,6 +13,7 @@ const ROUTES = [
   ['/about', 'Viverst Agro works across'],
   ['/solutions', 'Seven areas'],
   ['/contact', 'where you are losing money'],
+  ['/community', 'The Agricultural Value Chain Community'],
   ['/not-a-real-page', 'Nothing growing here'],
 ]
 

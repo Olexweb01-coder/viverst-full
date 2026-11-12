@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react'
-import { BrowserRouter, MemoryRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { ScrollToTop, ScrollProgress } from '@viverst/ui'
 
 import Navbar from './components/Navbar.jsx'
@@ -10,6 +10,13 @@ const About    = lazy(() => import('./pages/About.jsx'))
 const Solutions= lazy(() => import('./pages/Solutions.jsx'))
 const Contact  = lazy(() => import('./pages/Contact.jsx'))
 const NotFound = lazy(() => import('./pages/NotFound.jsx'))
+const Community = lazy(() => import('./community/Community.jsx'))
+
+/* The community page is a landing page with its own menu and footer, so the
+   site's are left out there. Every other route is unchanged. */
+const isStandalone = (pathname) => pathname.replace(/\/+$/, '') === '/community'
+function SiteNavbar() { return isStandalone(useLocation().pathname) ? null : <Navbar /> }
+function SiteFooter() { return isStandalone(useLocation().pathname) ? null : <Footer /> }
 
 // The review build runs in a sandboxed frame where location.origin is "null",
 // which history and hash routing cannot use as a URL base. MemoryRouter keeps
@@ -38,7 +45,7 @@ export default function App() {
       <ScrollToTop />
       <ScrollProgress />
       <a className="skip-link" href="#main">Skip to content</a>
-      <Navbar />
+      <SiteNavbar />
       <main id="main">
         <Suspense fallback={<div style={{ minHeight: '70svh' }} />}>
           <Routes>
@@ -46,11 +53,12 @@ export default function App() {
             <Route path="/about"     element={<About />} />
             <Route path="/solutions" element={<Solutions />} />
             <Route path="/contact"   element={<Contact />} />
+            <Route path="/community" element={<Community />} />
             <Route path="*"          element={<NotFound />} />
           </Routes>
         </Suspense>
       </main>
-      <Footer />
+      <SiteFooter />
     </Router>
   )
 }
