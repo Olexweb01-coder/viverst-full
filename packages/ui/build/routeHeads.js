@@ -25,7 +25,12 @@ import path from 'node:path'
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
+const REQUIRED = ['path', 'url', 'title', 'description', 'image', 'imageAlt', 'siteName']
+
 export function headFor(base, page) {
+  for (const key of REQUIRED) {
+    if (!page[key]) throw new Error(`route-heads: the page at ${page.path || '(no path)'} has no ${key}`)
+  }
   let html = base
   const swap = (pattern, replacement, label) => {
     if (!pattern.test(html)) throw new Error(`route-heads: could not find ${label} in index.html`)

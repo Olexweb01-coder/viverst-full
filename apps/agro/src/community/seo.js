@@ -21,6 +21,7 @@ export const COMMUNITY_SEO = {
   url: `${SITE}/community`,
   title: `${NAME} | Viverst Agro`,
   description: COMMUNITY_DESCRIPTION,
+  siteName: 'Viverst Agro',
   image: IMAGE,
   imageAlt: IMAGE_ALT,
   jsonLd: {
@@ -71,6 +72,7 @@ export const PRIVACY_SEO = {
   url: `${SITE}/community/privacy`,
   title: `Privacy Policy | ${NAME}`,
   description: `How ${NAME}, run by Viverst Agro, handles the details you give when you register.`,
+  siteName: 'Viverst Agro',
   image: IMAGE,
   imageAlt: IMAGE_ALT,
   jsonLd: {
