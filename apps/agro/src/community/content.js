@@ -21,11 +21,11 @@ export const COMMUNITY = {
   url: 'https://agro.viverst.com/community',
   /* The WhatsApp community's invite link. Once it is set, the message shown
      after registering offers a button to join. Leave empty to hide the button. */
-  whatsappUrl: '',
+  whatsappUrl: 'https://chat.whatsapp.com/FELyfsAsS03HkaNd2RGrBU?s=cl&p=a&iam=2',
   group: 'Viverst Global Limited',
   email: 'agro@viverst.com',
-  /* Set this to the published privacy policy; the form links to it once it is set. */
-  privacyUrl: '',
+  /* The community's privacy policy, src/community/Privacy.jsx. */
+  privacyUrl: '/community/privacy',
 }
 
 /* Section ids double as the menu's targets. */

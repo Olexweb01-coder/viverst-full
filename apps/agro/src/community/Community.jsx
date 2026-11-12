@@ -533,7 +533,7 @@ function Join() {
               </label>
               {errors.consent && <p className="avc-error" id="avc-consent-error">{errors.consent}</p>}
               <p className="avc-hint">
-                We use your details only to manage your registration.{' '}
+                We use your details to manage your membership and send you community updates.{' '}
                 {COMMUNITY.privacyUrl
                   ? <a href={COMMUNITY.privacyUrl} target="_blank" rel="noopener noreferrer">Read the Privacy Policy</a>
                   : <span className="avc-privacy-pending">Privacy Policy</span>}.
@@ -570,6 +570,7 @@ function Foot() {
         <nav aria-label="Footer">
           {NAV.slice(1).map((n) => <a key={n.id} href={`#${n.id}`}>{n.label}</a>)}
           <a href="#join">Join Community</a>
+          {COMMUNITY.privacyUrl && <a href={COMMUNITY.privacyUrl}>Privacy Policy</a>}
         </nav>
         <div className="avc-foot-contact">
           <a href={COMMUNITY.hostUrl}>agro.viverst.com</a>

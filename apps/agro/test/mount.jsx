@@ -14,6 +14,7 @@ const ROUTES = [
   ['/solutions', 'Seven areas'],
   ['/contact', 'where you are losing money'],
   ['/community', 'The Agricultural Value Chain Community'],
+  ['/community/privacy', 'Privacy Policy'],
   ['/not-a-real-page', 'Nothing growing here'],
 ]
 

@@ -11,6 +11,7 @@ const Solutions= lazy(() => import('./pages/Solutions.jsx'))
 const Contact  = lazy(() => import('./pages/Contact.jsx'))
 const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 const Community = lazy(() => import('./community/Community.jsx'))
+const CommunityPrivacy = lazy(() => import('./community/Privacy.jsx'))
 
 /* The community page is a landing page with its own menu and footer, so the
    site's are left out there. Every other route is unchanged. */
@@ -54,6 +55,7 @@ export default function App() {
             <Route path="/solutions" element={<Solutions />} />
             <Route path="/contact"   element={<Contact />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/community/privacy" element={<CommunityPrivacy />} />
             <Route path="*"          element={<NotFound />} />
           </Routes>
         </Suspense>
