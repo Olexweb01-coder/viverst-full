@@ -7,6 +7,7 @@ import { money } from '../lib/format.js'
 import { useCart } from '../lib/cartContext.js'
 import { SHOP } from '../lib/config.js'
 import { foodPackage } from '../lib/foodPackage.js'
+import { FOOD_PACKAGE_SEO } from '../lib/seo.js'
 
 /* A package linked to a real, in-stock shop product is bought online: Buy now
    goes to the checkout, and the order is paid through Paystack and lands in
@@ -35,10 +36,34 @@ export default function FoodPackage({ shopName, settings = {} }) {
   const soldOut = (slug) => fp.checkout && slug && products.some((p) => p.slug === slug && !p.sample && !p.inStock)
   const anyForSale = fp.packages.some((p) => forSale(p.product_slug))
 
+  /* The packages and their current prices, as shown on this page, in the form
+     search engines read. */
+  const offersLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: fp.title,
+    itemListElement: fp.packages.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Product',
+        name: `${p.name}, ${fp.title}`,
+        description: p.items.join(', '),
+        image: FOOD_PACKAGE_SEO.image,
+        brand: { '@type': 'Brand', name: SHOP.parent },
+        offers: {
+          '@type': 'Offer', price: (p.price_kobo / 100).toFixed(2), priceCurrency: 'NGN', url: FOOD_PACKAGE_SEO.url,
+          seller: { '@type': 'Organization', name: SHOP.name },
+        },
+      },
+    })),
+  }
+
   return (
     <>
       <Seo title={`${fp.title} | ${shopName}`}
-           description={`${fp.packages.map((p) => `${p.name} ${money(p.price_kobo)}`).join(', ')}. ${fp.instalment ? 'Instalment payment available. ' : ''}Book on WhatsApp.`} />
+           description={`${fp.packages.map((p) => `${p.name} ${money(p.price_kobo)}`).join(', ')}. ${fp.instalment ? 'Instalment payment available. ' : ''}Book on WhatsApp.`}
+           url={FOOD_PACKAGE_SEO.url} image={FOOD_PACKAGE_SEO.image} siteName={shopName} jsonLd={offersLd} />
 
       <section className="section fp-hero">
         <div className="container fp-hero-inner">
