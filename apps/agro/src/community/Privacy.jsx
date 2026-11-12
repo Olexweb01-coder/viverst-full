@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { Seo } from '@viverst/ui'
 import { BUSINESS } from '../data/agro.js'
 import { COMMUNITY } from './content.js'
+import { PRIVACY_SEO } from './seo.js'
 import './Privacy.css'
 
 /* The privacy policy for the community's registration form. It describes what
@@ -33,10 +34,12 @@ export default function Privacy() {
   return (
     <article className="avp">
       <Seo
-        title={`Privacy Policy | ${COMMUNITY.name}`}
-        description={`How ${COMMUNITY.name}, run by ${COMMUNITY.host}, handles the details you give when you register.`}
-        url={`${COMMUNITY.url}/privacy`}
+        title={PRIVACY_SEO.title}
+        description={PRIVACY_SEO.description}
+        url={PRIVACY_SEO.url}
+        image={PRIVACY_SEO.image}
         siteName={COMMUNITY.host}
+        jsonLd={PRIVACY_SEO.jsonLd}
       />
       <header className="page-hero avp-hero">
         <div className="container page-hero-inner">

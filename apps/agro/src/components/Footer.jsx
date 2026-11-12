@@ -42,6 +42,8 @@ export default function Footer() {
               {NAV_LINKS.map((l) => l.href
                 ? <a key={l.href} href={l.href} className="footer-link">{l.label}</a>
                 : <Link key={l.to} to={l.to} className="footer-link">{l.label}</Link>)}
+              <Link to="/community" className="footer-link">Community</Link>
+              <a href={`${BUSINESS.shopUrl}/foodpackage`} className="footer-link">December Food Package</a>
             </div>
 
             <div className="footer-col">

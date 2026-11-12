@@ -8,6 +8,7 @@ import wordmark from '@brand-assets/agro/wordmark.webp'
 import wordmarkLight from '@brand-assets/agro/wordmark-light.webp'
 import { COMMUNITY, NAV, HERO, REEL, AUDIENCE, ABOUT, SECTORS, BENEFITS, ACTIVITIES, CTA, FORM } from './content.js'
 import { COUNTRIES } from './countries.js'
+import { COMMUNITY_SEO } from './seo.js'
 import { EMPTY, FIELD_ORDER, validate, toPayload, sendRegistration } from './register.js'
 import './Community.css'
 
@@ -619,10 +620,12 @@ export default function Community() {
   return (
     <div className="avc">
       <Seo
-        title={`${COMMUNITY.name} | ${COMMUNITY.host}`}
-        description="A community for everyone in agriculture: farmers, processors, traders, distributors, AgTech professionals, researchers and investors. Connect, learn, collaborate and grow. Register to join."
-        url={COMMUNITY.url}
+        title={COMMUNITY_SEO.title}
+        description={COMMUNITY_SEO.description}
+        url={COMMUNITY_SEO.url}
+        image={COMMUNITY_SEO.image}
         siteName={COMMUNITY.host}
+        jsonLd={COMMUNITY_SEO.jsonLd}
       />
       <Nav active={active} onDark={!pastHero} />
       <Hero />
